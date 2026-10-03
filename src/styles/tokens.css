@@ -1,0 +1,200 @@
+/* Tokens de design : toute couleur, police, taille ou espacement des composants passe par ces variables. */
+
+:root {
+  /* Familles */
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-heading: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Graisses */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* Tailles de texte (base 16px) */
+  --fs-2xs: 0.65625rem; /* 10.5px — libellés en capitales */
+  --fs-xs: 0.6875rem; /* 11px — barre d'état, compteurs */
+  --fs-sm: 0.75rem; /* 12px — mono courant */
+  --fs-code: 0.78125rem; /* 12.5px — blocs de code */
+  --fs-md: 0.84375rem; /* 13.5px — navigation */
+  --fs-base: 0.875rem; /* 14px — interface */
+  --fs-body-sm: 0.9375rem; /* 15px — texte dense */
+  --fs-body: 1rem; /* 16px — texte courant */
+  --fs-lead: 1.0625rem; /* 17px — chapô */
+  --fs-h3: 1.125rem; /* 18px */
+  --fs-h2: 1.375rem; /* 22px */
+  --fs-h1: clamp(1.875rem, 4vw, 2.5rem); /* 30 → 40px */
+  --fs-hero: clamp(1.875rem, 4.4vw, 2.75rem); /* 30 → 44px */
+  --fs-code-inline: 0.9em;
+
+  /* Interlignes */
+  --lh-tight: 1.15;
+  --lh-snug: 1.5;
+  --lh-ui: 1.6;
+  --lh-body: 1.7;
+
+  /* Interlettrages */
+  --ls-h1: -0.025em;
+  --ls-h2: -0.01em;
+  --ls-caps: 0.08em;
+  --ls-caps-wide: 0.12em;
+
+  /* Espacements */
+  --sp-0: 1px;
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 10px;
+  --sp-6: 12px;
+  --sp-7: 14px;
+  --sp-8: 16px;
+  --sp-10: 24px;
+  --sp-12: 32px;
+  --sp-14: 40px;
+  --sp-16: 48px;
+  --sp-18: 56px;
+  --sp-20: 80px;
+
+  /* Rayons */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 5px;
+  --r-lg: 6px;
+  --r-xl: 7px;
+  --r-2xl: 8px;
+  --r-card: 9px;
+  --r-panel: 10px;
+  --r-dialog: 12px;
+  --r-sheet: 14px;
+  --r-pill: 999px;
+
+  /* Ossature */
+  --topbar-h: 56px;
+  --statusbar-h: 28px;
+  --mobilebar-h: 60px;
+  --sidebar-w: 268px;
+  --rail-w: 56px;
+  --toc-w: 232px;
+  --home-max: 1160px;
+  --article-wrap-max: 1180px;
+  --article-max: 780px;
+  --measure: 640px;
+  --anchor-offset: 90px;
+
+  /* Plans */
+  --z-sticky: 5;
+  --z-topbar: 40;
+  --z-bottombar: 45;
+  --z-drawer: 50;
+  --z-sheet: 60;
+  --z-dialog: 100;
+  --z-toast: 120;
+  --z-skip: 200;
+
+  /* Contour de focus */
+  --focus-w: 2px;
+  --focus-offset: 2px;
+
+  /* Voiles derrière les panneaux (identiques dans les deux thèmes) */
+  --overlay: oklch(0.1 0.01 255 / 0.55);
+  --overlay-strong: oklch(0.1 0.01 255 / 0.62);
+
+  /* Ombres */
+  --shadow-dialog: 0 24px 64px var(--shadow);
+  --shadow-toast: 0 8px 24px var(--shadow);
+  --ring-accent: 0 0 0 4px var(--accent-bg);
+}
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: oklch(0.165 0.008 255);
+  --bg-2: oklch(0.18 0.009 255);
+  --surface: oklch(0.205 0.01 255);
+  --surface-2: oklch(0.24 0.012 255);
+  --code-bg: oklch(0.145 0.008 255);
+  --shadow: oklch(0 0 0 / 0.45);
+
+  --border: oklch(0.3 0.012 255);
+  --border-soft: oklch(0.25 0.01 255);
+
+  --text: oklch(0.94 0.006 255);
+  --text-2: oklch(0.8 0.01 255);
+  --text-3: oklch(0.64 0.012 255);
+
+  --accent: oklch(0.8 0.11 215);
+  --accent-bg: oklch(0.8 0.11 215 / 0.12);
+  --accent-line: oklch(0.8 0.11 215 / 0.4);
+  --accent-ink: oklch(0.18 0.03 230);
+
+  --sev-info: oklch(0.78 0.06 255);
+  --sev-info-bg: oklch(0.78 0.06 255 / 0.13);
+  --sev-info-line: oklch(0.78 0.06 255 / 0.35);
+  --sev-low: oklch(0.79 0.12 160);
+  --sev-low-bg: oklch(0.79 0.12 160 / 0.13);
+  --sev-low-line: oklch(0.79 0.12 160 / 0.35); /* absent de la maquette, créé par analogie */
+  --sev-med: oklch(0.85 0.13 90);
+  --sev-med-bg: oklch(0.85 0.13 90 / 0.11);
+  --sev-med-line: oklch(0.85 0.13 90 / 0.35);
+  --sev-high: oklch(0.77 0.14 55);
+  --sev-high-bg: oklch(0.77 0.14 55 / 0.13);
+  --sev-high-line: oklch(0.77 0.14 55 / 0.4);
+  --sev-crit: oklch(0.7 0.18 25);
+  --sev-crit-bg: oklch(0.7 0.18 25 / 0.15);
+  --sev-crit-line: oklch(0.7 0.18 25 / 0.4); /* absent de la maquette, créé par analogie */
+
+  --syn-kw: oklch(0.78 0.11 300);
+  --syn-str: oklch(0.82 0.11 145);
+  --syn-num: oklch(0.84 0.11 70);
+  --syn-fn: oklch(0.8 0.11 215);
+  --syn-field: oklch(0.86 0.06 250);
+  --syn-com: oklch(0.58 0.012 255);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: oklch(0.985 0.003 255);
+  --bg-2: oklch(0.97 0.004 255);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.955 0.005 255);
+  --code-bg: oklch(0.97 0.005 255);
+  --shadow: oklch(0.2 0.02 255 / 0.18);
+
+  --border: oklch(0.87 0.008 255);
+  --border-soft: oklch(0.92 0.006 255);
+
+  --text: oklch(0.22 0.015 255);
+  --text-2: oklch(0.38 0.015 255);
+  --text-3: oklch(0.52 0.012 255);
+
+  --accent: oklch(0.5 0.13 235);
+  --accent-bg: oklch(0.5 0.13 235 / 0.08);
+  --accent-line: oklch(0.5 0.13 235 / 0.35);
+  --accent-ink: oklch(0.99 0 0);
+
+  --sev-info: oklch(0.48 0.08 255);
+  --sev-info-bg: oklch(0.48 0.08 255 / 0.09);
+  --sev-info-line: oklch(0.48 0.08 255 / 0.3);
+  --sev-low: oklch(0.48 0.11 160);
+  --sev-low-bg: oklch(0.48 0.11 160 / 0.1);
+  --sev-low-line: oklch(0.48 0.11 160 / 0.3); /* absent de la maquette, créé par analogie */
+  --sev-med: oklch(0.5 0.11 80);
+  --sev-med-bg: oklch(0.75 0.13 90 / 0.14);
+  --sev-med-line: oklch(0.6 0.12 85 / 0.4);
+  --sev-high: oklch(0.52 0.15 50);
+  --sev-high-bg: oklch(0.65 0.15 55 / 0.1);
+  --sev-high-line: oklch(0.55 0.15 50 / 0.35);
+  --sev-crit: oklch(0.52 0.19 25);
+  --sev-crit-bg: oklch(0.55 0.19 25 / 0.1);
+  --sev-crit-line: oklch(0.52 0.19 25 / 0.35); /* absent de la maquette, créé par analogie */
+
+  --syn-kw: oklch(0.48 0.16 300);
+  --syn-str: oklch(0.48 0.12 150);
+  --syn-num: oklch(0.52 0.13 55);
+  --syn-fn: oklch(0.48 0.13 235);
+  --syn-field: oklch(0.4 0.08 255);
+  --syn-com: oklch(0.58 0.01 255);
+}

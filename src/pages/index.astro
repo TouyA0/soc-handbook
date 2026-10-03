@@ -1,19 +1,28 @@
 ---
 // Page provisoire : l'accueil maquetté arrive en phase 7.
+import Base from '../layouts/Base.astro';
 ---
 
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>soc.kb — Base de connaissances SOC</title>
-    <meta name="description" content="Base de connaissances personnelle d'analyste SOC, en cours de construction." />
-  </head>
-  <body>
-    <main>
-      <h1>soc.kb</h1>
-      <p>Base de connaissances d'analyste SOC — site en cours de construction.</p>
-    </main>
-  </body>
-</html>
+<Base>
+  <main id="contenu" tabindex="-1">
+    <h1>soc.kb</h1>
+    <p>Base de connaissances d'analyste SOC — site en cours de construction.</p>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--sp-16) var(--sp-8);
+    outline: none;
+  }
+
+  h1 {
+    margin-bottom: var(--sp-8);
+  }
+
+  p {
+    color: var(--text-2);
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+import plexSans from '../assets/fonts/ibm-plex-sans-latin-400-700-normal.woff2?url';
+import plexCondensed from '../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2?url';
+import jetbrainsMono from '../assets/fonts/jetbrains-mono-latin-400-600-normal.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const SITE_NAME = 'soc.kb';
+const { title, description = "Base de connaissances personnelle d'analyste SOC." } = Astro.props;
+const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — Base de connaissances SOC`;
+---
+
+<!doctype html>
+<html lang="fr" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système. -->
+    <script is:inline>
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem('sockb-theme');
+        } catch (e) {}
+        if (theme !== 'dark' && theme !== 'light') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+    {
+      [plexSans, plexCondensed, jetbrainsMono].map((href) => (
+        <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
+      ))
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <slot />
+  </body>
+</html>

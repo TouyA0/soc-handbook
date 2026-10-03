@@ -1,0 +1,157 @@
+@import "./fonts.css";
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--anchor-offset);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--fw-semibold);
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-h1);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  letter-spacing: var(--ls-h2);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+}
+
+p {
+  margin: 0 0 var(--sp-8);
+}
+
+strong,
+b {
+  font-weight: var(--fw-semibold);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono);
+}
+
+code {
+  font-size: var(--fs-code-inline);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+mark {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: var(--r-xs);
+}
+
+::selection {
+  background: var(--accent-line);
+}
+
+:focus-visible {
+  outline: var(--focus-w) solid var(--accent);
+  outline-offset: var(--focus-offset);
+}
+
+/* Lien d'évitement : hors écran tant qu'il n'a pas le focus */
+.skip-link {
+  position: fixed;
+  left: var(--sp-8);
+  top: -80px;
+  z-index: var(--z-skip);
+  padding: 9px var(--sp-7);
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+}
+
+.skip-link:focus {
+  top: var(--sp-6);
+  text-decoration: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+}
