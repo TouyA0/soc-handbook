@@ -30,6 +30,7 @@
   /* Interlignes */
   --lh-tight: 1.15;
   --lh-snug: 1.5;
+  --lh-row: 1.55;
   --lh-ui: 1.6;
   --lh-dense: 1.65;
   --lh-body: 1.7;
@@ -118,6 +119,14 @@
   --card-min: 220px;
   --meta-min: 200px;
   --thread-min: 118px;
+  --qa-label-w: 76px;
+  --row-code-min: 300px;
+  --row-desc-min: 200px;
+  --filter-top: 64px;
+  --field-h: 42px;
+  --anchor-offset-filter: 170px;
+  --meta-min-sm: 150px;
+  --lead-max: 660px;
 
   /* Plans */
   --z-sticky: 5;

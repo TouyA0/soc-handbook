@@ -1,0 +1,172 @@
+---
+// En-tête d'article sous le titre : badges, bandeau de métadonnées et blocs propres à chaque type de page.
+import type { MarkdownHeading } from 'astro';
+import { TACTICS } from '../data/attack';
+import { DIFFICULTIES, PLATFORMS } from '../data/writeups';
+import type { Doc } from '../lib/content';
+import { formatDate, formatDuration } from '../lib/nav';
+import AttackBadge from './AttackBadge.astro';
+import Callout from './Callout.astro';
+import CheatFilter from './CheatFilter.astro';
+import KnowledgeThread, { type ThreadStep } from './KnowledgeThread.astro';
+import MetaBand from './MetaBand.astro';
+import SeverityBadge from './SeverityBadge.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+  doc: Doc;
+  headings: MarkdownHeading[];
+  /** Fil de connaissance, calculé par le layout pour les techniques. */
+  thread?: ThreadStep[];
+}
+
+const { doc, headings, thread = [] } = Astro.props;
+const { data } = doc;
+const tactic = data.type === 'technique' ? TACTICS.find((t) => t.slug === data.tactic) : undefined;
+---
+
+{data.type !== 'technique' && <p class="lead">{data.description}</p>}
+
+{
+  data.type === 'technique' && (
+    <>
+      <div class="row">
+        <AttackBadge id={data.attack_id} />
+        <SeverityBadge severity={data.severity} />
+        {data.tags.map((tag) => (
+          <Tag label={tag} />
+        ))}
+      </div>
+      <MetaBand>
+        {tactic && (
+          <div>
+            <dt>Tactique</dt>
+            <dd>
+              {tactic.id} · {tactic.name}
+            </dd>
+          </div>
+        )}
+        {data.platforms.length > 0 && (
+          <div>
+            <dt>Plateformes</dt>
+            <dd>{data.platforms.join(' · ')}</dd>
+          </div>
+        )}
+        {data.data_sources.length > 0 && (
+          <div>
+            <dt>Sources de données</dt>
+            <dd>{data.data_sources.join(' · ')}</dd>
+          </div>
+        )}
+        {data.detection_confidence && (
+          <div>
+            <dt>Fiabilité détection</dt>
+            <dd>{data.detection_confidence}</dd>
+          </div>
+        )}
+      </MetaBand>
+      {thread.length > 1 && <KnowledgeThread steps={thread} />}
+    </>
+  )
+}
+
+{
+  data.type === 'cheatsheet' && (
+    <>
+      <div class="row">
+        {data.tags.map((tag) => (
+          <Tag label={tag} />
+        ))}
+        <Tag label="cheat sheet" variant="plain" />
+        {data.tested_version && <Tag label={`testé sur ${data.tested_version}`} variant="outline" />}
+      </div>
+      <CheatFilter headings={headings} />
+    </>
+  )
+}
+
+{
+  data.type === 'writeup' && (
+    <>
+      <MetaBand compact>
+        <div>
+          <dt>Plateforme</dt>
+          <dd>{PLATFORMS[data.platform]}</dd>
+        </div>
+        <div>
+          <dt>Difficulté</dt>
+          <dd>
+            <SeverityBadge severity={DIFFICULTIES[data.difficulty].severity} label={DIFFICULTIES[data.difficulty].label} />
+          </dd>
+        </div>
+        <div>
+          <dt>Date</dt>
+          <dd class="mono">{formatDate(data.date)}</dd>
+        </div>
+        {data.duration && (
+          <div>
+            <dt>Durée</dt>
+            <dd class="mono">~ {formatDuration(data.duration)}</dd>
+          </div>
+        )}
+      </MetaBand>
+      {(data.skills.length > 0 || data.tags.length > 0) && (
+        <div class="row skills">
+          <span class="caps">Compétences</span>
+          {[...new Set([...data.skills, ...data.tags])].map((skill) => (
+            <Tag label={skill} />
+          ))}
+        </div>
+      )}
+      <Callout type="sans-spoiler">
+        <p>Les flags, domaines et identifiants exacts sont masqués. Je documente la démarche, pas les réponses.</p>
+      </Callout>
+    </>
+  )
+}
+
+{
+  data.type === 'page' && data.tags.length > 0 && (
+    <div class="row">
+      {data.tags.map((tag) => (
+        <Tag label={tag} />
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .lead {
+    max-width: var(--lead-max);
+    margin: 0 0 var(--sp-8);
+    font-size: var(--fs-lead);
+    line-height: var(--lh-dense);
+    color: var(--text-2);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    align-items: center;
+  }
+
+  .skills {
+    margin-top: var(--sp-7);
+  }
+
+  .skills .caps {
+    margin-right: var(--sp-2);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--ls-caps);
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+  }
+
+  .lead + :global(.meta-band) {
+    margin-top: var(--sp-9);
+  }
+</style>

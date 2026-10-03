@@ -1,0 +1,124 @@
+---
+// Barre de filtre local d'une cheat sheet et puces de catégories (une par titre de niveau 2).
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const categories = headings.filter((h) => h.depth === 2);
+---
+
+<div class="filter" data-cheat-filter>
+  <label class="field">
+    <span class="prompt" aria-hidden="true">&gt;</span>
+    <span class="visually-hidden">Filtrer cette page</span>
+    <input type="search" placeholder="Filtrer cette page…" autocomplete="off" spellcheck="false" data-cheat-input />
+    <span class="count" data-cheat-count aria-live="polite"></span>
+  </label>
+  {
+    categories.length > 0 && (
+      <nav class="chips" aria-label="Catégories">
+        {categories.map((h) => (
+          <a href={`#${h.slug}`}>{h.text}</a>
+        ))}
+      </nav>
+    )
+  }
+</div>
+
+<p class="empty" data-cheat-empty hidden>Aucune ligne ne correspond. Essaie la recherche globale (Ctrl K).</p>
+
+<script>
+  import '../scripts/cheatsheet';
+</script>
+
+<style>
+  .filter {
+    position: sticky;
+    top: var(--filter-top);
+    z-index: var(--z-sticky);
+    margin: var(--sp-10) 0 0;
+    padding: var(--sp-4) 0;
+    background: var(--bg);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    height: var(--field-h);
+    padding: 0 var(--sp-6);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-2xl);
+    background: var(--surface);
+  }
+
+  .field:focus-within {
+    border-color: var(--accent-line);
+  }
+
+  .prompt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+    color: var(--accent);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+    color: var(--text);
+  }
+
+  input::placeholder {
+    color: var(--text-3);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .chips {
+    display: flex;
+    gap: var(--sp-3);
+    overflow-x: auto;
+    margin-top: var(--sp-4);
+    padding-bottom: var(--sp-1);
+  }
+
+  .chips a {
+    flex: none;
+    padding: var(--sp-2) var(--sp-4h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-snug);
+    color: var(--text-2);
+  }
+
+  .chips a:hover {
+    border-color: var(--accent-line);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .empty {
+    margin: var(--sp-12) 0 0;
+    padding: var(--sp-10);
+    border: var(--bw) dashed var(--border);
+    border-radius: var(--r-card);
+    text-align: center;
+    font-size: var(--fs-body-sm);
+    color: var(--text-3);
+  }
+</style>

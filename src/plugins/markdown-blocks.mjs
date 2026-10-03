@@ -1,6 +1,9 @@
 // Blocs de contenu écrits en Markdown :
-// - encadrés et listes mises en forme, via des blocs `:::nom … :::` ;
-// - blocs de code enveloppés d'un en-tête (langage, titre, bouton copier).
+// - encadrés, étapes, timeline, question / démarche / constat, via des blocs `:::nom … :::` ;
+// - badge ATT&CK en ligne, via `:attack[T1059.001]` ;
+// - blocs de code enveloppés d'un en-tête (langage, titre, bouton copier) ;
+// - coloration des filtres et commandes : blocs `wireshark` / `bpf` et code de la première colonne des tableaux.
+// La syntaxe est documentée dans docs/redaction.md.
 
 /** Encadrés : nom du bloc → titre affiché et couleur. */
 export const CALLOUTS = {
@@ -15,7 +18,18 @@ export const CALLOUTS = {
 const WRAPPERS = {
   etapes: 'steps',
   timeline: 'timeline',
+  points: 'points',
 };
+
+/** Blocs à libellé des étapes de write-up : nom du bloc → libellé et classe. */
+const LABELLED = {
+  question: { label: 'Question', className: 'qa qa-question' },
+  demarche: { label: 'Démarche', className: 'qa' },
+  constat: { label: 'Constat', className: 'finding' },
+};
+
+/** Langages colorés ici plutôt que par Shiki, qui n'a pas de grammaire pour eux. */
+const FILTER_LANGS = new Set(['wireshark', 'bpf']);
 
 /** Libellé affiché pour un langage de bloc de code ; par défaut, son nom en capitales. */
 const LANG_LABELS = {
@@ -31,22 +45,72 @@ const LANG_LABELS = {
   plaintext: '',
 };
 
+const ATTACK_ID = /^T\d{4}(\.\d{3})?$/;
+
 const escapeHtml = (value) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const location = (ctx) => (ctx.fileURL ? ` dans ${ctx.fileURL.pathname.split('/').slice(-2).join('/')}` : '');
+
+const labelNode = (label, className) => ({
+  type: 'paragraph',
+  data: { hName: 'div', hProperties: { class: className } },
+  children: [{ type: 'text', value: label }],
+});
+
+/* Coloration d'un filtre ou d'une commande : chaînes, nombres, opérateurs, champs pointés. */
+
+const TOKENS = [
+  ['str', /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/y],
+  ['num', /\b0x[0-9a-fA-F]+\b|\b\d+(?:[.:/]\d+)*\b/y],
+  ['kw', /==|!=|>=|<=|&&|\|\||[=<>!]|\b(?:and|or|not|contains|matches|in|host|port|net|src|dst)\b/y],
+  ['field', /\b[A-Za-z_][\w-]*(?:\.[\w-]+)+\b/y],
+];
+
+export function highlightFilter(text) {
+  let html = '';
+  let plain = '';
+  const flush = () => {
+    html += escapeHtml(plain);
+    plain = '';
+  };
+  for (let i = 0; i < text.length; ) {
+    let matched = false;
+    for (const [name, pattern] of TOKENS) {
+      pattern.lastIndex = i;
+      const match = pattern.exec(text);
+      if (match) {
+        flush();
+        html += `<span class="tok-${name}">${escapeHtml(match[0])}</span>`;
+        i += match[0].length;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) plain += text[i++];
+  }
+  flush();
+  return html;
+}
+
+/* Blocs `:::` */
+
 function directive(node, ctx) {
-  const where = ctx.fileURL ? ` dans ${ctx.fileURL.pathname.split('/').slice(-2).join('/')}` : '';
   const callout = CALLOUTS[node.name];
   if (callout) {
-    const title = {
-      type: 'paragraph',
-      data: { hName: 'div', hProperties: { class: 'callout-title' } },
-      children: [{ type: 'text', value: callout.label }],
-    };
     ctx.replaceNode(node, {
       ...node,
       data: { hName: 'aside', hProperties: { class: `callout callout-${callout.tone}`, 'data-callout': node.name } },
-      children: [title, ...node.children],
+      children: [labelNode(callout.label, 'callout-title'), ...node.children],
+    });
+    return;
+  }
+  const labelled = LABELLED[node.name];
+  if (labelled) {
+    ctx.replaceNode(node, {
+      ...node,
+      data: { hName: 'div', hProperties: { class: labelled.className } },
+      children: [labelNode(labelled.label, 'block-label'), ...node.children],
     });
     return;
   }
@@ -55,9 +119,32 @@ function directive(node, ctx) {
     ctx.replaceNode(node, { ...node, data: { hName: 'div', hProperties: { class: wrapper } } });
     return;
   }
-  const known = [...Object.keys(CALLOUTS), ...Object.keys(WRAPPERS)].join(', ');
-  throw new Error(`Bloc « :::${node.name} » inconnu${where}. Blocs disponibles : ${known}.`);
+  const known = [...Object.keys(CALLOUTS), ...Object.keys(LABELLED), ...Object.keys(WRAPPERS)].join(', ');
+  throw new Error(`Bloc « :::${node.name} » inconnu${location(ctx)}. Blocs disponibles : ${known}.`);
 }
+
+/**
+ * Activer les blocs `:::` active aussi les formes en ligne `:nom` et `::nom`, qui avaleraient
+ * des écritures courantes (« 09:12 », « id:4769 »). On les remet en texte tel quel,
+ * sauf `:attack[T1059.001]`, rendu en badge ATT&CK.
+ */
+function inlineDirective(node, ctx) {
+  const leaf = node.type === 'leafDirective';
+  if (node.name === 'attack') {
+    const id = node.children?.[0]?.value ?? '';
+    if (!ATTACK_ID.test(id)) {
+      throw new Error(`Badge « :attack[${id}] » invalide${location(ctx)} : identifiant ATT&CK attendu, ex. T1059.001.`);
+    }
+    const badge = { type: 'html', value: `<span class="attack-inline">${id}</span>` };
+    ctx.replaceNode(node, leaf ? { type: 'paragraph', data: { hProperties: { class: 'attack-line' } }, children: [badge] } : badge);
+    return;
+  }
+  const label = node.children?.length ? [{ type: 'text', value: '[' }, ...node.children, { type: 'text', value: ']' }] : [];
+  const inline = [{ type: 'text', value: `${leaf ? '::' : ':'}${node.name}` }, ...label];
+  ctx.replaceNode(node, leaf ? { type: 'paragraph', children: inline } : inline);
+}
+
+/* Blocs de code */
 
 /** Titre d'un bloc de code, lu dans ses métadonnées : ```spl title="…" */
 function codeTitle(meta) {
@@ -79,6 +166,11 @@ function code(node, ctx) {
     `</span>` +
     `<button type="button" class="code-copy" data-action="copy-code">Copier</button>` +
     `</figcaption>`;
+  if (FILTER_LANGS.has(lang)) {
+    const body = `<pre tabindex="0" data-language="${lang}"><code>${highlightFilter(node.value)}</code></pre>`;
+    ctx.replaceNode(node, { type: 'html', value: `${head}${body}</figure>` });
+    return;
+  }
   ctx.replaceNode(node, [
     { type: 'html', value: head },
     { ...node, data: { ...node.data, framed: true } },
@@ -86,23 +178,24 @@ function code(node, ctx) {
   ]);
 }
 
-/**
- * Activer les blocs `:::` active aussi les formes en ligne `:nom` et `::nom`, qui avaleraient
- * des écritures courantes (« 09:12 », « id:4769 », « 88/tcp:… »). On les remet en texte tel quel.
- */
-function literal(node, ctx) {
-  const leaf = node.type === 'leafDirective';
-  const label = node.children?.length ? [{ type: 'text', value: '[' }, ...node.children, { type: 'text', value: ']' }] : [];
-  const inline = [{ type: 'text', value: `${leaf ? '::' : ':'}${node.name}` }, ...label];
-  ctx.replaceNode(node, leaf ? { type: 'paragraph', children: inline } : inline);
-}
+/* Tableaux */
 
-/** Sans ligne vide entre un tableau et le `:::` qui ferme le bloc, le `:::` devient une ligne du tableau. */
 function table(node, ctx) {
-  const firstCellText = (row) => row.children?.[0]?.children?.[0]?.value ?? '';
-  if (node.children?.some((row) => firstCellText(row).trim().startsWith(':::'))) {
-    const where = ctx.fileURL ? ` dans ${ctx.fileURL.pathname.split('/').slice(-2).join('/')}` : '';
-    throw new Error(`Bloc « ::: » mal fermé${where} : laisser une ligne vide entre le tableau et le « ::: » de fermeture.`);
+  const rows = node.children ?? [];
+  const firstCell = (row) => row.children?.[0];
+  // Sans ligne vide entre un tableau et le `:::` qui ferme le bloc, le `:::` devient une ligne du tableau.
+  if (rows.some((row) => (firstCell(row)?.children?.[0]?.value ?? '').trim().startsWith(':::'))) {
+    throw new Error(
+      `Bloc « ::: » mal fermé${location(ctx)} : laisser une ligne vide entre le tableau et le « ::: » de fermeture.`,
+    );
+  }
+  // Première colonne : le code (filtre, commande) est coloré.
+  for (const row of rows.slice(1)) {
+    for (const child of firstCell(row)?.children ?? []) {
+      if (child.type === 'inlineCode') {
+        ctx.replaceNode(child, { type: 'html', value: `<code class="hl">${highlightFilter(child.value)}</code>` });
+      }
+    }
   }
 }
 
@@ -111,8 +204,8 @@ export function markdownBlocksPlugin() {
     name: 'soc-handbook-markdown-blocks',
     table,
     containerDirective: directive,
-    textDirective: literal,
-    leafDirective: literal,
+    textDirective: inlineDirective,
+    leafDirective: inlineDirective,
     code,
   };
 }

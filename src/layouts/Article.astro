@@ -1,13 +1,20 @@
 ---
-// Page de contenu : fil d'Ariane, en-tête, corps, pied d'article et colonne de droite.
+// Page de contenu : fil d'Ariane, en-tête selon le type de page, corps, compléments, pied d'article et colonne de droite.
 import type { MarkdownHeading } from 'astro';
 import ArticleAside from '../components/ArticleAside.astro';
 import ArticleFooter from '../components/ArticleFooter.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import DocHeader from '../components/DocHeader.astro';
+import LinkLine from '../components/LinkLine.astro';
 import PinButton from '../components/PinButton.astro';
+import PracticedCards from '../components/PracticedCards.astro';
+import SectionListing from '../components/SectionListing.astro';
 import TocSheet from '../components/TocSheet.astro';
-import { getBacklinks, getDocs, getNeighbors, type Doc } from '../lib/content';
-import { formatDate, getCrumbs, readingTime } from '../lib/nav';
+import { SECTIONS } from '../data/sections';
+import { PLATFORMS } from '../data/writeups';
+import { docUrl, getBacklinks, getDocs, getNeighbors, getSectionTrees, isType, type Doc } from '../lib/content';
+import { formatDate, getCrumbs, neighborLabel, readingTime } from '../lib/nav';
+import { buildThread, findSection } from '../lib/thread';
 import Shell from './Shell.astro';
 import '../styles/content.css';
 
@@ -16,10 +23,47 @@ interface Props {
   headings: MarkdownHeading[];
 }
 
+const PRACTICE_TITLE = 'Pratiqué dans';
+const PRACTICE_ID = 'pratique-dans';
+
 const { doc, headings } = Astro.props;
 const docs = await getDocs();
-const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const backlinks = getBacklinks(docs, doc);
 const updated = formatDate(doc.data.updated);
+const resolve = (refs: { id: string }[]) => refs.flatMap((ref) => docs.find((d) => d.id === ref.id) ?? []);
+const link = (d: Doc) => ({ label: neighborLabel(d), href: docUrl(d.id) });
+
+// Titre : la partie après « — » est affichée en retrait (« Wireshark — filtres d'affichage »).
+const [titleMain, ...titleRest] = doc.data.title.split(' — ');
+
+// Technique : write-ups liés, cartes « Pratiqué dans », fil de connaissance.
+const writeups = isType(doc, 'technique') ? resolve(doc.data.writeups).filter((d) => isType(d, 'writeup')) : [];
+const practiceHeading = findSection(headings, PRACTICE_TITLE);
+// Des write-ups sont liés mais le Markdown n'a pas de section « Pratiqué dans » : le layout l'ajoute.
+const addPracticeHeading = writeups.length > 0 && !practiceHeading;
+const toc = [
+  ...headings.filter((h) => h.depth === 2 || h.depth === 3),
+  ...(addPracticeHeading ? [{ depth: 2, slug: PRACTICE_ID, text: PRACTICE_TITLE }] : []),
+];
+const thread = isType(doc, 'technique')
+  ? buildThread(doc, docs, headings, writeups, practiceHeading?.slug ?? PRACTICE_ID)
+  : [];
+const related = isType(doc, 'technique') ? resolve(doc.data.related).map(link) : [];
+const enriched = isType(doc, 'writeup') ? resolve(doc.data.enriched).map(link) : [];
+
+// Cheat sheet : write-ups et labs qui renvoient vers elle.
+const usedIn = isType(doc, 'cheatsheet')
+  ? backlinks
+      .filter((b) => b.data.type === 'writeup' || b.id.startsWith('07-lab/'))
+      .map((b) => ({
+        label: isType(b, 'writeup') ? `${b.data.title} (${PLATFORMS[b.data.platform]})` : b.data.title,
+        href: docUrl(b.id),
+      }))
+  : [];
+
+// Index de section : liste de ses pages.
+const section = SECTIONS.find((s) => s.dir === doc.id);
+const sectionEntries = section ? (getSectionTrees(docs).find((t) => t.section === section)?.entries ?? []) : undefined;
 ---
 
 <Shell title={doc.data.title} description={doc.data.description} doc={doc} statusMeta={`maj ${updated}`}>
@@ -32,14 +76,20 @@ const updated = formatDate(doc.data.updated);
           <PinButton variant="pill" />
         </div>
       </div>
-      <h1>{doc.data.title}</h1>
-      <slot name="header" />
-      <div class="prose" data-numbering={doc.data.type === 'writeup' ? 'from-zero' : undefined}>
+      <h1>{titleMain}{titleRest.length > 0 && <span class="subtitle"> — {titleRest.join(' — ')}</span>}</h1>
+      <DocHeader doc={doc} headings={headings} thread={thread} />
+      <div class="prose" data-type={doc.data.type} data-numbering={doc.data.type === 'writeup' ? 'from-zero' : undefined}>
         <slot />
+        {addPracticeHeading && <h2 id={PRACTICE_ID}>{PRACTICE_TITLE}</h2>}
       </div>
+      {writeups.length > 0 && <PracticedCards writeups={writeups} />}
+      <LinkLine label="Techniques liées" links={related} />
+      <LinkLine label="Fiches enrichies" links={enriched} />
+      <LinkLine label="Utilisé dans" links={usedIn} />
+      {sectionEntries && <SectionListing entries={sectionEntries} />}
       <ArticleFooter doc={doc} neighbors={getNeighbors(docs, doc)} updated={updated} />
     </article>
-    <ArticleAside toc={toc} backlinks={getBacklinks(docs, doc)} />
+    <ArticleAside toc={toc} backlinks={backlinks} />
   </div>
   <TocSheet slot="dialogs" toc={toc} />
 </Shell>
@@ -82,4 +132,8 @@ const updated = formatDate(doc.data.updated);
     margin: var(--sp-7) 0;
   }
 
+  .subtitle {
+    color: var(--text-3);
+    font-weight: var(--fw-regular);
+  }
 </style>

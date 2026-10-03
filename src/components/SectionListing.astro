@@ -1,0 +1,131 @@
+---
+// Liste des pages d'une section, affichée sur sa page d'index.
+// Regroupée par tactique ATT&CK pour les techniques et par plateforme pour les write-ups.
+import { TACTICS } from '../data/attack';
+import { PLATFORMS } from '../data/writeups';
+import { docUrl, type Doc } from '../lib/content';
+import { docMeta, formatDate } from '../lib/nav';
+
+interface Props {
+  entries: Doc[];
+}
+
+const { entries } = Astro.props;
+
+function groupLabel(doc: Doc): string {
+  const { data } = doc;
+  if (data.type === 'technique') {
+    const tactic = TACTICS.find((t) => t.slug === data.tactic);
+    return tactic ? `${tactic.id} · ${tactic.name}` : '';
+  }
+  if (data.type === 'writeup') return PLATFORMS[data.platform];
+  return '';
+}
+
+const order = [...TACTICS.map((t) => `${t.id} · ${t.name}`), ...Object.values(PLATFORMS), ''];
+const groups = new Map<string, Doc[]>();
+for (const doc of entries) {
+  const label = groupLabel(doc);
+  groups.set(label, [...(groups.get(label) ?? []), doc]);
+}
+const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order.indexOf(b));
+---
+
+{
+  entries.length === 0 ? (
+    <p class="empty">Aucune fiche dans cette section pour l'instant.</p>
+  ) : (
+    sorted.map(([label, docs]) => (
+      <section>
+        {label && <h2 class="caps">{label}</h2>}
+        <ul>
+          {docs.map((doc) => (
+            <li>
+              <a href={docUrl(doc.id)}>
+                <span class="title">{doc.data.title}</span>
+                {docMeta(doc) && <span class="meta">{docMeta(doc)}</span>}
+                <span class="desc">{doc.data.description}</span>
+                <span class="date">maj {formatDate(doc.data.updated)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  )
+}
+
+<style>
+  section {
+    margin-top: var(--sp-10);
+  }
+
+  h2 {
+    margin-bottom: var(--sp-5);
+    font-weight: var(--fw-regular);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--bw);
+    background: var(--border-soft);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+  }
+
+  a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--sp-1) var(--sp-8);
+    padding: var(--sp-6) var(--sp-8);
+    background: var(--surface);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  a:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .title {
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-semibold);
+  }
+
+  .meta,
+  .date {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    text-align: right;
+  }
+
+  .meta {
+    color: var(--accent);
+  }
+
+  .desc {
+    grid-column: 1;
+    font-size: var(--fs-base);
+    color: var(--text-2);
+  }
+
+  .title:not(:has(+ .meta)) {
+    grid-column: 1 / -1;
+  }
+
+  .empty {
+    margin-top: var(--sp-10);
+    padding: var(--sp-10);
+    border: var(--bw) dashed var(--border);
+    border-radius: var(--r-card);
+    text-align: center;
+    font-size: var(--fs-body-sm);
+    color: var(--text-3);
+  }
+</style>

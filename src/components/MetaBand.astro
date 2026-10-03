@@ -1,8 +1,14 @@
 ---
 // Bandeau de métadonnées en tête de page. Chaque case : <div><dt>Libellé</dt><dd>Valeur</dd></div>.
+interface Props {
+  /** Cases plus étroites, pour des valeurs courtes (write-up). */
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
 ---
 
-<dl class="meta-band">
+<dl class:list={['meta-band', { compact }]}>
   <slot />
 </dl>
 
@@ -16,6 +22,10 @@
     border: var(--bw) solid var(--border);
     border-radius: var(--r-card);
     overflow: hidden;
+  }
+
+  .compact {
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--meta-min-sm), 100%), 1fr));
   }
 
   .meta-band :global(> div) {

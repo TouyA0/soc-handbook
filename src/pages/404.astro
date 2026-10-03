@@ -1,0 +1,28 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { docUrl } from '../lib/content';
+---
+
+<Shell title="Page introuvable" description="Cette page n'existe pas ou a été déplacée.">
+  <div class="notfound">
+    <p class="caps">Erreur 404</p>
+    <h1>Page introuvable</h1>
+    <p>Cette page n'existe pas ou a été déplacée. La navigation et la recherche (<kbd class="kbd">Ctrl</kbd> <kbd class="kbd">K</kbd>) permettent de la retrouver.</p>
+    <a href={docUrl('')}>← Retour à l'accueil</a>
+  </div>
+</Shell>
+
+<style>
+  .notfound {
+    max-width: var(--measure);
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: var(--sp-4) 0 var(--sp-8);
+  }
+
+  p:not(.caps) {
+    color: var(--text-2);
+  }
+</style>

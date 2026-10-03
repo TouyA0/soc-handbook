@@ -11,6 +11,14 @@ export function formatDate(date: Date): string {
   return dateFormat.format(date);
 }
 
+/** Durée en minutes → « 3 h 10 » ou « 45 min ». */
+export function formatDuration(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m} min`;
+  return m === 0 ? `${h} h` : `${h} h ${String(m).padStart(2, '0')}`;
+}
+
 /** Courte mention affichée sous ou à côté d'un titre de page dans la navigation. */
 export function docMeta(doc: Doc): string {
   const { data } = doc;
