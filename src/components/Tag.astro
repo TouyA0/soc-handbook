@@ -1,0 +1,30 @@
+---
+interface Props {
+  label: string;
+  /** `tag` : préfixé d'un # ; `plain` : libellé seul ; `outline` : mention secondaire encadrée. */
+  variant?: 'tag' | 'plain' | 'outline';
+}
+
+const { label, variant = 'tag' } = Astro.props;
+---
+
+<span class:list={['tag', variant]}>{variant === 'tag' ? `#${label}` : label}</span>
+
+<style>
+  .tag {
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-snug);
+  }
+
+  .outline {
+    padding: calc(var(--sp-2) - var(--bw)) var(--sp-4);
+    border: var(--bw) solid var(--border);
+    background: transparent;
+    color: var(--text-3);
+  }
+</style>

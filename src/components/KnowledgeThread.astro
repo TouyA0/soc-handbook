@@ -1,0 +1,126 @@
+---
+// « Fil de connaissance » : concept → technique → détection → réponse → pratique.
+export interface ThreadStep {
+  /** Nom de l'étape, ex. « Concept ». Le numéro est ajouté à l'affichage. */
+  step: string;
+  label: string;
+  meta: string;
+  href?: string;
+  current?: boolean;
+}
+
+interface Props {
+  steps: ThreadStep[];
+}
+
+const { steps } = Astro.props;
+---
+
+<nav class="thread" aria-label="Fil de connaissance">
+  <div class="head"><span>Fil de connaissance</span><span>concept → pratique</span></div>
+  <ol>
+    {
+      steps.map((s, i) => {
+        const Element = s.href && !s.current ? 'a' : 'span';
+        return (
+          <li>
+            <Element class="step" href={Element === 'a' ? s.href : undefined} aria-current={s.current ? 'step' : undefined}>
+              <span class="num">
+                {String(i + 1).padStart(2, '0')} · {s.step}
+              </span>
+              <span class="label">{s.label}</span>
+              <span class="meta">{s.meta}</span>
+            </Element>
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  .thread {
+    margin-top: var(--sp-6);
+    padding: var(--sp-6) var(--sp-7) var(--sp-7);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    background: var(--surface);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-6);
+    margin-bottom: var(--sp-5);
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--ls-caps);
+    color: var(--text-3);
+  }
+
+  .head span:first-child {
+    text-transform: uppercase;
+  }
+
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+  }
+
+  li {
+    flex: 1 1 var(--thread-min);
+    min-width: 0;
+    display: flex;
+  }
+
+  .step {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1h);
+    padding: var(--sp-4h) var(--sp-5);
+    border: var(--bw) solid var(--border-soft);
+    border-radius: var(--r-lg);
+    background: var(--bg);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  a.step:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .step[aria-current] {
+    border-color: var(--accent-line);
+    background: var(--accent-bg);
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--ls-caps);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .step[aria-current] .num {
+    color: var(--accent);
+  }
+
+  .label {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    color: var(--text-3);
+  }
+</style>

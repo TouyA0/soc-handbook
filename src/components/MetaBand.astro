@@ -1,0 +1,41 @@
+---
+// Bandeau de métadonnées en tête de page. Chaque case : <div><dt>Libellé</dt><dd>Valeur</dd></div>.
+---
+
+<dl class="meta-band">
+  <slot />
+</dl>
+
+<style>
+  .meta-band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--meta-min), 100%), 1fr));
+    gap: var(--bw);
+    margin: var(--sp-10) 0 0;
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+  }
+
+  .meta-band :global(> div) {
+    padding: var(--sp-6) var(--sp-7);
+    background: var(--surface);
+    outline: var(--bw) solid var(--border-soft);
+  }
+
+  .meta-band :global(dt) {
+    margin-bottom: var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--ls-caps);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .meta-band :global(dd) {
+    margin: 0;
+    font-size: var(--fs-base);
+    line-height: var(--lh-snug);
+  }
+</style>

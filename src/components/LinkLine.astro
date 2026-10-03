@@ -1,0 +1,46 @@
+---
+// Ligne de liens en fin de page : « Techniques liées », « Fiches enrichies », « Utilisé dans ».
+interface Props {
+  label: string;
+  links: { label: string; href: string }[];
+}
+
+const { label, links } = Astro.props;
+---
+
+{
+  links.length > 0 && (
+    <p class="link-line">
+      <span>{label} :</span>
+      {links.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+    </p>
+  )
+}
+
+<style>
+  .link-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    align-items: center;
+    margin: var(--sp-9) 0 0;
+    font-size: var(--fs-md);
+    color: var(--text-3);
+  }
+
+  a {
+    padding: var(--sp-1h) var(--sp-4);
+    border: var(--bw) solid var(--accent-line);
+    border-radius: var(--r-md);
+    font-family: var(--font-mono);
+    font-size: var(--fs-code);
+    line-height: var(--lh-snug);
+  }
+
+  a:hover {
+    background: var(--accent-bg);
+    text-decoration: none;
+  }
+</style>

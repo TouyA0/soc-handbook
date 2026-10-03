@@ -1,0 +1,78 @@
+---
+// Cartes « Pratiqué dans » : les write-ups où une technique a été rencontrée.
+import { PLATFORMS } from '../data/writeups';
+import { docUrl, type DocOf } from '../lib/content';
+import { formatDate } from '../lib/nav';
+
+interface Props {
+  writeups: DocOf<'writeup'>[];
+}
+
+const { writeups } = Astro.props;
+---
+
+<div class="cards">
+  {
+    writeups.map((w) => (
+      <a href={docUrl(w.id)}>
+        <span class="top">
+          <span>{PLATFORMS[w.data.platform]}</span>
+          <span>{formatDate(w.data.date)}</span>
+        </span>
+        <span class="title">{w.data.title}</span>
+        <span class="note">{w.data.description}</span>
+        <span class="more">Lire le write-up →</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-min), 1fr));
+    gap: var(--sp-5);
+  }
+
+  a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    padding: var(--sp-7);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  a:hover {
+    border-color: var(--accent-line);
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .title {
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-semibold);
+  }
+
+  .note {
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  .more {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--accent);
+  }
+</style>

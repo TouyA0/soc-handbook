@@ -1,0 +1,49 @@
+---
+interface Props {
+  /** Identifiant ATT&CK, ex. `T1558.003`. */
+  id: string;
+  /** `full` : libellé « ATT&CK » + identifiant ; `compact` : identifiant seul. */
+  variant?: 'full' | 'compact';
+}
+
+const { id, variant = 'full' } = Astro.props;
+---
+
+<span class:list={['attack', variant]}>
+  {variant === 'full' && <span class="label">ATT&amp;CK</span>}
+  <span class="id">{id}</span>
+</span>
+
+<style>
+  .attack {
+    display: inline-flex;
+    align-items: center;
+    border: var(--bw) solid var(--accent-line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: var(--fs-code);
+    line-height: var(--lh-snug);
+  }
+
+  .label {
+    padding: var(--sp-1h) var(--sp-3h);
+    background: var(--accent-bg);
+    color: var(--text-3);
+  }
+
+  .id {
+    padding: var(--sp-1h) var(--sp-4);
+    color: var(--accent);
+    font-weight: var(--fw-semibold);
+  }
+
+  .compact {
+    font-size: var(--fs-sm);
+  }
+
+  .compact .id {
+    padding: var(--sp-1) var(--sp-4);
+    font-weight: var(--fw-regular);
+  }
+</style>

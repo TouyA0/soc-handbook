@@ -249,6 +249,7 @@ const actions: Record<string, (el: HTMLElement) => void> = {
   },
   'close-dialog': closeDialogs,
   pin: togglePin,
+  'copy-code': (el) => void copyText(el.closest('.code')?.querySelector('pre')?.textContent ?? '', 'Copié dans le presse-papiers'),
   'copy-link': () => void copyText(location.href.split('#')[0]!, 'Lien copié'),
   top: scrollToTop,
 };

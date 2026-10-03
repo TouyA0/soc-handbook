@@ -1,0 +1,409 @@
+/* Corps d'article : texte Markdown, encadrés, tableaux, étapes, timeline et blocs de code. */
+
+.prose {
+  counter-reset: section;
+}
+
+/* Les write-ups numérotent le contexte 00, puis les étapes à partir de 01. */
+.prose[data-numbering='from-zero'] {
+  counter-reset: section -1;
+}
+
+.prose > :first-child {
+  margin-top: var(--sp-10);
+}
+
+/* Titres : le numéro de section est généré ici, jamais écrit dans le Markdown. */
+.prose h2 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-6);
+  margin: var(--sp-16) 0 var(--sp-8);
+  padding-top: var(--sp-10);
+  border-top: var(--bw) solid var(--border-soft);
+  counter-increment: section;
+}
+
+.prose h2::before {
+  content: counter(section, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  letter-spacing: normal;
+  color: var(--text-3);
+}
+
+.prose h3 {
+  margin: var(--sp-10) 0 var(--sp-4);
+  font-size: var(--fs-body);
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 var(--sp-8);
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: var(--sp-9);
+}
+
+.prose li + li {
+  margin-top: var(--sp-3);
+}
+
+.prose strong {
+  color: var(--text);
+}
+
+.prose :not(pre) > code {
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--fs-code-inline);
+}
+
+.prose hr {
+  margin: var(--sp-12) 0;
+  border: none;
+  border-top: var(--bw) solid var(--border-soft);
+}
+
+.prose blockquote {
+  margin: 0 0 var(--sp-8);
+  padding-left: var(--sp-8);
+  border-left: var(--bw-strong) solid var(--border);
+}
+
+/* Tableaux — première colonne en identifiant (Event ID, champ, filtre) */
+.prose table {
+  width: 100%;
+  margin: 0 0 var(--sp-8);
+  border-collapse: separate;
+  border-spacing: 0;
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-ui);
+}
+
+.prose th,
+.prose td {
+  padding: var(--sp-6);
+  text-align: left;
+  vertical-align: top;
+  background: var(--surface);
+  color: var(--text-2);
+}
+
+.prose th {
+  padding: var(--sp-4h) var(--sp-6);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.prose tr > * + * {
+  border-left: var(--bw) solid var(--border-soft);
+}
+
+.prose tbody td {
+  border-top: var(--bw) solid var(--border-soft);
+}
+
+.prose tbody td:first-child {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-semibold);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.prose td code {
+  padding: 0;
+  background: none;
+}
+
+/* Encadrés */
+.callout {
+  --callout-color: var(--accent);
+  --callout-bg: var(--accent-bg);
+  --callout-line: var(--accent-line);
+
+  margin: var(--sp-10) 0;
+  padding: var(--sp-7) var(--sp-8);
+  border: var(--bw) solid var(--callout-line);
+  border-radius: var(--r-2xl);
+  background: var(--callout-bg);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-dense);
+}
+
+.callout-info {
+  --callout-color: var(--sev-info);
+  --callout-bg: var(--sev-info-bg);
+  --callout-line: var(--sev-info-line);
+}
+
+.callout-med {
+  --callout-color: var(--sev-med);
+  --callout-bg: var(--sev-med-bg);
+  --callout-line: var(--sev-med-line);
+}
+
+.callout-high {
+  --callout-color: var(--sev-high);
+  --callout-bg: var(--sev-high-bg);
+  --callout-line: var(--sev-high-line);
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-caps-mid);
+  text-transform: uppercase;
+  color: var(--callout-color);
+}
+
+.callout-title::before {
+  content: '';
+  width: var(--dot-lg);
+  height: var(--dot-lg);
+  flex: none;
+  transform: rotate(45deg);
+  background: var(--callout-color);
+}
+
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+.callout p,
+.callout ul,
+.callout ol {
+  color: var(--text);
+}
+
+.callout ul {
+  list-style: none;
+  padding: 0;
+}
+
+.callout ul li::before {
+  content: '— ';
+}
+
+.callout li + li {
+  margin-top: var(--sp-4);
+}
+
+/* Variante sur une ligne : le titre précède le texte (« Sans spoiler ») */
+.callout[data-callout='sans-spoiler'] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--sp-4);
+  padding: var(--sp-6) var(--sp-8);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-ui);
+}
+
+.callout[data-callout='sans-spoiler'] .callout-title {
+  margin-bottom: 0;
+}
+
+.callout[data-callout='sans-spoiler'] .callout-title::before {
+  content: none;
+}
+
+.callout[data-callout='sans-spoiler'] p {
+  flex: 1 1 var(--neighbor-min);
+  margin: 0;
+}
+
+/* Étapes numérotées : « 1. **Titre** » puis le détail à la ligne */
+.steps ol {
+  list-style: none;
+  margin: 0 0 var(--sp-8);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bw);
+  background: var(--border-soft);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  margin: 0;
+  padding: var(--sp-7) var(--sp-8) var(--sp-7) calc(var(--sp-8) + var(--logo) + var(--sp-8));
+  background: var(--surface);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-ui);
+  color: var(--text-2);
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: var(--sp-8);
+  top: calc(var(--sp-7) + var(--sp-1h));
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--accent);
+}
+
+.steps li > strong:first-child,
+.steps li > p:first-child > strong:first-child {
+  display: block;
+  margin-bottom: var(--sp-1);
+}
+
+.steps li p {
+  margin: 0;
+}
+
+/* Timeline : tableau « heure | événement | source » rendu en lignes */
+.timeline table,
+.timeline tbody {
+  display: grid;
+  gap: var(--bw);
+}
+
+.timeline table {
+  background: var(--border-soft);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-snug);
+}
+
+.timeline thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.timeline tr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-8);
+  padding: var(--sp-5h) var(--sp-7);
+  background: var(--surface);
+}
+
+.timeline tbody td,
+.timeline tbody td:first-child {
+  padding: 0;
+  border: none;
+  background: none;
+  font-weight: var(--fw-regular);
+}
+
+.timeline tbody td:first-child {
+  width: var(--timeline-time-w);
+  font-size: var(--fs-code);
+  color: var(--text-3);
+}
+
+.timeline tbody td:nth-child(2) {
+  flex: 1 1 var(--timeline-event-min);
+  color: var(--text);
+}
+
+.timeline tbody td:nth-child(3) {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+/* Blocs de code */
+.code {
+  margin: var(--sp-4) 0 var(--sp-9);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r-2xl);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.code figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding: var(--sp-3h) var(--sp-4) var(--sp-3h) var(--sp-7);
+  border-bottom: var(--bw) solid var(--border-soft);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--text-3);
+}
+
+.code-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-5);
+  min-width: 0;
+}
+
+.code-lang {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.code-copy {
+  flex: none;
+  padding: var(--sp-1h) var(--sp-4h);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.code-copy:hover {
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.code pre {
+  margin: 0;
+  padding: var(--sp-7) var(--sp-8);
+  overflow-x: auto;
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  tab-size: 2;
+}
+
+/* Coloration syntaxique : le thème `css-variables` de Shiki lit ces variables, reliées aux tokens --syn-*. */
+:root {
+  --astro-code-foreground: var(--text);
+  --astro-code-background: transparent;
+  --astro-code-token-constant: var(--syn-num);
+  --astro-code-token-string: var(--syn-str);
+  --astro-code-token-string-expression: var(--syn-str);
+  --astro-code-token-comment: var(--syn-com);
+  --astro-code-token-keyword: var(--syn-kw);
+  --astro-code-token-parameter: var(--syn-field);
+  --astro-code-token-function: var(--syn-fn);
+  --astro-code-token-punctuation: var(--text-2);
+  --astro-code-token-link: var(--accent);
+}

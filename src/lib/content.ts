@@ -66,7 +66,11 @@ export function getOutgoingIds(doc: Doc): Set<string> {
   const ids = new Set<string>();
   const { data } = doc;
   const refs =
-    data.type === 'technique' ? [...data.writeups, ...data.related] : data.type === 'writeup' ? data.enriched : [];
+    data.type === 'technique'
+      ? [...data.writeups, ...data.related, data.concept, data.playbook].filter((r) => r !== undefined)
+      : data.type === 'writeup'
+        ? data.enriched
+        : [];
   for (const ref of refs) ids.add(ref.id);
 
   if (doc.body && doc.filePath) {
@@ -81,10 +85,17 @@ export function getBacklinks(docs: Doc[], doc: Doc): Doc[] {
   return docs.filter((other) => other.id !== doc.id && getOutgoingIds(other).has(doc.id)).sort(byTitle);
 }
 
-/** Fait échouer le build si un lien du corps ou une référence du frontmatter ne mène à aucune page publiée. */
-export function assertLinks(docs: Doc[]): void {
+/**
+ * Fait échouer le build si une page n'a pas pu être rendue (bloc `:::` inconnu ou mal fermé, lien cassé…)
+ * ou si un lien du corps ou une référence du frontmatter ne mène à aucune page publiée.
+ * Astro ne fait que journaliser les erreurs de rendu Markdown : sans ce contrôle, la page sortirait vide.
+ */
+export function assertContent(docs: Doc[]): void {
   const known = new Set(docs.map((d) => d.id));
   for (const doc of docs) {
+    if (doc.filePath?.endsWith('.md') && doc.rendered?.html === undefined) {
+      throw new Error(`Le rendu de ${doc.filePath} a échoué : voir l'erreur « Error rendering » plus haut.`);
+    }
     for (const id of getOutgoingIds(doc)) {
       if (!known.has(id)) {
         throw new Error(`Lien vers une page non publiée « ${id} » dans ${doc.filePath ?? doc.id}.`);

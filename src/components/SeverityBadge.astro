@@ -1,0 +1,60 @@
+---
+import { SEVERITIES, type Severity } from '../data/attack';
+
+interface Props {
+  severity: Severity;
+  /** Libellé affiché ; par défaut, celui de la sévérité (« Élevé »). */
+  label?: string;
+}
+
+const { severity, label = SEVERITIES[severity] } = Astro.props;
+---
+
+<span class:list={['severity', severity]}><span class="dot" aria-hidden="true"></span>{label}</span>
+
+<style>
+  .severity {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-4h);
+    border-radius: var(--r-md);
+    background: var(--sev-bg);
+    color: var(--sev);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-snug);
+  }
+
+  .dot {
+    width: var(--dot);
+    height: var(--dot);
+    border-radius: 50%;
+    background: var(--sev);
+  }
+
+  .info {
+    --sev: var(--sev-info);
+    --sev-bg: var(--sev-info-bg);
+  }
+
+  .low {
+    --sev: var(--sev-low);
+    --sev-bg: var(--sev-low-bg);
+  }
+
+  .med {
+    --sev: var(--sev-med);
+    --sev-bg: var(--sev-med-bg);
+  }
+
+  .high {
+    --sev: var(--sev-high);
+    --sev-bg: var(--sev-high-bg);
+  }
+
+  .crit {
+    --sev: var(--sev-crit);
+    --sev-bg: var(--sev-crit-bg);
+  }
+</style>

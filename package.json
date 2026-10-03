@@ -14,8 +14,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.2",
-    "astro": "^7.3.5",
-    "astro-expressive-code": "^0.44.2"
+    "astro": "^7.3.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

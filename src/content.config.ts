@@ -32,6 +32,9 @@ const technique = z.object({
   data_sources: z.array(z.string()).default([]),
   /** Fiabilité de la détection, en texte libre (ex. « Moyenne — à corréler »). */
   detection_confidence: z.string().optional(),
+  /** Fil de connaissance : page de concept (fondamentaux) et playbook de réponse associés. */
+  concept: reference('docs').optional(),
+  playbook: reference('docs').optional(),
   /** Write-ups où la technique a été pratiquée. */
   writeups: z.array(reference('docs')).default([]),
   /** Techniques liées, affichées en badges en fin de page. */

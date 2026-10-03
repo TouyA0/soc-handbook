@@ -31,12 +31,14 @@
   --lh-tight: 1.15;
   --lh-snug: 1.5;
   --lh-ui: 1.6;
+  --lh-dense: 1.65;
   --lh-body: 1.7;
 
   /* Interlettrages */
   --ls-h1: -0.025em;
   --ls-h2: -0.01em;
   --ls-caps: 0.08em;
+  --ls-caps-mid: 0.1em;
   --ls-caps-wide: 0.12em;
 
   /* Espacements */
@@ -111,6 +113,11 @@
   --sheet-max-h: 72vh;
   --neighbor-min: 240px;
   --section-num-w: 18px;
+  --timeline-time-w: 72px;
+  --timeline-event-min: 280px;
+  --card-min: 220px;
+  --meta-min: 200px;
+  --thread-min: 118px;
 
   /* Plans */
   --z-sticky: 5;
