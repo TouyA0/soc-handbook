@@ -1,0 +1,45 @@
+---
+// Carte à en-tête de l'accueil : libellé en capitales à gauche, mention à droite.
+interface Props {
+  title: string;
+  note?: string;
+}
+
+const { title, note } = Astro.props;
+---
+
+<div class="panel">
+  <div class="head">
+    <span class="title">{title}</span>
+    {note && <span>{note}</span>}
+  </div>
+  <slot />
+</div>
+
+<style>
+  .panel {
+    display: flex;
+    flex-direction: column;
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-panel);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-6);
+    padding: var(--sp-5) var(--sp-7);
+    border-bottom: var(--bw) solid var(--border-soft);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--ls-caps);
+    line-height: var(--lh-snug);
+    color: var(--text-3);
+  }
+
+  .title {
+    text-transform: uppercase;
+  }
+</style>

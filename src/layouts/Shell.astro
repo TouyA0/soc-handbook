@@ -7,7 +7,7 @@ import StatusBar from '../components/StatusBar.astro';
 import Toast from '../components/Toast.astro';
 import TopBar from '../components/TopBar.astro';
 import { getDocs, type Doc } from '../lib/content';
-import { docMeta, getStatsParts, getStatusPath } from '../lib/nav';
+import { docMeta, docTypeLabel, getStatsParts, getStatusPath } from '../lib/nav';
 import Base from './Base.astro';
 
 interface Props {
@@ -27,7 +27,7 @@ const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(' 
 
 <Base title={title} description={description}>
   <TopBar />
-  <div class="layout" data-page-id={doc?.id} data-page-title={doc?.data.title} data-page-meta={doc ? docMeta(doc) : undefined}>
+  <div class="layout" data-page-id={doc?.id} data-page-title={doc?.data.title} data-page-meta={doc ? docMeta(doc) : undefined} data-page-kind={doc ? docTypeLabel(doc) : undefined}>
     <Sidebar docs={docs} currentId={doc?.id} />
     <main id="contenu" tabindex="-1">
       <slot />

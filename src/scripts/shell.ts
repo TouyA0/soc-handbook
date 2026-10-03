@@ -6,12 +6,15 @@ interface SavedPage {
   title: string;
   meta: string;
   url: string;
+  /** Type de page affiché sur l'accueil (« Technique », « Write-up »…). Absent des entrées enregistrées avant son ajout. */
+  kind?: string;
 }
 
 const root = document.documentElement;
 const mobile = window.matchMedia('(max-width: 859px)');
 const MAX_RECENTS = 5;
 const SHOWN_RECENTS = 3;
+const MAX_RESUME = 5;
 const TOAST_MS = 1700;
 const G_WINDOW_MS = 1200;
 /** Un titre est « courant » dès qu'il passe au-dessus de cette hauteur dans la fenêtre. */
@@ -122,6 +125,7 @@ const page: SavedPage | null = layout?.dataset.pageId
       id: layout.dataset.pageId,
       title: layout.dataset.pageTitle ?? '',
       meta: layout.dataset.pageMeta ?? '',
+      kind: layout.dataset.pageKind ?? '',
       url: location.pathname,
     }
   : null;
@@ -145,9 +149,34 @@ function renderList(name: 'pins' | 'recents', pages: SavedPage[]): void {
   group.hidden = pages.length === 0;
 }
 
+/** Accueil : bloc « Reprendre », épinglés d'abord puis vus récemment. */
+function renderResume(pins: SavedPage[], recents: SavedPage[]): void {
+  const list = $('[data-resume]');
+  const template = $<HTMLTemplateElement>('[data-resume-template]');
+  if (!list || !template) return;
+  const pinned = new Set(pins.map((p) => p.id));
+  const pages = [...pins, ...recents.filter((p) => !pinned.has(p.id))].slice(0, MAX_RESUME);
+  list.replaceChildren(
+    ...pages.map((p) => {
+      const item = template.content.cloneNode(true) as DocumentFragment;
+      const isPinned = pinned.has(p.id);
+      const link = item.querySelector('a')!;
+      link.href = p.url;
+      link.classList.toggle('is-pinned', isPinned);
+      item.querySelector('.resume-type')!.textContent = p.kind ?? '';
+      item.querySelector('.resume-title')!.textContent = p.title;
+      item.querySelector('.resume-mark')!.textContent = isPinned ? '◆ épinglé' : 'vu récemment';
+      return item;
+    }),
+  );
+  const empty = $('[data-resume-empty]');
+  if (empty) empty.hidden = pages.length > 0;
+}
+
 function renderSaved(): void {
   const pins = readPages(STORAGE.pins);
   const pinned = new Set(pins.map((p) => p.id));
+  renderResume(pins, readPages(STORAGE.recents));
   renderList('pins', pins);
   renderList(
     'recents',

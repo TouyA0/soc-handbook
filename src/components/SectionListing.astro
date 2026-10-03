@@ -37,7 +37,7 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
   ) : (
     sorted.map(([label, docs]) => (
       <section>
-        {label && <h2 class="caps">{label}</h2>}
+        {label && <h2 class="caps" id={label.split(' · ')[0]}>{label}</h2>}
         <ul>
           {docs.map((doc) => (
             <li>

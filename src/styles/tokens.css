@@ -128,6 +128,30 @@
   --meta-min-sm: 150px;
   --lead-max: 660px;
 
+  /* Accueil */
+  --hero-main: 440px;
+  --hero-side: 320px;
+  --hero-side-min: 260px;
+  --hero-lead-max: 620px;
+  --panel-min: 340px;
+  --parcours-min: 300px;
+  --memo-min: 132px;
+  --section-card-min: 250px;
+  --section-card-h: 118px;
+  --tactic-min: 148px;
+  --tactic-h: 112px;
+  --btn-h: 38px;
+  --search-lg-h: 58px;
+  --resume-type-w: 78px;
+  --recent-date-w: 44px;
+  --recent-type-w: 86px;
+  --period-w: 74px;
+  --fs-h2-home: 1.25rem; /* 20px */
+  --fs-stat: 1.125rem; /* 18px */
+  --lh-hero: 1.12;
+  --lh-title: 1.3;
+  --hairline: 0.5px;
+
   /* Plans */
   --z-sticky: 5;
   --z-topbar: 40;
@@ -162,6 +186,7 @@
   --surface-2: oklch(0.24 0.012 255);
   --code-bg: oklch(0.145 0.008 255);
   --shadow: oklch(0 0 0 / 0.45);
+  --heat-max: 34%;
 
   --border: oklch(0.3 0.012 255);
   --border-soft: oklch(0.25 0.01 255);
@@ -208,6 +233,7 @@
   --surface-2: oklch(0.955 0.005 255);
   --code-bg: oklch(0.97 0.005 255);
   --shadow: oklch(0.2 0.02 255 / 0.18);
+  --heat-max: 26%;
 
   --border: oklch(0.87 0.008 255);
   --border-soft: oklch(0.92 0.006 255);

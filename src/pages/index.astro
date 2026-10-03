@@ -1,12 +1,298 @@
 ---
-// Page provisoire : l'accueil maquetté arrive en phase 7.
+import Panel from '../components/Panel.astro';
+import { PROFILE } from '../data/profile';
+import { docUrl, getAttackCoverage, getDocs, getRecentDocs, getSectionTrees, getStats } from '../lib/content';
+import { countQueries, getEventMemo, getTopTags, tagEvidence } from '../lib/home';
+import { docTypeLabel, formatDate } from '../lib/nav';
 import Shell from '../layouts/Shell.astro';
+
+const docs = await getDocs();
+const stats = getStats(docs);
+const sections = getSectionTrees(docs);
+const coverage = getAttackCoverage(docs);
+const maxCoverage = Math.max(1, ...coverage.map((c) => c.techniques.length));
+const recent = getRecentDocs(docs, 6);
+const memo = getEventMemo(docs, 12);
+const topTags = getTopTags(docs, 6);
+const sectionUrl = (dir: string) => docUrl(dir);
+const techniquesUrl = docUrl('03-menaces-detection');
+
+const links = [
+  { label: 'Télécharger mon CV', href: PROFILE.links.cv, primary: true },
+  { label: 'LinkedIn', href: PROFILE.links.linkedin },
+  { label: 'GitHub', href: PROFILE.links.github },
+  { label: 'Contact', href: PROFILE.links.contact },
+].filter((l) => l.href);
+
+const state = [
+  ['fiches', stats.pages],
+  ['techniques ATT&CK', stats.techniques],
+  ['write-ups', stats.writeups],
+  ['requêtes SPL / KQL', countQueries(docs)],
+  ['dernière maj', stats.lastUpdated ? formatDate(stats.lastUpdated) : '—'],
+] as const;
+
+// Méthode appliquée à chaque fiche technique : elle suit l'ordre des sections du modèle.
+const method = [
+  ['Observer', 'Quelles traces laisse le comportement : logs, Event IDs, trafic.'],
+  ['Détecter', 'Une requête par outil (SPL, KQL, Sigma), avec ce qu’elle cherche.'],
+  ['Qualifier', 'Faux positifs connus et pièges documentés avant toute escalade.'],
+  ['Répondre & documenter', 'Actions de réponse, puis lien vers le write-up où je l’ai pratiqué.'],
+];
 ---
 
 <Shell>
   <div class="home">
-    <h1>soc.kb</h1>
-    <p>Base de connaissances d'analyste SOC — site en cours de construction.</p>
+    <section class="hero">
+      <div class="hero-main">
+        <p class="status"><span class="dot" aria-hidden="true"></span>{PROFILE.status}</p>
+        <h1>Carnet d'analyste SOC : tout ce que j'apprends, documenté pour être retrouvé.</h1>
+        <p class="intro">
+          {PROFILE.intro}
+          Chaque concept, filtre, requête et investigation passe par ici, avec la même méthode : ce qu'on observe, comment on le détecte,
+          comment on y répond.
+        </p>
+        <div class="actions">
+          {
+            links.map((l) => (
+              <a class:list={['btn', { primary: l.primary }]} href={l.href}>
+                {l.label}
+              </a>
+            ))
+          }
+          <a class="btn ghost" href="#parcours">Parcours &amp; méthode ↓</a>
+        </div>
+      </div>
+      <div class="hero-side">
+        <Panel title="État de la base">
+          <dl class="state">
+            {
+              state.map(([label, value]) => (
+                <>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </>
+              ))
+            }
+          </dl>
+          {
+            PROFILE.inProgress && (
+              <p class="in-progress">
+                En cours : <span>{PROFILE.inProgress}</span>
+              </p>
+            )
+          }
+        </Panel>
+      </div>
+    </section>
+
+    <section class="search-block">
+      <button type="button" class="search-lg" data-action="open-search">
+        <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+          <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
+        </svg>
+        <span class="search-text">Que cherches-tu ? Filtre, Event ID, technique, requête…</span>
+        <span class="search-keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
+      </button>
+      {
+        topTags.length > 0 && (
+          <div class="frequent">
+            <span>Fréquent :</span>
+            {topTags.slice(0, 5).map((t) => (
+              <button type="button" data-action="open-search" data-query={`#${t.tag}`}>
+                #{t.tag}
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </section>
+
+    <section class="pair">
+      <Panel title="Reprendre" note="épinglés · vus récemment">
+        <ul class="resume" data-resume></ul>
+        <p class="empty" data-resume-empty>Rien à reprendre pour l'instant : épingle une fiche avec <kbd class="kbd">p</kbd>.</p>
+        <template data-resume-template>
+          <li>
+            <a>
+              <span class="resume-type"></span>
+              <span class="resume-title"></span>
+              <span class="resume-mark"></span>
+            </a>
+          </li>
+        </template>
+      </Panel>
+      <Panel title="Mémo express · Event IDs" note={memo.length > 0 ? 'clic = fiche' : undefined}>
+        {
+          memo.length > 0 ? (
+            <div class="memo">
+              {memo.map((m) => (
+                <a href={m.href}>
+                  <span class="memo-id">{m.id}</span>
+                  <span class="memo-label">{m.label}</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="empty">Aucun Event ID documenté pour l'instant.</p>
+          )
+        }
+      </Panel>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2>Sections</h2>
+        <span class="mono-note">00 → 08</span>
+      </div>
+      <div class="sections">
+        {
+          sections.map(({ section, index, entries }) => (
+            <a href={sectionUrl(section.dir)}>
+              <span class="card-top">
+                <span class="card-num">{section.num}</span>
+                <span>
+                  {entries.length} fiche{entries.length > 1 ? 's' : ''}
+                </span>
+              </span>
+              <span class="card-title">{section.title}</span>
+              <span class="card-desc">{index?.data.description}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2>Couverture MITRE ATT&amp;CK</h2>
+        <span class="mono-note">
+          Enterprise · {coverage.length} tactiques · {stats.techniques} technique{stats.techniques > 1 ? 's' : ''} documentée{
+            stats.techniques > 1 ? 's' : ''
+          }
+        </span>
+      </div>
+      <p class="block-intro">Nombre de techniques documentées par tactique, avec détection et réponse.</p>
+      <div class="tactics">
+        {
+          coverage.map(({ tactic, techniques }) => (
+            <a href={`${techniquesUrl}#${tactic.id}`} style={`--heat: ${techniques.length / maxCoverage}`}>
+              <span class="tactic-id">{tactic.id}</span>
+              <span class="tactic-name">{tactic.name}</span>
+              <span class="tactic-count">
+                <span>{techniques.length}</span>
+                <span class="bar" aria-hidden="true">
+                  <span />
+                </span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2>Derniers ajouts</h2>
+      </div>
+      {
+        recent.length > 0 ? (
+          <div class="recent">
+            {recent.map((doc) => (
+              <a href={docUrl(doc.id)}>
+                <span class="recent-date">{formatDate(doc.data.updated).slice(0, 5)}</span>
+                <span class="recent-type">{docTypeLabel(doc)}</span>
+                <span class="recent-title">{doc.data.title}</span>
+                <span class="recent-tags">
+                  {doc.data.type === 'technique' && <span class="mitre">{doc.data.attack_id}</span>}
+                  {doc.data.tags.slice(0, 2).map((tag) => (
+                    <span>#{tag}</span>
+                  ))}
+                </span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="empty boxed">Aucune fiche publiée pour l'instant.</p>
+        )
+      }
+    </section>
+
+    <section class="block parcours" id="parcours">
+      <div class="block-head">
+        <h2>Parcours &amp; méthode</h2>
+        <span class="mono-note">pour les recruteurs</span>
+      </div>
+      <p class="block-intro">Chaque compétence renvoie aux fiches et aux write-ups qui la prouvent.</p>
+      <div class="trio">
+        <Panel title="Méthode d'investigation" note="appliquée partout">
+          <ol class="method">
+            {
+              method.map(([title, body], i) => (
+                <li>
+                  <span class="method-num">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <div class="item-title">{title}</div>
+                    <div class="item-body">{body}</div>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </Panel>
+        <Panel title="Compétences" note="preuves">
+          {
+            topTags.length > 0 ? (
+              <ul class="skills">
+                {topTags.map((t) => (
+                  <li>
+                    <button type="button" data-action="open-search" data-query={`#${t.tag}`}>
+                      <span>#{t.tag}</span>
+                      <span class="evidence">{tagEvidence(t)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="empty">Les compétences apparaîtront avec les premières fiches, à partir de leurs tags.</p>
+            )
+          }
+        </Panel>
+        <Panel title="Formation & certifications">
+          {
+            PROFILE.formation.length > 0 ? (
+              <ul class="formation">
+                {PROFILE.formation.map((f) => (
+                  <li>
+                    <span class="period">{f.period}</span>
+                    <div>
+                      <div class="item-title">{f.title}</div>
+                      <div class="item-body">{f.detail}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="empty">À compléter.</p>
+            )
+          }
+          {
+            links.length > 0 && (
+              <div class="actions panel-actions">
+                {links
+                  .filter((l) => l.primary || l.label === 'Contact')
+                  .map((l) => (
+                    <a class:list={['btn', 'sm', { primary: l.primary }]} href={l.href}>
+                      {l.label === 'Contact' ? 'Me contacter' : l.label}
+                    </a>
+                  ))}
+              </div>
+            )
+          }
+        </Panel>
+      </div>
+    </section>
   </div>
 </Shell>
 
@@ -16,11 +302,608 @@ import Shell from '../layouts/Shell.astro';
     margin: 0 auto;
   }
 
-  h1 {
-    margin-bottom: var(--sp-8);
+  ul,
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   p {
+    margin: 0;
+  }
+
+  /* En-tête */
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-12) var(--sp-16);
+    align-items: flex-start;
+    padding-bottom: var(--sp-14);
+    border-bottom: var(--bw) solid var(--border-soft);
+  }
+
+  .hero-main {
+    flex: 1 1 var(--hero-main);
+    min-width: 0;
+  }
+
+  .hero-side {
+    flex: 0 1 var(--hero-side);
+    min-width: var(--hero-side-min);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-2) var(--sp-5) var(--sp-2) var(--sp-4);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-snug);
     color: var(--text-2);
+  }
+
+  .dot {
+    width: var(--dot-lg);
+    height: var(--dot-lg);
+    border-radius: 50%;
+    background: var(--sev-low);
+  }
+
+  h1 {
+    margin: var(--sp-9) 0 var(--sp-7);
+    font-size: var(--fs-hero);
+    line-height: var(--lh-hero);
+    text-wrap: balance;
+  }
+
+  .intro {
+    max-width: var(--hero-lead-max);
+    margin-bottom: var(--sp-10);
+    font-size: var(--fs-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    height: var(--btn-h);
+    padding: 0 var(--sp-7);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-xl);
+    color: var(--text);
+    font-size: var(--fs-base);
+  }
+
+  .btn:hover {
+    border-color: var(--accent-line);
+    text-decoration: none;
+  }
+
+  .btn.primary {
+    padding: 0 var(--sp-8);
+    border-color: transparent;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: var(--fw-semibold);
+  }
+
+  .btn.ghost {
+    border-color: transparent;
+    color: var(--accent);
+  }
+
+  .btn.sm {
+    height: var(--ctl);
+    font-size: var(--fs-md);
+  }
+
+  .state {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--sp-5) var(--sp-8);
+    margin: 0;
+    padding: var(--sp-7);
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+    line-height: var(--lh-snug);
+  }
+
+  .state dt {
+    color: var(--text-3);
+  }
+
+  .state dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  .in-progress {
+    padding: var(--sp-5) var(--sp-7);
+    border-top: var(--bw) solid var(--border-soft);
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  .in-progress span {
+    color: var(--text);
+  }
+
+  /* Grande recherche */
+  .search-block {
+    padding: var(--sp-12) 0 var(--sp-4);
+  }
+
+  .search-lg {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-7);
+    height: var(--search-lg-h);
+    padding: 0 var(--sp-8) 0 var(--sp-8h);
+    background: var(--surface);
+    border: var(--bw) solid var(--accent-line);
+    border-radius: var(--r-panel);
+    box-shadow: var(--ring-accent);
+    cursor: pointer;
+    text-align: left;
+    color: var(--text-3);
+  }
+
+  .search-lg svg {
+    flex: none;
+    color: var(--accent);
+  }
+
+  .search-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-keys {
+    display: flex;
+    gap: var(--sp-2);
+  }
+
+  .frequent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-4);
+    margin-top: var(--sp-7);
+    font-size: var(--fs-md);
+    color: var(--text-3);
+  }
+
+  .frequent button {
+    padding: var(--sp-2) var(--sp-4h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-code);
+    cursor: pointer;
+  }
+
+  /* Reprendre + mémo */
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--panel-min), 100%), 1fr));
+    gap: var(--sp-6);
+    padding-top: var(--sp-14);
+  }
+
+  .empty {
+    padding: var(--sp-7);
+    font-size: var(--fs-base);
+    color: var(--text-3);
+  }
+
+  .empty.boxed {
+    border: var(--bw) dashed var(--border);
+    border-radius: var(--r-card);
+    text-align: center;
+  }
+
+  .resume {
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-3);
+  }
+
+  .resume:empty {
+    display: none;
+  }
+
+  .resume a {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    padding: var(--sp-5);
+    border-radius: var(--r-lg);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .resume a:hover,
+  .skills button:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .resume-type {
+    width: var(--resume-type-w);
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .resume-title {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--fs-body-sm);
+  }
+
+  .resume-mark {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .resume :global(.is-pinned) .resume-mark {
+    color: var(--accent);
+  }
+
+  .memo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--memo-min), 1fr));
+  }
+
+  .memo a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    padding: var(--sp-4h) var(--sp-6);
+    box-shadow: 0 0 0 var(--hairline) var(--border-soft);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .memo a:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .memo-id {
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    color: var(--accent);
+  }
+
+  .memo-label {
+    font-size: var(--fs-code);
+    color: var(--text-2);
+  }
+
+  /* Blocs titrés */
+  .block {
+    padding-top: var(--sp-16);
+  }
+
+  .block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-8);
+    margin-bottom: var(--sp-8);
+  }
+
+  .block-head:has(+ .block-intro) {
+    margin-bottom: var(--sp-3);
+  }
+
+  h2 {
+    font-size: var(--fs-h2-home);
+  }
+
+  .mono-note {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .block-intro {
+    max-width: var(--measure);
+    margin-bottom: var(--sp-8);
+    font-size: var(--fs-base);
+    color: var(--text-2);
+  }
+
+  /* Sections */
+  .sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--section-card-min), 1fr));
+    gap: var(--sp-5);
+  }
+
+  .sections a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    min-height: var(--section-card-h);
+    padding: var(--sp-8);
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .sections a:hover {
+    border-color: var(--accent-line);
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .card-num {
+    color: var(--accent);
+  }
+
+  .card-title {
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+  }
+
+  .card-desc {
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  /* Couverture ATT&CK */
+  .tactics {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--tactic-min), 1fr));
+    gap: var(--sp-3);
+  }
+
+  .tactics a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+    min-height: var(--tactic-h);
+    padding: var(--sp-6);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-xl);
+    background: color-mix(in oklch, var(--accent) calc(var(--heat) * var(--heat-max)), var(--surface));
+    color: var(--text);
+  }
+
+  .tactics a:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tactic-id {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    line-height: var(--lh-snug);
+    color: var(--text-3);
+  }
+
+  .tactic-name {
+    flex: 1;
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-title);
+  }
+
+  .tactic-count {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-stat);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-snug);
+  }
+
+  .bar {
+    flex: 1;
+    height: var(--sp-1h);
+    border-radius: var(--r-xs);
+    background: var(--border-soft);
+    overflow: hidden;
+  }
+
+  .bar span {
+    display: block;
+    height: 100%;
+    width: calc(var(--heat) * 100%);
+    background: var(--accent);
+  }
+
+  /* Derniers ajouts */
+  .recent {
+    display: grid;
+    gap: var(--bw);
+    background: var(--border-soft);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+  }
+
+  .recent a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-8);
+    padding: var(--sp-6) var(--sp-8);
+    background: var(--surface);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .recent a:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .recent-date {
+    width: var(--recent-date-w);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .recent-type {
+    width: var(--recent-type-w);
+    padding: var(--sp-1) var(--sp-3h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    text-align: center;
+    color: var(--text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .recent-title {
+    flex: 1 1 var(--neighbor-min);
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+  }
+
+  .recent-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+  }
+
+  .recent-tags span {
+    padding: var(--sp-1) var(--sp-3h);
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+
+  .recent-tags .mitre {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  /* Parcours & méthode */
+  .parcours {
+    padding-top: var(--sp-18);
+    padding-bottom: var(--sp-10);
+  }
+
+  .trio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--parcours-min), 100%), 1fr));
+    gap: var(--sp-6);
+  }
+
+  .method li,
+  .formation li {
+    display: flex;
+    gap: var(--sp-7);
+    padding: var(--sp-6) var(--sp-7);
+    border-bottom: var(--bw) solid var(--border-soft);
+    line-height: var(--lh-snug);
+  }
+
+  .method li:last-child {
+    border-bottom: none;
+  }
+
+  .method-num {
+    flex: none;
+    padding-top: var(--sp-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--accent);
+  }
+
+  .item-title {
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-semibold);
+  }
+
+  .item-body {
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  .skills {
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-3);
+  }
+
+  .skills button {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-6);
+    padding: var(--sp-5);
+    border: none;
+    border-radius: var(--r-lg);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-size: var(--fs-body-sm);
+    color: var(--text);
+  }
+
+  .evidence {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--accent);
+  }
+
+  .period {
+    width: var(--period-w);
+    flex: none;
+    padding-top: var(--sp-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .panel-actions {
+    margin-top: auto;
+    padding: var(--sp-7);
   }
 </style>
