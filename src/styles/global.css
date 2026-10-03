@@ -69,7 +69,7 @@ a {
 
 a:hover {
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: var(--underline-offset);
 }
 
 code,
@@ -115,9 +115,9 @@ mark {
 .skip-link {
   position: fixed;
   left: var(--sp-8);
-  top: -80px;
+  top: calc(-1 * var(--sp-20));
   z-index: var(--z-skip);
-  padding: 9px var(--sp-7);
+  padding: var(--sp-4h) var(--sp-7);
   border-radius: var(--r-lg);
   background: var(--accent);
   color: var(--accent-ink);

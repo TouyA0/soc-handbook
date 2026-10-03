@@ -27,6 +27,10 @@ export function searchIndex() {
         await pagefind.close();
 
         await fs.rm(recordsUrl);
+        // Interface prête à l'emploi de Pagefind : le site a sa propre palette.
+        for (const file of await fs.readdir(new URL('pagefind/', dir))) {
+          if (/-ui\.(js|css)$|^pagefind-highlight\.js$/.test(file)) await fs.rm(new URL(`pagefind/${file}`, dir));
+        }
         logger.info(`${records.length} enregistrements indexés`);
       },
     },

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <style>
+    .mark { fill: oklch(0.5 0.13 235); }
+    .ink { stroke: oklch(0.99 0 0); }
+    @media (prefers-color-scheme: dark) {
+      .mark { fill: oklch(0.8 0.11 215); }
+      .ink { stroke: oklch(0.18 0.03 230); }
+    }
+  </style>
+  <rect class="mark" width="22" height="22" rx="5" />
+  <rect class="ink" x="8" y="8" width="6" height="6" rx="1.5" fill="none" stroke-width="2" />
+</svg>

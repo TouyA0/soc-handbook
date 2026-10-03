@@ -24,16 +24,20 @@ const scopes = [
       placeholder="Filtre, Event ID, T-ID, requête, #tag…"
       autocomplete="off"
       spellcheck="false"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="search-listbox"
+      aria-autocomplete="list"
       data-search-input
     />
     <span class="count" data-search-count aria-live="polite"></span>
     <button type="button" class="kbd" data-action="close-dialog" aria-label="Fermer">Esc</button>
   </div>
 
-  <div class="scopes" role="tablist" aria-label="Filtrer par type">
+  <div class="scopes" role="group" aria-label="Filtrer par type">
     {
       scopes.map(([value, label]) => (
-        <button type="button" role="tab" aria-selected={value === 'all' ? 'true' : 'false'} data-search-scope={value}>
+        <button type="button" aria-pressed={value === 'all' ? 'true' : 'false'} data-search-scope={value}>
           {label}
           <span data-scope-count />
         </button>
@@ -47,7 +51,7 @@ const scopes = [
         <div class="caps group-label">Recherches récentes</div>
         <div class="recents" data-search-recent-list></div>
       </div>
-      <div data-search-groups></div>
+      <div id="search-listbox" role="listbox" aria-label="Résultats" data-search-groups></div>
       <p class="message" data-search-message hidden></p>
     </div>
     <div class="preview" data-search-preview aria-live="polite" hidden>
@@ -77,12 +81,12 @@ const scopes = [
   </div>
 
   <template data-search-group-template>
-    <div class="group">
-      <div class="caps group-label"><span data-group-label></span><span data-group-count></span></div>
+    <div class="group" role="group">
+      <div class="caps group-label" aria-hidden="true"><span data-group-label></span><span data-group-count></span></div>
     </div>
   </template>
   <template data-search-result-template>
-    <a class="result">
+    <a class="result" role="option" aria-selected="false">
       <span class="result-main">
         <span class="result-title"></span>
         <span class="result-path"></span>
@@ -198,7 +202,7 @@ const scopes = [
     cursor: pointer;
   }
 
-  .scopes button[aria-selected='true'] {
+  .scopes button[aria-pressed='true'] {
     border-color: var(--accent-line);
     background: var(--accent-bg);
     color: var(--accent);
@@ -215,7 +219,7 @@ const scopes = [
   }
 
   .results {
-    flex: 1 1 55%;
+    flex: 1 1 var(--palette-results);
     min-width: 0;
     overflow-y: auto;
     padding: var(--sp-2) var(--sp-4) var(--sp-5);
@@ -306,7 +310,7 @@ const scopes = [
   }
 
   .preview {
-    flex: 0 0 45%;
+    flex: 0 0 var(--palette-preview);
     min-width: 0;
     display: flex;
     flex-direction: column;

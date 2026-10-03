@@ -29,7 +29,7 @@ Valeurs admises :
 - `platform` : `tryhackme`, `hackthebox`, `cyberdefenders`, `letsdefend`, `autre`.
 - `difficulty` : `facile`, `moyen`, `difficile`.
 - `concept`, `playbook`, `writeups`, `related`, `enriched` : identifiant de la page cible, c'est-à-dire son chemin
-  sous `src/content/docs/` sans extension (`06-write-ups/tryhackme/boogeyman-1`).
+  sous `src/content/docs/` sans extension (`06-write-ups/tryhackme/nom-du-write-up`).
 
 Un titre contenant « — » est affiché en deux temps : la partie après le tiret est atténuée.
 

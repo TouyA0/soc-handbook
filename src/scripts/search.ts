@@ -193,6 +193,8 @@ if (dialog) {
       el.setAttribute('aria-selected', String(i === selected));
       if (i === selected && scroll) el.scrollIntoView({ block: 'nearest' });
     });
+    if (hits.length > 0) input.setAttribute('aria-activedescendant', `search-option-${selected}`);
+    else input.removeAttribute('aria-activedescendant');
     renderPreview();
   }
 
@@ -206,12 +208,14 @@ if (dialog) {
         group.querySelector('[data-group-label]')!.textContent = GROUP_LABELS[type];
         group.querySelector('[data-group-count]')!.textContent = String(items.length);
         const container = group.querySelector('.group')!;
+        container.setAttribute('aria-label', GROUP_LABELS[type]);
         for (const hit of items) {
           const index = ordered.push(hit) - 1;
           const row = resultTemplate.content.cloneNode(true) as DocumentFragment;
           const link = row.querySelector<HTMLAnchorElement>('a')!;
           link.href = hit.url;
           link.dataset.index = String(index);
+          link.id = `search-option-${index}`;
           fillTitle(row.querySelector('.result-title')!, hit.meta.title, term);
           row.querySelector('.result-path')!.textContent = hit.meta.path;
           row.querySelector('.result-mono')!.textContent = hit.meta.mono;
@@ -253,7 +257,7 @@ if (dialog) {
     prefixBadge.hidden = !prefix;
     prefixBadge.textContent = prefix ? `${prefix}:` : '';
     const activeType = type ?? (scope === 'all' ? undefined : scope);
-    for (const tab of tabs) tab.setAttribute('aria-selected', String(tab.dataset.searchScope === (activeType ?? 'all')));
+    for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.searchScope === (activeType ?? 'all')));
 
     const engine = await loadPagefind();
     if (id !== request) return;

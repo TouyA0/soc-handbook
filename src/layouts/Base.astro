@@ -8,10 +8,14 @@ import jetbrainsMono from '../assets/fonts/jetbrains-mono-latin-400-600-normal.w
 interface Props {
   title?: string;
   description?: string;
+  /** Page à ne pas référencer (404). */
+  noindex?: boolean;
 }
 
-const { title, description = "Base de connaissances personnelle d'analyste SOC." } = Astro.props;
+const { title, description = "Base de connaissances personnelle d'analyste SOC.", noindex = false } = Astro.props;
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
@@ -19,7 +23,18 @@ const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
     <title>{fullTitle}</title>
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="sitemap" href={`${base}sitemap.xml`} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title ?? `${SITE.name} — ${SITE.tagline}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={title ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta name="twitter:card" content="summary" />
     <meta name="description" content={description} />
     <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système. -->
     <script is:inline define:vars={{ STORAGE }}>

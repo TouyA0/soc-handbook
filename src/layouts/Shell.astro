@@ -16,17 +16,19 @@ interface Props {
   description?: string;
   /** Page de contenu affichée ; absente sur l'accueil. */
   doc?: Doc;
+  /** Page à ne pas référencer (404). */
+  noindex?: boolean;
   /** Texte de droite de la barre d'état ; par défaut, le résumé de la base. */
   statusMeta?: string;
 }
 
-const { title, description, doc, statusMeta } = Astro.props;
+const { title, description, doc, noindex, statusMeta } = Astro.props;
 const docs = await getDocs();
 const stats = getStatsParts(docs);
 const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(' · ');
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} noindex={noindex}>
   <TopBar />
   <div class="layout" data-page-id={doc?.id} data-page-title={doc?.data.title} data-page-meta={doc ? docMeta(doc) : undefined} data-page-kind={doc ? docTypeLabel(doc) : undefined}>
     <Sidebar docs={docs} currentId={doc?.id} />

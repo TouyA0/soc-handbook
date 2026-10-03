@@ -29,11 +29,13 @@
 
   /* Interlignes */
   --lh-tight: 1.15;
+  --lh-compact: 1.4;
   --lh-snug: 1.5;
   --lh-row: 1.55;
   --lh-ui: 1.6;
   --lh-dense: 1.65;
   --lh-body: 1.7;
+  --lh-loose: 1.8;
 
   /* Interlettrages */
   --ls-h1: -0.025em;
@@ -78,6 +80,7 @@
   --dot: 6px;
   --dot-lg: 7px;
   --underline-offset: 3px;
+  --opacity-muted: 0.8;
   --bw: 1px;
   --bw-strong: 2px;
 
@@ -114,6 +117,8 @@
   --palette-max: 960px;
   --palette-max-h: 84vh;
   --palette-top: 7vh;
+  --palette-results: 55%;
+  --palette-preview: 45%;
   --sheet-max-h: 72vh;
   --neighbor-min: 240px;
   --section-num-w: 18px;
