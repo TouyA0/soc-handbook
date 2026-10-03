@@ -1,0 +1,65 @@
+---
+// Ossature commune : barre supérieure, barre latérale, zone principale, barre d'état, barre mobile.
+import HelpDialog from '../components/HelpDialog.astro';
+import MobileBar from '../components/MobileBar.astro';
+import Sidebar from '../components/Sidebar.astro';
+import StatusBar from '../components/StatusBar.astro';
+import Toast from '../components/Toast.astro';
+import TopBar from '../components/TopBar.astro';
+import { getDocs, type Doc } from '../lib/content';
+import { docMeta, getStatsParts, getStatusPath } from '../lib/nav';
+import Base from './Base.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Page de contenu affichée ; absente sur l'accueil. */
+  doc?: Doc;
+  /** Texte de droite de la barre d'état ; par défaut, le résumé de la base. */
+  statusMeta?: string;
+}
+
+const { title, description, doc, statusMeta } = Astro.props;
+const docs = await getDocs();
+const stats = getStatsParts(docs);
+const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(' · ');
+---
+
+<Base title={title} description={description}>
+  <TopBar />
+  <div class="layout" data-page-id={doc?.id} data-page-title={doc?.data.title} data-page-meta={doc ? docMeta(doc) : undefined}>
+    <Sidebar docs={docs} currentId={doc?.id} />
+    <main id="contenu" tabindex="-1">
+      <slot />
+    </main>
+  </div>
+  <StatusBar path={getStatusPath(doc)} meta={meta} />
+  <MobileBar hasToc={Boolean(doc)} />
+  <HelpDialog />
+  <slot name="dialogs" />
+  <Toast />
+</Base>
+
+<script>
+  import '../scripts/shell';
+</script>
+
+<style>
+  .layout {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: var(--sp-14) var(--sp-16) var(--sp-20);
+    outline: none;
+  }
+
+  @media (max-width: 859px) {
+    main {
+      padding: var(--sp-10) var(--sp-8) var(--sp-21);
+    }
+  }
+</style>

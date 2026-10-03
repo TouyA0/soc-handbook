@@ -1,0 +1,58 @@
+---
+import type { Crumb } from '../lib/nav';
+
+interface Props {
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+---
+
+<nav class="crumbs" aria-label="Fil d'Ariane">
+  <ol>
+    {
+      crumbs.map((crumb, i) => (
+        <li aria-current={i === crumbs.length - 1 ? 'page' : undefined}>
+          {crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span>{crumb.label}</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  li {
+    display: flex;
+    gap: var(--sp-3);
+  }
+
+  li + li::before {
+    content: '/';
+  }
+
+  a {
+    color: inherit;
+  }
+
+  a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  li[aria-current='page'] span {
+    color: var(--text-2);
+  }
+</style>

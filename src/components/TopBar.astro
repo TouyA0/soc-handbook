@@ -1,0 +1,210 @@
+---
+import { SITE } from '../data/site';
+import { docUrl } from '../lib/content';
+---
+
+<header class="topbar">
+  <button class="icon-btn" type="button" data-action="toggle-sidebar" aria-label="Afficher ou replier la navigation" aria-expanded="true" aria-controls="navigation">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="2" y="3" width="12" height="1.5" fill="currentColor"></rect>
+      <rect x="2" y="7.25" width="12" height="1.5" fill="currentColor"></rect>
+      <rect x="2" y="11.5" width="12" height="1.5" fill="currentColor"></rect>
+    </svg>
+  </button>
+
+  <a class="logo" href={docUrl('')} aria-label={`Accueil ${SITE.name}`} data-home-link>
+    <span class="logo-mark" aria-hidden="true"><span></span></span>
+    <span class="logo-text">soc<span>.kb</span></span>
+  </a>
+
+  <button class="search" type="button" data-action="open-search" aria-label="Recherche globale (Ctrl+K)">
+    <span class="search-scope">
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+        <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
+      </svg>
+      <span>tout</span>
+    </span>
+    <span class="search-placeholder">Filtre, Event ID, T-ID, requête…<span class="search-example">id:4769</span></span>
+    <span class="search-keys desktop-only" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
+  </button>
+
+  <button class="icon-btn help desktop-only" type="button" data-action="open-help" aria-label="Raccourcis clavier" title="Raccourcis clavier (?)">?</button>
+
+  <div class="theme" role="group" aria-label="Thème">
+    <button type="button" data-action="set-theme" data-theme-value="dark" aria-pressed="false">Sombre</button>
+    <button type="button" data-action="set-theme" data-theme-value="light" aria-pressed="false">Clair</button>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-topbar);
+    height: var(--topbar-h);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    padding: 0 var(--sp-8);
+    background: var(--bg);
+    border-bottom: var(--bw) solid var(--border);
+  }
+
+  .icon-btn {
+    width: var(--ctl);
+    height: var(--ctl);
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-lg);
+    cursor: pointer;
+    color: var(--text-2);
+  }
+
+  .help {
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    flex: none;
+    color: var(--text);
+  }
+
+  .logo:hover {
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: var(--logo);
+    height: var(--logo);
+    border-radius: var(--r-md);
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark span {
+    width: var(--sp-4);
+    height: var(--sp-4);
+    border: var(--bw-strong) solid var(--accent-ink);
+    border-radius: var(--r-xs);
+  }
+
+  .logo-text {
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--ls-h2);
+  }
+
+  .logo-text span {
+    color: var(--text-3);
+  }
+
+  .search {
+    flex: 1;
+    min-width: 0;
+    max-width: var(--search-max);
+    margin: 0 auto;
+    height: var(--ctl-lg);
+    display: flex;
+    align-items: stretch;
+    padding: 0;
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-2xl);
+    cursor: pointer;
+    color: var(--text-3);
+    font-size: var(--fs-base);
+    text-align: left;
+    overflow: hidden;
+  }
+
+  .search:hover {
+    border-color: var(--accent-line);
+  }
+
+  .search-scope {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3h);
+    padding: 0 var(--sp-5h);
+    border-right: var(--bw) solid var(--accent-line);
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    flex: none;
+  }
+
+  .search-scope svg {
+    flex: none;
+  }
+
+  .search-placeholder {
+    flex: 1;
+    min-width: 0;
+    display: block;
+    align-self: center;
+    padding: 0 var(--sp-6);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .search-example {
+    margin-left: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    opacity: 0.8;
+  }
+
+  .search-keys {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 0 var(--sp-5);
+  }
+
+  .theme {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: var(--sp-1);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-xl);
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  .theme button {
+    border: none;
+    cursor: pointer;
+    border-radius: var(--r-md);
+    padding: var(--sp-2h) var(--sp-4h);
+    background: transparent;
+    color: var(--text-3);
+  }
+
+  .theme button[aria-pressed='true'] {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  @media (max-width: 859px) {
+    .desktop-only {
+      display: none;
+    }
+  }
+</style>

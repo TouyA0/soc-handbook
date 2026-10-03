@@ -1,0 +1,161 @@
+---
+import type { MarkdownHeading } from 'astro';
+import { docUrl, type Doc } from '../lib/content';
+import { docTypeLabel } from '../lib/nav';
+import PinButton from './PinButton.astro';
+
+interface Props {
+  toc: MarkdownHeading[];
+  backlinks: Doc[];
+}
+
+const { toc, backlinks } = Astro.props;
+---
+
+<aside aria-label="Sur cette page">
+  {
+    toc.length > 0 && (
+      <div>
+        <div class="caps title">Sur cette page</div>
+        <nav class="toc" aria-label="Sommaire" data-toc>
+          {toc.map((h) => (
+            <a href={`#${h.slug}`} class:list={{ sub: h.depth === 3 }}>
+              {h.text}
+            </a>
+          ))}
+        </nav>
+      </div>
+    )
+  }
+  {
+    backlinks.length > 0 && (
+      <div>
+        <div class="caps title">Liens entrants · {backlinks.length}</div>
+        <ul class="backlinks">
+          {backlinks.map((b) => (
+            <li>
+              <a href={docUrl(b.id)}>
+                <span class="type">{docTypeLabel(b)}</span>
+                <span>{b.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+  <div class="actions">
+    <PinButton variant="link" />
+    <button type="button" data-action="copy-link">Copier le lien de la page</button>
+    <button type="button" data-action="top">↑ Haut de page</button>
+  </div>
+</aside>
+
+<style>
+  aside {
+    position: sticky;
+    top: var(--toc-top);
+    width: var(--toc-w);
+    flex: none;
+    max-height: calc(100vh - var(--toc-top) - var(--sp-14));
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-11);
+  }
+
+  .title {
+    margin-bottom: var(--sp-5);
+  }
+
+  .toc {
+    display: flex;
+    flex-direction: column;
+    border-left: var(--bw) solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    margin-left: calc(-1 * var(--bw));
+    padding: var(--sp-2h) 0 var(--sp-2h) var(--sp-6);
+    border-left: var(--bw-strong) solid transparent;
+    font-size: var(--fs-md);
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+
+  .toc a.sub {
+    padding-left: var(--sp-10);
+  }
+
+  .toc a:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .toc :global(a.is-active) {
+    border-left-color: var(--accent);
+    color: var(--text);
+  }
+
+  .backlinks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+
+  .backlinks a {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-0);
+    padding: var(--sp-3) var(--sp-4);
+    margin-left: calc(-1 * var(--sp-4));
+    border-radius: var(--r-md);
+    font-size: var(--fs-md);
+    line-height: 1.35;
+    color: var(--text-2);
+  }
+
+  .backlinks a:hover {
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .type {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--ls-caps);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  .actions button:not(.pin) {
+    font: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  /* La maquette n'affiche la colonne de droite qu'à partir de 1200px. */
+  @media (max-width: 1199px) {
+    aside {
+      display: none;
+    }
+  }
+</style>

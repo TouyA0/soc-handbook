@@ -1,0 +1,48 @@
+---
+interface Props {
+  /** `pill` : pastille de l'en-tête d'article ; `link` : lien discret de la colonne de droite. */
+  variant: 'pill' | 'link';
+}
+
+const { variant } = Astro.props;
+---
+
+<button type="button" class:list={['pin', variant]} data-action="pin" aria-pressed="false" title="Épingler (p)">
+  <span class="off">◇ Épingler</span>
+  <span class="on">◆ Épinglé</span>
+</button>
+
+<style>
+  .pin {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-2);
+  }
+
+  .pill {
+    padding: var(--sp-1h) var(--sp-4h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-pill);
+  }
+
+  .link {
+    padding: 0;
+    border: none;
+  }
+
+  .on,
+  .pin[aria-pressed='true'] .off {
+    display: none;
+  }
+
+  .pin[aria-pressed='true'] .on {
+    display: inline;
+  }
+
+  .pin[aria-pressed='true'] {
+    color: var(--accent);
+    border-color: var(--accent-line);
+  }
+</style>

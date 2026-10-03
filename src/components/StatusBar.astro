@@ -1,0 +1,82 @@
+---
+interface Props {
+  path: string;
+  meta: string;
+}
+
+const { path, meta } = Astro.props;
+---
+
+<div class="statusbar">
+  <span class="mode" data-status-mode>LECTURE</span>
+  <span class="path">{path}</span>
+  {meta && <span class="meta">{meta}</span>}
+  <button type="button" data-action="open-search">Ctrl K rechercher</button>
+  <button type="button" data-action="open-help">? raccourcis</button>
+</div>
+
+<style>
+  .statusbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-bottombar);
+    height: var(--statusbar-h);
+    display: flex;
+    align-items: stretch;
+    background: var(--bg-2);
+    border-top: var(--bw) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-snug);
+    color: var(--text-3);
+  }
+
+  .statusbar > * {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sp-6);
+    flex: none;
+  }
+
+  .mode {
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--ls-caps);
+  }
+
+  .path {
+    flex: 1;
+    min-width: 0;
+    display: block;
+    align-self: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .meta,
+  button {
+    border-left: var(--bw) solid var(--border-soft);
+  }
+
+  button {
+    background: none;
+    border-block: none;
+    border-right: none;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 859px) {
+    .statusbar {
+      display: none;
+    }
+  }
+</style>

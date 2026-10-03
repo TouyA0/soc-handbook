@@ -56,6 +56,28 @@
   --sp-18: 56px;
   --sp-20: 80px;
 
+  /* Valeurs intermédiaires de la maquette, pour les paddings de badges, boutons et lignes */
+  --sp-1h: 3px;
+  --sp-2h: 5px;
+  --sp-3h: 7px;
+  --sp-4h: 9px;
+  --sp-5h: 11px;
+  --sp-8h: 18px;
+  --sp-9: 20px;
+  --sp-11: 28px;
+  --sp-21: 96px;
+
+  /* Contrôles et pictogrammes */
+  --ctl-sm: 34px;
+  --ctl: 36px;
+  --ctl-lg: 40px;
+  --logo: 22px;
+  --dot: 6px;
+  --dot-lg: 7px;
+  --underline-offset: 3px;
+  --bw: 1px;
+  --bw-strong: 2px;
+
   /* Rayons */
   --r-xs: 2px;
   --r-sm: 4px;
@@ -81,6 +103,14 @@
   --article-max: 780px;
   --measure: 640px;
   --anchor-offset: 90px;
+  --toc-top: 80px;
+  --search-max: 620px;
+  --drawer-w: 86%;
+  --drawer-max: 320px;
+  --help-max: 460px;
+  --sheet-max-h: 72vh;
+  --neighbor-min: 240px;
+  --section-num-w: 18px;
 
   /* Plans */
   --z-sticky: 5;

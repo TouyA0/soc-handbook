@@ -1,0 +1,87 @@
+---
+const shortcuts: [string[], string][] = [
+  [['Ctrl', 'K'], 'Recherche globale'],
+  [['/'], 'Recherche globale'],
+  [['g', '0–8'], 'Aller à une section'],
+  [['g', 'h'], "Retour à l'accueil"],
+  [['p'], 'Épingler la page'],
+  [['t'], 'Basculer clair / sombre'],
+  [['['], 'Replier la barre latérale'],
+  [['?'], 'Afficher cette aide'],
+  [['Esc'], 'Fermer'],
+];
+---
+
+<dialog class="help" data-dialog="help" aria-labelledby="help-title">
+  <div class="head">
+    <h2 id="help-title">Raccourcis clavier</h2>
+    <button type="button" class="kbd" data-action="close-dialog" aria-label="Fermer">Esc</button>
+  </div>
+  <dl>
+    {
+      shortcuts.map(([keys, label]) => (
+        <>
+          <dt>{keys.map((key) => <kbd class="kbd">{key}</kbd>)}</dt>
+          <dd>{label}</dd>
+        </>
+      ))
+    }
+  </dl>
+</dialog>
+
+<style>
+  .help {
+    width: calc(100% - 2 * var(--sp-8));
+    max-width: var(--help-max);
+    padding: 0;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-dialog);
+    box-shadow: var(--shadow-dialog);
+    overflow: hidden;
+  }
+
+  .help::backdrop {
+    background: var(--overlay-strong);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sp-7) var(--sp-8h);
+    border-bottom: var(--bw) solid var(--border);
+  }
+
+  h2 {
+    font-size: var(--fs-h3);
+    letter-spacing: normal;
+  }
+
+  .head button {
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--sp-6) var(--sp-9);
+    margin: 0;
+    padding: var(--sp-8h);
+    align-items: center;
+  }
+
+  dt {
+    display: flex;
+    gap: var(--sp-2);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--fs-base);
+    color: var(--text-2);
+  }
+</style>

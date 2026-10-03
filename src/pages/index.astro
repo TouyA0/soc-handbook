@@ -1,21 +1,19 @@
 ---
 // Page provisoire : l'accueil maquetté arrive en phase 7.
-import Base from '../layouts/Base.astro';
+import Shell from '../layouts/Shell.astro';
 ---
 
-<Base>
-  <main id="contenu" tabindex="-1">
+<Shell>
+  <div class="home">
     <h1>soc.kb</h1>
     <p>Base de connaissances d'analyste SOC — site en cours de construction.</p>
-  </main>
-</Base>
+  </div>
+</Shell>
 
 <style>
-  main {
-    max-width: var(--measure);
+  .home {
+    max-width: var(--home-max);
     margin: 0 auto;
-    padding: var(--sp-16) var(--sp-8);
-    outline: none;
   }
 
   h1 {

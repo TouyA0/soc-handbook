@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { SITE, STORAGE } from '../data/site';
 import plexSans from '../assets/fonts/ibm-plex-sans-latin-400-700-normal.woff2?url';
 import plexCondensed from '../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2?url';
 import jetbrainsMono from '../assets/fonts/jetbrains-mono-latin-400-600-normal.woff2?url';
@@ -9,9 +10,8 @@ interface Props {
   description?: string;
 }
 
-const SITE_NAME = 'soc.kb';
 const { title, description = "Base de connaissances personnelle d'analyste SOC." } = Astro.props;
-const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — Base de connaissances SOC`;
+const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 ---
 
 <!doctype html>
@@ -22,16 +22,19 @@ const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — Base d
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système. -->
-    <script is:inline>
+    <script is:inline define:vars={{ STORAGE }}>
       (function () {
         var theme = null;
+        var sidebar = null;
         try {
-          theme = localStorage.getItem('sockb-theme');
+          theme = localStorage.getItem(STORAGE.theme);
+          sidebar = localStorage.getItem(STORAGE.sidebar);
         } catch (e) {}
         if (theme !== 'dark' && theme !== 'light') {
           theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
         document.documentElement.setAttribute('data-theme', theme);
+        if (sidebar === 'closed') document.documentElement.setAttribute('data-sidebar', 'closed');
       })();
     </script>
     {

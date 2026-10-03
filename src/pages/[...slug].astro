@@ -1,7 +1,6 @@
 ---
-// Rendu provisoire des pages de contenu : les gabarits maquettés arrivent en phases 4 à 6.
 import { render } from 'astro:content';
-import Base from '../layouts/Base.astro';
+import Article from '../layouts/Article.astro';
 import { assertLinks, getDocs, type Doc } from '../lib/content';
 
 export async function getStaticPaths() {
@@ -15,25 +14,9 @@ interface Props {
 }
 
 const { doc } = Astro.props;
-const { Content } = await render(doc);
+const { Content, headings } = await render(doc);
 ---
 
-<Base title={doc.data.title} description={doc.data.description}>
-  <main id="contenu" tabindex="-1">
-    <h1>{doc.data.title}</h1>
-    <Content />
-  </main>
-</Base>
-
-<style>
-  main {
-    max-width: var(--article-max);
-    margin: 0 auto;
-    padding: var(--sp-16) var(--sp-8);
-    outline: none;
-  }
-
-  h1 {
-    margin-bottom: var(--sp-8);
-  }
-</style>
+<Article doc={doc} headings={headings}>
+  <Content />
+</Article>

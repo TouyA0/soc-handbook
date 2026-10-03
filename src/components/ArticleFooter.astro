@@ -1,0 +1,110 @@
+---
+import { SITE } from '../data/site';
+import { docUrl, type Doc } from '../lib/content';
+import { neighborContext, neighborLabel } from '../lib/nav';
+
+interface Props {
+  doc: Doc;
+  neighbors: { prev: Doc | undefined; next: Doc | undefined };
+  /** Date de dernière modification, déjà formatée. */
+  updated: string;
+}
+
+const { doc, neighbors, updated } = Astro.props;
+const { prev, next } = neighbors;
+const historyUrl = doc.filePath ? `${SITE.repo}/commits/${SITE.branch}/${doc.filePath}` : undefined;
+const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dans « ${doc.data.title} »`)}`;
+---
+
+{
+  (prev || next) && (
+    <nav class="neighbors" aria-label="Pages voisines">
+      {prev && (
+        <a class="prev" href={docUrl(prev.id)} rel="prev">
+          <span class="ctx">← PRÉCÉDENT · {neighborContext(prev)}</span>
+          <span class="label">{neighborLabel(prev)}</span>
+        </a>
+      )}
+      {next && (
+        <a class="next" href={docUrl(next.id)} rel="next">
+          <span class="ctx">SUIVANT · {neighborContext(next)} →</span>
+          <span class="label">{neighborLabel(next)}</span>
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<footer>
+  <span>Dernière modification : {updated}</span>
+  <span class="links">
+    {historyUrl && <a href={historyUrl}>Historique sur GitHub</a>}
+    <a href={issueUrl}>Signaler une erreur</a>
+  </span>
+</footer>
+
+<style>
+  .neighbors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--neighbor-min), 100%), 1fr));
+    gap: var(--sp-5);
+    margin-top: var(--sp-18);
+  }
+
+  .neighbors a {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    padding: var(--sp-7) var(--sp-8);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .neighbors a:hover {
+    border-color: var(--accent-line);
+    text-decoration: none;
+  }
+
+  .neighbors .next {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* Seule page voisine = la suivante : elle reste dans la colonne de droite. */
+  .neighbors .next:first-child {
+    grid-column: -2;
+  }
+
+  .ctx {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .label {
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-semibold);
+  }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--sp-6);
+    margin-top: var(--sp-9);
+    padding-top: var(--sp-8);
+    border-top: var(--bw) solid var(--border-soft);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .links {
+    display: flex;
+    gap: var(--sp-8);
+  }
+</style>

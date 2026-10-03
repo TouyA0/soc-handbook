@@ -1,0 +1,44 @@
+<div class="toast" role="status" aria-live="polite" data-toast hidden>
+  <span class="dot" aria-hidden="true"></span>
+  <span data-toast-text></span>
+</div>
+
+<style>
+  .toast {
+    position: fixed;
+    bottom: calc(var(--statusbar-h) + var(--sp-8));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--z-toast);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-4h) var(--sp-7);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-2xl);
+    background: var(--surface-2);
+    box-shadow: var(--shadow-toast);
+    font-family: var(--font-mono);
+    font-size: var(--fs-code);
+    line-height: var(--lh-snug);
+    color: var(--text);
+  }
+
+  .toast[hidden] {
+    display: none;
+  }
+
+  .dot {
+    width: var(--dot-lg);
+    height: var(--dot-lg);
+    flex: none;
+    border-radius: 50%;
+    background: var(--sev-low);
+  }
+
+  @media (max-width: 859px) {
+    .toast {
+      bottom: calc(var(--mobilebar-h) + var(--sp-8));
+    }
+  }
+</style>

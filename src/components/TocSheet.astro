@@ -1,0 +1,79 @@
+---
+// Sommaire en panneau bas, ouvert depuis la barre d'actions mobile.
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  toc: MarkdownHeading[];
+}
+
+const { toc } = Astro.props;
+---
+
+<dialog class="sheet" data-dialog="toc" aria-labelledby="toc-sheet-title">
+  <div class="caps" id="toc-sheet-title">Sur cette page</div>
+  {
+    toc.length > 0 ? (
+      <nav aria-label="Sommaire" data-toc>
+        {toc.map((h) => (
+          <a href={`#${h.slug}`} class:list={{ sub: h.depth === 3 }} data-action="close-dialog">
+            {h.text}
+          </a>
+        ))}
+      </nav>
+    ) : (
+      <p>Cette page n'a pas de sections.</p>
+    )
+  }
+</dialog>
+
+<style>
+  .sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: var(--sheet-max-h);
+    margin: 0;
+    overflow-y: auto;
+    background: var(--surface);
+    color: var(--text);
+    border: none;
+    border-top: var(--bw) solid var(--border);
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+    padding: var(--sp-8) var(--sp-8) var(--sp-10);
+  }
+
+  .sheet::backdrop {
+    background: var(--overlay);
+  }
+
+  .caps {
+    margin-bottom: var(--sp-3);
+  }
+
+  a {
+    display: block;
+    padding: var(--sp-6) 0 var(--sp-6) var(--sp-6);
+    border-bottom: var(--bw) solid var(--border-soft);
+    font-size: var(--fs-body-sm);
+    color: var(--text-2);
+  }
+
+  a.sub {
+    padding-left: var(--sp-10);
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  nav :global(a.is-active) {
+    color: var(--text);
+  }
+
+  p {
+    margin: var(--sp-6) 0 0;
+    font-size: var(--fs-base);
+    color: var(--text-3);
+  }
+</style>

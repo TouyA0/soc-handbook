@@ -1,0 +1,395 @@
+---
+import type { Doc } from '../lib/content';
+import { getNavSections, getStatsParts } from '../lib/nav';
+
+interface Props {
+  docs: Doc[];
+  currentId?: string;
+}
+
+const { docs, currentId } = Astro.props;
+const sections = getNavSections(docs, currentId);
+const stats = getStatsParts(docs);
+---
+
+<nav class="sidebar" id="navigation" aria-label="Navigation principale" tabindex="-1">
+  <div class="group" data-nav-group="pins" hidden>
+    <div class="caps">Épinglés</div>
+    <ul data-nav-list="pins"></ul>
+  </div>
+  <div class="group" data-nav-group="recents" hidden>
+    <div class="caps">Vus récemment</div>
+    <ul data-nav-list="recents"></ul>
+  </div>
+  <template data-nav-template>
+    <li>
+      <a class="entry">
+        <span class="diamond" aria-hidden="true"></span>
+        <span class="entry-label"></span>
+        <span class="entry-meta"></span>
+      </a>
+    </li>
+  </template>
+
+  <div class="rule"></div>
+  <div class="caps base-title">Base de connaissances</div>
+
+  <ul class="sections">
+    {
+      sections.map(({ section, href, active, current, children }) => (
+        <li>
+          <div class:list={['section', { 'is-active': active }]}>
+            <a href={href} aria-current={current ? 'page' : undefined} data-section-link={section.num}>
+              <span class="num">{section.num}</span>
+              <span class="section-label">{section.title}</span>
+            </a>
+            {children.length > 0 && (
+              <button
+                type="button"
+                class="caret"
+                data-action="toggle-section"
+                aria-expanded={active ? 'true' : 'false'}
+                aria-controls={`nav-${section.num}`}
+                aria-label={`Déplier ${section.title}`}
+              />
+            )}
+          </div>
+          {children.length > 0 && (
+            <ul class="children" id={`nav-${section.num}`} hidden={!active}>
+              {children.map((child) => (
+                <li>
+                  <a href={child.href} aria-current={child.current ? 'page' : undefined}>
+                    <span>{child.label}</span>
+                    {child.meta && <span class="child-meta">{child.meta}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="foot">
+    <div>{stats.counts}</div>
+    {stats.updated && <div>{stats.updated}</div>}
+    <div class="hint"><kbd class="kbd">g</kbd><span>+</span><kbd class="kbd">0–8</kbd><span class="hint-text">sauter à une section</span></div>
+  </div>
+</nav>
+
+<nav class="rail" aria-label="Sections">
+  {
+    sections.map(({ section, active }) => (
+      <button type="button" class:list={{ 'is-active': active }} data-action="open-section" data-section={section.num} title={section.title} aria-label={`${section.num} ${section.title}`}>
+        {section.num}
+      </button>
+    ))
+  }
+</nav>
+
+<div class="scrim" data-action="close-drawer"></div>
+
+<style>
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: var(--topbar-h);
+    height: calc(100vh - var(--topbar-h) - var(--statusbar-h));
+    width: var(--sidebar-w);
+    flex: none;
+    overflow-y: auto;
+    background: var(--bg-2);
+    border-right: var(--bw) solid var(--border);
+    padding: var(--sp-8) var(--sp-5) var(--sp-10);
+    outline: none;
+  }
+
+  .group {
+    margin-bottom: var(--sp-8);
+  }
+
+  .caps {
+    padding: var(--sp-2) var(--sp-5) var(--sp-4);
+  }
+
+  .base-title {
+    padding-bottom: var(--sp-5);
+  }
+
+  .group ul,
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-0);
+  }
+
+  .entry {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    padding: var(--sp-3) var(--sp-5);
+    border-radius: var(--r-lg);
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  .entry:hover,
+  .section:hover,
+  .children a:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .entry[aria-current='page'] {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  .diamond {
+    width: var(--dot);
+    height: var(--dot);
+    flex: none;
+    transform: rotate(45deg);
+    background: var(--border);
+  }
+
+  [data-nav-list='pins'] .diamond,
+  .entry[aria-current='page'] .diamond {
+    background: var(--accent);
+  }
+
+  .entry-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .entry-meta,
+  .child-meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    color: var(--text-3);
+  }
+
+  .rule {
+    height: var(--bw);
+    background: var(--border-soft);
+    margin: 0 var(--sp-5) var(--sp-7);
+  }
+
+  .section {
+    display: flex;
+    align-items: center;
+    border-radius: var(--r-lg);
+    color: var(--text-2);
+  }
+
+  .section.is-active {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .section a {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    padding: var(--sp-3h) var(--sp-5);
+    border-radius: var(--r-lg);
+    font-size: var(--fs-base);
+    color: inherit;
+  }
+
+  .section a:hover {
+    text-decoration: none;
+  }
+
+  .num {
+    width: var(--section-num-w);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .caret {
+    flex: none;
+    width: var(--ctl-sm);
+    align-self: stretch;
+    border: none;
+    border-radius: var(--r-lg);
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .caret::before {
+    content: '▸';
+  }
+
+  .caret[aria-expanded='true']::before {
+    content: '▾';
+  }
+
+  .children {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-0);
+    margin: var(--sp-1) 0 var(--sp-3) calc(var(--section-num-w) + var(--sp-0));
+    padding-left: var(--sp-5);
+    border-left: var(--bw) solid var(--border);
+  }
+
+  .children[hidden] {
+    display: none;
+  }
+
+  .children a {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-0);
+    padding: var(--sp-3) var(--sp-5);
+    border-radius: var(--r-md);
+    font-size: var(--fs-md);
+    line-height: var(--lh-snug);
+    color: var(--text);
+  }
+
+  .children a[aria-current='page'] {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  .foot {
+    margin: var(--sp-9) var(--sp-5) 0;
+    padding-top: var(--sp-7);
+    border-top: var(--bw) solid var(--border-soft);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    line-height: 1.8;
+  }
+
+  .hint {
+    margin-top: var(--sp-4);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .hint-text {
+    margin-left: var(--sp-2);
+  }
+
+  .rail {
+    display: none;
+    position: sticky;
+    top: var(--topbar-h);
+    height: calc(100vh - var(--topbar-h) - var(--statusbar-h));
+    width: var(--rail-w);
+    flex: none;
+    flex-direction: column;
+    gap: var(--sp-2);
+    background: var(--bg-2);
+    border-right: var(--bw) solid var(--border);
+    padding: var(--sp-7) var(--sp-4);
+  }
+
+  .rail button {
+    height: var(--ctl-sm);
+    border: none;
+    border-radius: var(--r-lg);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    background: transparent;
+    color: var(--text-2);
+  }
+
+  .rail button.is-active {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .scrim {
+    display: none;
+  }
+
+  :global(html[data-sidebar='closed']) .sidebar {
+    display: none;
+  }
+
+  :global(html[data-sidebar='closed']) .rail {
+    display: flex;
+  }
+
+  /* Mobile : la barre latérale devient un tiroir, fermé par défaut. */
+  @media (max-width: 859px) {
+    .rail,
+    :global(html[data-sidebar='closed']) .rail,
+    .sidebar,
+    :global(html[data-sidebar='closed']) .sidebar {
+      display: none;
+    }
+
+    :global(html[data-drawer='open']) .sidebar {
+      display: block;
+      position: fixed;
+      top: var(--topbar-h);
+      bottom: 0;
+      left: 0;
+      z-index: calc(var(--z-drawer) + 1);
+      width: var(--drawer-w);
+      max-width: var(--drawer-max);
+      height: auto;
+      padding: var(--sp-8) var(--sp-5);
+    }
+
+    :global(html[data-drawer='open']) .scrim {
+      display: block;
+      position: fixed;
+      inset: var(--topbar-h) 0 0 0;
+      z-index: var(--z-drawer);
+      background: var(--overlay);
+    }
+
+    .group,
+    .rule,
+    .base-title,
+    .foot,
+    .child-meta {
+      display: none;
+    }
+
+    .section a {
+      padding: var(--sp-5h) var(--sp-5);
+      font-size: var(--fs-body-sm);
+    }
+
+    .num {
+      width: var(--sp-9);
+      font-size: var(--fs-sm);
+    }
+
+    .children {
+      gap: 0;
+      margin-left: var(--sp-9);
+    }
+
+    .children a {
+      padding: var(--sp-5h) var(--sp-5);
+      font-size: var(--fs-base);
+    }
+  }
+</style>
