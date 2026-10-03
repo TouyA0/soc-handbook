@@ -1,0 +1,20 @@
+# dépendances
+node_modules/
+
+# sorties de build
+dist/
+.astro/
+
+# environnement
+.env
+.env.*
+!.env.example
+
+# journaux
+npm-debug.log*
+
+# système et éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
