@@ -17,11 +17,14 @@ const topTags = getTopTags(docs, 6);
 const sectionUrl = (dir: string) => docUrl(dir);
 const techniquesUrl = docUrl('03-menaces-detection');
 
+/** Une adresse e-mail saisie telle quelle devient un lien `mailto:`. */
+const contactHref = (value: string) => (/^[^s@/:]+@[^s@/]+$/.test(value) ? `mailto:${value}` : value);
+
 const links = [
   { label: 'Télécharger mon CV', href: PROFILE.links.cv, primary: true },
   { label: 'LinkedIn', href: PROFILE.links.linkedin },
   { label: 'GitHub', href: PROFILE.links.github },
-  { label: 'Contact', href: PROFILE.links.contact },
+  { label: 'Contact', href: contactHref(PROFILE.links.contact) },
 ].filter((l) => l.href);
 
 const state = [

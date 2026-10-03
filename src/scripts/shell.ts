@@ -259,9 +259,16 @@ function scrollToTop(): void {
   window.scrollTo({ top: 0 });
 }
 
-function openSearch(): void {
-  // La palette de recherche arrive avec Pagefind.
-  toast('Recherche bientôt disponible');
+/** Ouvre la palette de recherche (src/scripts/search.ts), ou la referme si elle est déjà ouverte. */
+function openSearch(query = ''): void {
+  const palette = $<HTMLDialogElement>('dialog[data-dialog="search"]');
+  if (palette?.open && !query) {
+    palette.close();
+    return;
+  }
+  closeDialogs();
+  setDrawer(false);
+  document.dispatchEvent(new CustomEvent('sockb:search', { detail: query }));
 }
 
 const actions: Record<string, (el: HTMLElement) => void> = {
@@ -270,7 +277,7 @@ const actions: Record<string, (el: HTMLElement) => void> = {
   'toggle-section': (el) => setSectionOpen(el, el.getAttribute('aria-expanded') !== 'true'),
   'open-section': (el) => openSection(el.dataset.section ?? ''),
   'set-theme': (el) => setTheme(el.dataset.themeValue ?? 'dark'),
-  'open-search': openSearch,
+  'open-search': (el) => openSearch(el.dataset.query ?? ''),
   'open-help': () => openDialog('help'),
   'open-toc': () => {
     setDrawer(false);
@@ -353,6 +360,8 @@ document.addEventListener('keydown', (event) => {
       break;
   }
 });
+
+document.addEventListener('sockb:toast', (event) => toast((event as CustomEvent<string>).detail));
 
 /* Initialisation */
 

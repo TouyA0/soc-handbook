@@ -111,6 +111,9 @@
   --drawer-w: 86%;
   --drawer-max: 320px;
   --help-max: 460px;
+  --palette-max: 960px;
+  --palette-max-h: 84vh;
+  --palette-top: 7vh;
   --sheet-max-h: 72vh;
   --neighbor-min: 240px;
   --section-num-w: 18px;

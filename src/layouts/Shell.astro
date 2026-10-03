@@ -2,6 +2,7 @@
 // Ossature commune : barre supérieure, barre latérale, zone principale, barre d'état, barre mobile.
 import HelpDialog from '../components/HelpDialog.astro';
 import MobileBar from '../components/MobileBar.astro';
+import SearchPalette from '../components/SearchPalette.astro';
 import Sidebar from '../components/Sidebar.astro';
 import StatusBar from '../components/StatusBar.astro';
 import Toast from '../components/Toast.astro';
@@ -35,6 +36,7 @@ const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(' 
   </div>
   <StatusBar path={getStatusPath(doc)} meta={meta} />
   <MobileBar hasToc={Boolean(doc)} />
+  <SearchPalette />
   <HelpDialog />
   <slot name="dialogs" />
   <Toast />

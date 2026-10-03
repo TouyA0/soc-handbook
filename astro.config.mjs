@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import { internalLinks } from './src/plugins/internal-links.mjs';
 import { markdownBlocks } from './src/plugins/markdown-blocks.mjs';
+import { searchIndex } from './src/plugins/search-index.mjs';
 
 const BASE = '/soc-handbook';
 
@@ -17,5 +18,5 @@ export default defineConfig({
       langAlias: { spl: 'splunk', kql: 'kusto', sigma: 'yaml', wireshark: 'text', bpf: 'text' },
     },
   },
-  integrations: [mdx(), markdownBlocks(), internalLinks({ base: BASE, contentDir: './src/content/docs' })],
+  integrations: [mdx(), markdownBlocks(), internalLinks({ base: BASE, contentDir: './src/content/docs' }), searchIndex()],
 });

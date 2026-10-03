@@ -1,0 +1,461 @@
+---
+// Palette de recherche (Ctrl K). Le comportement est dans src/scripts/search.ts.
+const scopes = [
+  ['all', 'Tout'],
+  ['technique', 'Techniques'],
+  ['event', 'Event IDs'],
+  ['filter', 'Filtres'],
+  ['query', 'Requêtes'],
+  ['writeup', 'Write-ups'],
+  ['playbook', 'Playbooks'],
+];
+---
+
+<dialog class="palette" data-dialog="search" aria-label="Recherche globale">
+  <div class="bar">
+    <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+      <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
+    </svg>
+    <span class="prefix" data-search-prefix hidden></span>
+    <input
+      type="text"
+      aria-label="Rechercher dans la base"
+      placeholder="Filtre, Event ID, T-ID, requête, #tag…"
+      autocomplete="off"
+      spellcheck="false"
+      data-search-input
+    />
+    <span class="count" data-search-count aria-live="polite"></span>
+    <button type="button" class="kbd" data-action="close-dialog" aria-label="Fermer">Esc</button>
+  </div>
+
+  <div class="scopes" role="tablist" aria-label="Filtrer par type">
+    {
+      scopes.map(([value, label]) => (
+        <button type="button" role="tab" aria-selected={value === 'all' ? 'true' : 'false'} data-search-scope={value}>
+          {label}
+          <span data-scope-count />
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="body">
+    <div class="results" data-search-results>
+      <div data-search-recents hidden>
+        <div class="caps group-label">Recherches récentes</div>
+        <div class="recents" data-search-recent-list></div>
+      </div>
+      <div data-search-groups></div>
+      <p class="message" data-search-message hidden></p>
+    </div>
+    <div class="preview" data-search-preview aria-live="polite" hidden>
+      <div class="pv-top"><span class="pv-type" data-pv="type"></span><span class="pv-mono" data-pv="mono"></span></div>
+      <div class="pv-title" data-pv="title"></div>
+      <div class="pv-path" data-pv="path"></div>
+      <p class="pv-desc" data-pv="desc"></p>
+      <p class="pv-excerpt" data-pv="excerpt"></p>
+      <div class="pv-snippet" data-pv-snippet hidden>
+        <div class="pv-snippet-head">
+          <span data-pv="lang"></span>
+          <button type="button" data-search-copy>Copier ⇧↵</button>
+        </div>
+        <pre><code data-pv="code"></code></pre>
+      </div>
+      <div class="pv-tags" data-pv="tags"></div>
+      <div class="pv-open"><a data-pv-open>Ouvrir ↵</a></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>↑↓ naviguer</span>
+    <span>↵ ouvrir</span>
+    <span>⇧↵ copier l'extrait</span>
+    <span>Tab filtre suivant</span>
+    <span class="prefixes">préfixes : t: id: f: q: wu: pb: #tag</span>
+  </div>
+
+  <template data-search-group-template>
+    <div class="group">
+      <div class="caps group-label"><span data-group-label></span><span data-group-count></span></div>
+    </div>
+  </template>
+  <template data-search-result-template>
+    <a class="result">
+      <span class="result-main">
+        <span class="result-title"></span>
+        <span class="result-path"></span>
+      </span>
+      <span class="result-mono"></span>
+    </a>
+  </template>
+</dialog>
+
+<script>
+  import '../scripts/search';
+</script>
+
+<style>
+  .palette {
+    width: calc(100% - 2 * var(--sp-6));
+    max-width: var(--palette-max);
+    max-height: var(--palette-max-h);
+    margin-top: var(--palette-top);
+    padding: 0;
+    background: var(--surface);
+    color: var(--text);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-dialog);
+    box-shadow: var(--shadow-dialog);
+    overflow: hidden;
+  }
+
+  .palette[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .palette::backdrop {
+    background: var(--overlay-strong);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    height: var(--mobilebar-h);
+    padding: 0 var(--sp-8);
+    border-bottom: var(--bw) solid var(--border);
+    flex: none;
+    color: var(--accent);
+  }
+
+  .bar svg {
+    flex: none;
+  }
+
+  .prefix {
+    flex: none;
+    padding: var(--sp-1h) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: var(--fs-lead);
+    color: var(--text);
+  }
+
+  input::placeholder {
+    color: var(--text-3);
+  }
+
+  .count {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .bar button {
+    flex: none;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  .scopes {
+    display: flex;
+    gap: var(--sp-2);
+    padding: var(--sp-4) var(--sp-6);
+    border-bottom: var(--bw) solid var(--border-soft);
+    overflow-x: auto;
+    flex: none;
+  }
+
+  .scopes button {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3h);
+    padding: var(--sp-2h) var(--sp-5);
+    border: var(--bw) solid transparent;
+    border-radius: var(--r-lg);
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+  }
+
+  .scopes button[aria-selected='true'] {
+    border-color: var(--accent-line);
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  .scopes span {
+    color: var(--text-3);
+  }
+
+  .body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .results {
+    flex: 1 1 55%;
+    min-width: 0;
+    overflow-y: auto;
+    padding: var(--sp-2) var(--sp-4) var(--sp-5);
+  }
+
+  .group-label {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--sp-6) var(--sp-5) var(--sp-3);
+  }
+
+  .recents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    padding: var(--sp-1) var(--sp-4) var(--sp-3);
+  }
+
+  .recents :global(button) {
+    padding: var(--sp-2) var(--sp-4h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+  }
+
+  .result {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    padding: var(--sp-4h) var(--sp-5);
+    border-radius: var(--r-xl);
+    color: var(--text);
+    line-height: var(--lh-snug);
+  }
+
+  .result:hover {
+    text-decoration: none;
+  }
+
+  .result[aria-selected='true'] {
+    background: var(--accent-bg);
+    box-shadow: inset 0 0 0 var(--bw) var(--accent-line);
+  }
+
+  .result-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+
+  .result-title,
+  .result-path {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .result-title {
+    font-size: var(--fs-body-sm);
+  }
+
+  .result-path {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .result-mono {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--accent);
+  }
+
+  .message {
+    margin: 0;
+    padding: var(--sp-12) var(--sp-8);
+    text-align: center;
+    font-size: var(--fs-base);
+    line-height: var(--lh-ui);
+    color: var(--text-3);
+  }
+
+  .preview {
+    flex: 0 0 45%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+    padding: var(--sp-8h) var(--sp-9);
+    border-left: var(--bw) solid var(--border-soft);
+    background: var(--bg-2);
+    overflow-y: auto;
+  }
+
+  .preview[hidden] {
+    display: none;
+  }
+
+  .preview p {
+    margin: 0;
+  }
+
+  .pv-top {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  .pv-type {
+    padding: var(--sp-1) var(--sp-3h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-sm);
+    color: var(--text-2);
+  }
+
+  .pv-mono {
+    color: var(--accent);
+  }
+
+  .pv-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-title);
+    overflow-wrap: anywhere;
+  }
+
+  .pv-path,
+  .pv-tags {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .pv-desc,
+  .pv-excerpt {
+    font-size: var(--fs-base);
+    line-height: var(--lh-ui);
+    color: var(--text-2);
+  }
+
+  .pv-excerpt {
+    color: var(--text-3);
+  }
+
+  [data-pv]:empty {
+    display: none;
+  }
+
+  .pv-snippet {
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-2xl);
+    background: var(--code-bg);
+    overflow: hidden;
+  }
+
+  .pv-snippet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-6);
+    border-bottom: var(--bw) solid var(--border-soft);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    color: var(--accent);
+  }
+
+  .pv-snippet-head button {
+    padding: var(--sp-1h) var(--sp-4h);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text-2);
+    font-weight: var(--fw-regular);
+    cursor: pointer;
+  }
+
+  .pv-snippet pre {
+    margin: 0;
+    padding: var(--sp-6) var(--sp-7);
+    overflow-x: auto;
+    font-size: var(--fs-code);
+    line-height: var(--lh-body);
+  }
+
+  .pv-snippet code {
+    font-size: inherit;
+  }
+
+  .pv-open {
+    margin-top: auto;
+    padding-top: var(--sp-4);
+  }
+
+  .pv-open a {
+    display: inline-flex;
+    align-items: center;
+    height: var(--ctl);
+    padding: 0 var(--sp-7);
+    border-radius: var(--r-xl);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+  }
+
+  .pv-open a:hover {
+    text-decoration: none;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3) var(--sp-8);
+    padding: var(--sp-4h) var(--sp-8);
+    border-top: var(--bw) solid var(--border);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    flex: none;
+  }
+
+  .prefixes {
+    margin-left: auto;
+  }
+
+  /* La maquette masque le panneau d'aperçu sous 900px. */
+  @media (max-width: 899px) {
+    .preview {
+      display: none;
+    }
+  }
+</style>

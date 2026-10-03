@@ -12,4 +12,5 @@ export const STORAGE = {
   sidebar: 'sockb-sidebar',
   pins: 'sockb-pins',
   recents: 'sockb-recents',
+  searches: 'sockb-searches',
 } as const;
