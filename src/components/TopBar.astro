@@ -1,35 +1,35 @@
 ---
 import { SITE } from '../data/site';
 import { docUrl } from '../lib/content';
+import Icon from './Icon.astro';
 ---
 
 <header class="topbar">
   <button class="icon-btn" type="button" data-action="toggle-sidebar" aria-label="Afficher ou replier la navigation" aria-expanded="true" aria-controls="navigation">
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="2" y="3" width="12" height="1.5" fill="currentColor"></rect>
-      <rect x="2" y="7.25" width="12" height="1.5" fill="currentColor"></rect>
-      <rect x="2" y="11.5" width="12" height="1.5" fill="currentColor"></rect>
-    </svg>
+    <Icon name="sidebar" />
   </button>
 
   <a class="logo" href={docUrl('')} aria-label={`Accueil ${SITE.name}`} data-home-link>
-    <span class="logo-mark" aria-hidden="true"><span></span></span>
+    <!-- Même tracé que public/favicon.svg -->
+    <svg class="logo-mark" viewBox="0 0 22 22" aria-hidden="true">
+      <rect width="22" height="22" rx="5"></rect>
+      <path d="M3.5 11.5H7l2-5.5 3.5 10 2-4.5h4"></path>
+    </svg>
     <span class="logo-text">soc<span>.kb</span></span>
   </a>
 
   <button class="search" type="button" data-action="open-search" aria-label="Recherche globale (Ctrl+K)">
     <span class="search-scope">
-      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
-        <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-        <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
-      </svg>
+      <Icon name="search" size="sm" />
       <span>tout</span>
     </span>
     <span class="search-placeholder">Filtre, Event ID, T-ID, requête…<span class="search-example">id:4769</span></span>
     <span class="search-keys desktop-only" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
   </button>
 
-  <button class="icon-btn help desktop-only" type="button" data-action="open-help" aria-label="Raccourcis clavier" title="Raccourcis clavier (?)">?</button>
+  <button class="icon-btn help desktop-only" type="button" data-action="open-help" aria-label="Raccourcis clavier" title="Raccourcis clavier (?)">
+    <Icon name="keyboard" />
+  </button>
 
   <div class="theme" role="group" aria-label="Thème">
     <button type="button" data-action="set-theme" data-theme-value="dark" aria-pressed="false">Sombre</button>
@@ -65,9 +65,8 @@ import { docUrl } from '../lib/content';
     color: var(--text-2);
   }
 
-  .help {
-    font-family: var(--font-mono);
-    font-size: var(--fs-base);
+  .icon-btn:hover {
+    color: var(--text);
   }
 
   .logo {
@@ -85,18 +84,19 @@ import { docUrl } from '../lib/content';
   .logo-mark {
     width: var(--logo);
     height: var(--logo);
-    border-radius: var(--r-md);
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: none;
   }
 
-  .logo-mark span {
-    width: var(--sp-4);
-    height: var(--sp-4);
-    border: var(--bw-strong) solid var(--accent-ink);
-    border-radius: var(--r-xs);
+  .logo-mark rect {
+    fill: var(--accent);
+  }
+
+  .logo-mark path {
+    fill: none;
+    stroke: var(--accent-ink);
+    stroke-width: var(--logo-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .logo-text {
@@ -144,10 +144,6 @@ import { docUrl } from '../lib/content';
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
-    flex: none;
-  }
-
-  .search-scope svg {
     flex: none;
   }
 

@@ -1,0 +1,13 @@
+---
+// Pictogramme de l'interface. Tracés dans src/data/icons.mjs, styles dans src/styles/global.css.
+import { ICONS, iconSvg } from '../data/icons.mjs';
+
+interface Props {
+  name: keyof typeof ICONS;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { name, size } = Astro.props;
+---
+
+<Fragment set:html={iconSvg(name, size)} />

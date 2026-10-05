@@ -1,4 +1,5 @@
 // Cheat sheet : bouton « Copier » sur chaque ligne, compteur par catégorie et filtre local.
+import { iconSvg } from '../data/icons.mjs';
 
 const prose = document.querySelector<HTMLElement>('.prose[data-type="cheatsheet"]');
 const input = document.querySelector<HTMLInputElement>('[data-cheat-input]');
@@ -34,7 +35,7 @@ if (prose) {
       button.type = 'button';
       button.className = 'row-copy';
       button.dataset.action = 'copy-row';
-      button.textContent = 'Copier';
+      button.innerHTML = `${iconSvg('copy', 'sm')}Copier`;
       cell.append(button);
       row.append(cell);
     }

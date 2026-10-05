@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 interface Props {
   /** Vrai sur un article : le troisième bouton ouvre le sommaire au lieu de remonter en haut de page. */
   hasToc: boolean;
@@ -8,13 +10,13 @@ const { hasToc } = Astro.props;
 ---
 
 <nav class="mobilebar" aria-label="Navigation mobile">
-  <button type="button" class="menu" data-action="toggle-sidebar"><span class="bar"></span>Menu</button>
-  <button type="button" class="is-accent" data-action="open-search"><span class="bar"></span>Rechercher</button>
+  <button type="button" class="menu" data-action="toggle-sidebar"><Icon name="menu" size="lg" />Menu</button>
+  <button type="button" class="is-accent" data-action="open-search"><Icon name="search" size="lg" />Rechercher</button>
   {
     hasToc ? (
-      <button type="button" data-action="open-toc"><span class="bar"></span>Sommaire</button>
+      <button type="button" data-action="open-toc"><Icon name="list" size="lg" />Sommaire</button>
     ) : (
-      <button type="button" data-action="top"><span class="bar"></span>Haut</button>
+      <button type="button" data-action="top"><Icon name="arrow-up" size="lg" />Haut</button>
     )
   }
 </nav>
@@ -46,21 +48,9 @@ const { hasToc } = Astro.props;
     color: var(--text-2);
   }
 
-  .bar {
-    width: var(--sp-8h);
-    height: var(--sp-1h);
-    border-radius: var(--r-xs);
-    background: var(--border);
-  }
-
   .is-accent,
   :global(html[data-drawer='open']) .menu {
     color: var(--accent);
-  }
-
-  .is-accent .bar,
-  :global(html[data-drawer='open']) .menu .bar {
-    background: var(--accent);
   }
 
   @media (max-width: 859px) {

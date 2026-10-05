@@ -5,13 +5,15 @@
 // - coloration des filtres et commandes : blocs `wireshark` / `bpf` et code de la première colonne des tableaux.
 // La syntaxe est documentée dans docs/redaction.md.
 
-/** Encadrés : nom du bloc → titre affiché et couleur. */
+import { iconSvg } from '../data/icons.mjs';
+
+/** Encadrés : nom du bloc → titre affiché, couleur et pictogramme. */
 export const CALLOUTS = {
-  astuce: { label: 'Astuce', tone: 'accent' },
-  piege: { label: 'Piège', tone: 'high' },
-  'faux-positifs': { label: 'Faux positifs connus', tone: 'med' },
-  'mon-erreur': { label: 'Mon erreur', tone: 'high' },
-  'sans-spoiler': { label: 'Sans spoiler', tone: 'info' },
+  astuce: { label: 'Astuce', tone: 'accent', icon: 'bulb' },
+  piege: { label: 'Piège', tone: 'high', icon: 'alert' },
+  'faux-positifs': { label: 'Faux positifs connus', tone: 'med', icon: 'filter' },
+  'mon-erreur': { label: 'Mon erreur', tone: 'high', icon: 'undo' },
+  'sans-spoiler': { label: 'Sans spoiler', tone: 'info', icon: 'eye-off' },
 };
 
 /** Blocs de mise en forme : nom du bloc → classe du conteneur. */
@@ -52,10 +54,10 @@ const escapeHtml = (value) =>
 
 const location = (ctx) => (ctx.fileURL ? ` dans ${ctx.fileURL.pathname.split('/').slice(-2).join('/')}` : '');
 
-const labelNode = (label, className) => ({
+const labelNode = (label, className, icon) => ({
   type: 'paragraph',
   data: { hName: 'div', hProperties: { class: className } },
-  children: [{ type: 'text', value: label }],
+  children: [...(icon ? [{ type: 'html', value: iconSvg(icon, 'sm') }] : []), { type: 'text', value: label }],
 });
 
 /* Coloration d'un filtre ou d'une commande : chaînes, nombres, opérateurs, champs pointés. */
@@ -103,7 +105,7 @@ function directive(node, ctx) {
     ctx.replaceNode(node, {
       ...node,
       data: { hName: 'aside', hProperties: { class: `callout callout-${callout.tone}`, 'data-callout': node.name } },
-      children: [labelNode(callout.label, 'callout-title'), ...node.children],
+      children: [labelNode(callout.label, 'callout-title', callout.icon), ...node.children],
     });
     return;
   }
@@ -166,7 +168,7 @@ function code(node, ctx) {
     (label ? `<span class="code-lang">${escapeHtml(label)}</span>` : '') +
     (title ? `<span class="code-title">${escapeHtml(title)}</span>` : '') +
     `</span>` +
-    `<button type="button" class="code-copy" data-action="copy-code">Copier</button>` +
+    `<button type="button" class="code-copy" data-action="copy-code">${iconSvg('copy', 'sm')}Copier</button>` +
     `</figcaption>`;
   if (FILTER_LANGS.has(lang)) {
     const body = `<pre tabindex="0" data-language="${lang}"><code>${highlightFilter(node.value)}</code></pre>`;

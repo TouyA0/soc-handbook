@@ -1,17 +1,21 @@
 ---
 // Encadré posé par un layout. Dans le Markdown, le même rendu s'écrit `:::astuce … :::`.
 // Styles dans src/styles/content.css.
+import type { ICONS } from '../data/icons.mjs';
 import { CALLOUTS } from '../plugins/markdown-blocks.mjs';
+import Icon from './Icon.astro';
+
+type IconName = keyof typeof ICONS;
 
 interface Props {
   type: keyof typeof CALLOUTS;
 }
 
 const { type } = Astro.props;
-const { label, tone } = CALLOUTS[type];
+const { label, tone, icon } = CALLOUTS[type];
 ---
 
 <aside class={`callout callout-${tone}`} data-callout={type}>
-  <div class="callout-title">{label}</div>
+  <div class="callout-title"><Icon name={icon as IconName} size="sm" />{label}</div>
   <slot />
 </aside>

@@ -165,7 +165,7 @@ function renderResume(pins: SavedPage[], recents: SavedPage[]): void {
       link.classList.toggle('is-pinned', isPinned);
       item.querySelector('.resume-type')!.textContent = p.kind ?? '';
       item.querySelector('.resume-title')!.textContent = p.title;
-      item.querySelector('.resume-mark')!.textContent = isPinned ? '◆ épinglé' : 'vu récemment';
+      item.querySelector('.resume-mark-text')!.textContent = isPinned ? 'épinglé' : 'vu récemment';
       return item;
     }),
   );

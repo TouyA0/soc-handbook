@@ -1,5 +1,7 @@
 ---
 // Palette de recherche (Ctrl K). Le comportement est dans src/scripts/search.ts.
+import Icon from './Icon.astro';
+
 const scopes = [
   ['all', 'Tout'],
   ['technique', 'Techniques'],
@@ -13,10 +15,7 @@ const scopes = [
 
 <dialog class="palette" data-dialog="search" aria-label="Recherche globale">
   <div class="bar">
-    <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">
-      <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-      <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
-    </svg>
+    <Icon name="search" size="lg" />
     <span class="prefix" data-search-prefix hidden></span>
     <input
       type="text"
@@ -133,10 +132,6 @@ const scopes = [
     border-bottom: var(--bw) solid var(--border);
     flex: none;
     color: var(--accent);
-  }
-
-  .bar svg {
-    flex: none;
   }
 
   .prefix {

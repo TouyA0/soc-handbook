@@ -1,6 +1,7 @@
 ---
 import type { Doc } from '../lib/content';
 import { getNavSections, getStatsParts } from '../lib/nav';
+import Icon from './Icon.astro';
 
 interface Props {
   docs: Doc[];
@@ -51,7 +52,9 @@ const stats = getStatsParts(docs);
                 aria-expanded={active ? 'true' : 'false'}
                 aria-controls={`nav-${section.num}`}
                 aria-label={`Déplier ${section.title}`}
-              />
+              >
+                <Icon name="chevron" size="sm" />
+              </button>
             )}
           </div>
           {children.length > 0 && (
@@ -224,21 +227,18 @@ const stats = getStatsParts(docs);
     flex: none;
     width: var(--ctl-sm);
     align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
     border-radius: var(--r-lg);
     background: transparent;
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
     color: var(--text-3);
   }
 
-  .caret::before {
-    content: '▸';
-  }
-
-  .caret[aria-expanded='true']::before {
-    content: '▾';
+  .caret[aria-expanded='true'] :global(.icon) {
+    transform: rotate(90deg);
   }
 
   .children {

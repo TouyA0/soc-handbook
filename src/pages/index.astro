@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import Panel from '../components/Panel.astro';
 import { PROFILE } from '../data/profile';
 import { docUrl, getAttackCoverage, getDocs, getRecentDocs, getSectionTrees, getStats } from '../lib/content';
@@ -91,10 +92,7 @@ const method = [
 
     <section class="search-block">
       <button type="button" class="search-lg" data-action="open-search">
-        <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-          <rect x="10.5" y="10" width="5" height="1.6" transform="rotate(45 10.5 10)" fill="currentColor"></rect>
-        </svg>
+        <Icon name="search" size="lg" />
         <span class="search-text">Que cherches-tu ? Filtre, Event ID, technique, requête…</span>
         <span class="search-keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
       </button>
@@ -121,7 +119,7 @@ const method = [
             <a>
               <span class="resume-type"></span>
               <span class="resume-title"></span>
-              <span class="resume-mark"></span>
+              <span class="resume-mark"><Icon name="pin" size="sm" /><span class="resume-mark-text"></span></span>
             </a>
           </li>
         </template>
@@ -463,8 +461,7 @@ const method = [
     color: var(--text-3);
   }
 
-  .search-lg svg {
-    flex: none;
+  .search-lg :global(.icon) {
     color: var(--accent);
   }
 
@@ -564,6 +561,9 @@ const method = [
   }
 
   .resume-mark {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     color: var(--text-3);
@@ -571,6 +571,10 @@ const method = [
 
   .resume :global(.is-pinned) .resume-mark {
     color: var(--accent);
+  }
+
+  .resume :global(a:not(.is-pinned) .icon) {
+    display: none;
   }
 
   .memo {
