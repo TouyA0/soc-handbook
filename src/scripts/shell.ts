@@ -219,6 +219,17 @@ function closeDialogs(): void {
   for (const dialog of $$<HTMLDialogElement>('dialog[open]')) dialog.close();
 }
 
+// À la fermeture d'un panneau, le focus peut rester sur un de ses champs, désormais invisible :
+// les raccourcis à une touche seraient alors ignorés comme une saisie.
+document.addEventListener(
+  'close',
+  (event) => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && (event.target as Node).contains(active)) active.blur();
+  },
+  true,
+);
+
 /* Sommaire : repère la section en cours de lecture */
 
 function initScrollSpy(): void {

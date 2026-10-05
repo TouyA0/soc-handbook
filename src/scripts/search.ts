@@ -329,7 +329,8 @@ if (dialog) {
   }
 
   dialog.addEventListener('close', () => {
-    if (statusMode) statusMode.textContent = 'LECTURE';
+    // L'événement arrive après coup : la palette a pu être rouverte entre-temps.
+    if (statusMode && !dialog.open) statusMode.textContent = 'LECTURE';
   });
 
   input.addEventListener('input', () => {

@@ -34,7 +34,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <meta property="og:type" content={title ? 'article' : 'website'} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="fr_FR" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={new URL(`${base}og.png`, Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name} — Carnet d'analyste SOC`} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="description" content={description} />
     <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système. -->
     <script is:inline define:vars={{ STORAGE }}>
