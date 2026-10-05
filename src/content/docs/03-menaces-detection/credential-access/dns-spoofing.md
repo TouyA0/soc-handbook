@@ -9,7 +9,9 @@ attack_id: T1557
 tactic: credential-access
 severity: med
 data_sources: [Capture réseau]
-related: [03-menaces-detection/credential-access/arp-spoofing]
+related:
+  - 03-menaces-detection/credential-access/arp-spoofing
+  - 03-menaces-detection/credential-access/ssl-stripping
 ---
 
 ## Description

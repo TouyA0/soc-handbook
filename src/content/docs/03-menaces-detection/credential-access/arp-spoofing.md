@@ -9,7 +9,9 @@ attack_id: T1557.002
 tactic: credential-access
 severity: med
 data_sources: [Capture réseau]
-related: [03-menaces-detection/credential-access/dns-spoofing]
+related:
+  - 03-menaces-detection/credential-access/dns-spoofing
+  - 03-menaces-detection/credential-access/ssl-stripping
 ---
 
 ## Description
