@@ -62,8 +62,10 @@ const labelNode = (label, className) => ({
 
 const TOKENS = [
   ['str', /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/y],
+  // Chemin ou nom de fichier : laissé sans couleur, sinon « local.rules » serait pris pour un champ pointé.
+  ['', /(?:\/[\w.-]+)+\/?|\b[\w-]+\.(?:pcap|pcapng|rules|lua|conf|log|txt|json|yml|yaml|eml)\b/y],
   ['num', /\b0x[0-9a-fA-F]+\b|\b\d+(?:[.:/]\d+)*\b/y],
-  ['kw', /==|!=|>=|<=|&&|\|\||[=<>!]|\b(?:and|or|not|contains|matches|in|host|port|net|src|dst)\b/y],
+  ['kw', /==|!=|>=|<=|->|&&|\|\||[=<>!]|\b(?:and|or|not|contains|matches|in|host|port|net|src|dst)\b/y],
   ['field', /\b[A-Za-z_][\w-]*(?:\.[\w-]+)+\b/y],
 ];
 
@@ -81,7 +83,7 @@ export function highlightFilter(text) {
       const match = pattern.exec(text);
       if (match) {
         flush();
-        html += `<span class="tok-${name}">${escapeHtml(match[0])}</span>`;
+        html += name ? `<span class="tok-${name}">${escapeHtml(match[0])}</span>` : escapeHtml(match[0]);
         i += match[0].length;
         matched = true;
         break;
