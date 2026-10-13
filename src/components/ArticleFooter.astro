@@ -38,8 +38,8 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
 <footer>
   <span>Dernière modification : {updated}</span>
   <span class="links">
-    {historyUrl && <a href={historyUrl}>Historique sur GitHub</a>}
-    <a href={issueUrl}>Signaler une erreur</a>
+    {historyUrl && <a href={historyUrl} target="_blank" rel="noopener noreferrer">Historique sur GitHub</a>}
+    <a href={issueUrl} target="_blank" rel="noopener noreferrer">Signaler une erreur</a>
   </span>
 </footer>
 

@@ -19,14 +19,20 @@ const sectionUrl = (dir: string) => docUrl(dir);
 const techniquesUrl = docUrl('03-menaces-detection');
 
 /** Une adresse e-mail saisie telle quelle devient un lien `mailto:`. */
-const contactHref = (value: string) => (/^[^s@/:]+@[^s@/]+$/.test(value) ? `mailto:${value}` : value);
+const contactHref = (value: string) => (/^[^\s@/:]+@[^\s@/]+$/.test(value) ? `mailto:${value}` : value);
 
+/** Le CV est un fichier de `public/` : son nom est résolu sous la base du site. */
+const cvHref = (file: string) => (!file || /^https?:/.test(file) ? file : `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${file}`);
+
+/** Sites externes et CV s'ouvrent dans un nouvel onglet ; `mailto:` et ancres restent sur place. */
 const links = [
-  { label: 'Télécharger mon CV', href: PROFILE.links.cv, primary: true },
-  { label: 'LinkedIn', href: PROFILE.links.linkedin },
-  { label: 'GitHub', href: PROFILE.links.github },
+  { label: 'Télécharger mon CV', href: cvHref(PROFILE.links.cv), primary: true, newTab: true },
+  { label: 'LinkedIn', href: PROFILE.links.linkedin, newTab: true },
+  { label: 'GitHub', href: PROFILE.links.github, newTab: true },
   { label: 'Contact', href: contactHref(PROFILE.links.contact) },
-].filter((l) => l.href);
+]
+  .filter((l) => l.href)
+  .map((l) => ({ ...l, attrs: l.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {} }));
 
 const state = [
   ['fiches', stats.pages],
@@ -59,7 +65,7 @@ const method = [
         <div class="actions">
           {
             links.map((l) => (
-              <a class:list={['btn', { primary: l.primary }]} href={l.href}>
+              <a class:list={['btn', { primary: l.primary }]} href={l.href} {...l.attrs}>
                 {l.label}
               </a>
             ))
@@ -284,7 +290,7 @@ const method = [
                 {links
                   .filter((l) => l.primary || l.label === 'Contact')
                   .map((l) => (
-                    <a class:list={['btn', 'sm', { primary: l.primary }]} href={l.href}>
+                    <a class:list={['btn', 'sm', { primary: l.primary }]} href={l.href} {...l.attrs}>
                       {l.label === 'Contact' ? 'Me contacter' : l.label}
                     </a>
                   ))}
