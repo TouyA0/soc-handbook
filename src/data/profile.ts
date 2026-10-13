@@ -17,7 +17,7 @@ export const PROFILE = {
     "Je suis Quentin Guirlinger, étudiant en première année de Bachelor Cybersécurité à Ynov Campus, après deux ans de licence informatique à l'université Paul Sabatier. Je m'oriente vers la défense (blue team) et je documente ici ma progression vers le métier d'analyste SOC.",
   links: {
     /** Nom du fichier déposé dans `public/`, ex. « cv-quentin-guirlinger.pdf » (ou une URL complète). */
-    cv: 'CV-Guirlinger-Quentin.pdf',
+    cv: 'CV_Guirlinger_Quentin.pdf',
     linkedin: 'https://www.linkedin.com/in/quentin-guirlinger',
     github: 'https://github.com/TouyA0',
     contact: 'quentin@gir-lg.fr',
