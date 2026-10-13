@@ -20,6 +20,7 @@ export const PROFILE = {
     cv: 'CV_Guirlinger_Quentin.pdf',
     linkedin: 'https://www.linkedin.com/in/quentin-guirlinger',
     github: 'https://github.com/TouyA0',
+    tryhackme: 'https://tryhackme.com/p/TouyA000',
     contact: 'quentin@gir-lg.fr',
   },
   /** Certification ou formation en cours, affichée sous l'état de la base. */
