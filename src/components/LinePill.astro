@@ -1,0 +1,16 @@
+---
+// Pastille de ligne : le numéro d'une section sur sa couleur. Le numéro reste lisible sans la couleur,
+// et la couleur sans le numéro ne porte jamais seule l'information.
+import { lineStyle } from '../data/sections';
+
+interface Props {
+  num: string;
+  size?: 'sm' | 'md' | 'lg';
+  /** Vrai quand le numéro est déjà donné par le texte voisin : la pastille devient décorative. */
+  decorative?: boolean;
+}
+
+const { num, size = 'md', decorative = false } = Astro.props;
+---
+
+<span class:list={['line-pill', size]} style={lineStyle(num)} aria-hidden={decorative ? 'true' : undefined}>{num}</span>

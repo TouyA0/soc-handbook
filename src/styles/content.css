@@ -1,4 +1,5 @@
-/* Corps d'article : texte Markdown, encadrés, tableaux, étapes, timeline et blocs de code. */
+/* Corps d'article : texte Markdown, encadrés, tableaux, étapes, timeline et blocs de code.
+   L'article porte `--line`, la couleur de sa section : numéros de titres, puces, étapes la reprennent. */
 
 .prose {
   counter-reset: section;
@@ -10,7 +11,7 @@
 }
 
 .prose > :first-child {
-  margin-top: var(--sp-10);
+  margin-top: var(--sp-12);
 }
 
 /* Titres : le numéro de section est généré ici, jamais écrit dans le Markdown. */
@@ -20,29 +21,31 @@
   gap: var(--sp-6);
   margin: var(--sp-16) 0 var(--sp-8);
   padding-top: var(--sp-10);
-  border-top: var(--bw) solid var(--border-soft);
+  border-top: var(--bw) solid var(--border);
   counter-increment: section;
 }
 
 .prose h2::before {
   content: counter(section, decimal-leading-zero);
+  flex: none;
+  min-width: 2ch;
   font-family: var(--font-mono);
-  font-size: var(--fs-md);
-  font-weight: var(--fw-medium);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
   letter-spacing: normal;
-  color: var(--text-3);
+  color: var(--line, var(--text-3));
 }
 
 .prose h3 {
-  margin: var(--sp-10) 0 var(--sp-4);
-  font-size: var(--fs-body);
+  margin: var(--sp-12) 0 var(--sp-5);
+  font-size: var(--fs-h3);
 }
 
 .prose p,
 .prose ul,
 .prose ol {
   margin: 0 0 var(--sp-8);
-  color: var(--text-2);
+  color: var(--text);
   text-wrap: pretty;
 }
 
@@ -55,8 +58,18 @@
   margin-top: var(--sp-3);
 }
 
+.prose li::marker {
+  color: var(--line, var(--text-3));
+}
+
 .prose strong {
   color: var(--text);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-decoration-thickness: var(--bw);
+  text-underline-offset: var(--underline-offset);
 }
 
 .prose :not(pre) > code {
@@ -70,13 +83,14 @@
 .prose hr {
   margin: var(--sp-12) 0;
   border: none;
-  border-top: var(--bw) solid var(--border-soft);
+  border-top: var(--bw) solid var(--border);
 }
 
 .prose blockquote {
   margin: 0 0 var(--sp-8);
   padding-left: var(--sp-8);
-  border-left: var(--bw-strong) solid var(--border);
+  border-left: var(--bw-line) solid var(--line, var(--border));
+  color: var(--text-2);
 }
 
 /* Tableaux — première colonne en identifiant (Event ID, champ, filtre) */
@@ -94,26 +108,20 @@
 
 .prose th,
 .prose td {
-  padding: var(--sp-6);
+  padding: var(--sp-5h) var(--sp-7);
   text-align: left;
   vertical-align: top;
   background: var(--surface);
-  color: var(--text-2);
+  color: var(--text);
 }
 
 .prose th {
-  padding: var(--sp-4h) var(--sp-6);
   background: var(--surface-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-regular);
-  letter-spacing: var(--ls-caps);
-  text-transform: uppercase;
-  color: var(--text-3);
-}
-
-.prose tr > * + * {
-  border-left: var(--bw) solid var(--border-soft);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text);
 }
 
 .prose tbody td {
@@ -127,8 +135,8 @@
 
 .prose tbody td:first-child {
   font-family: var(--font-mono);
-  font-weight: var(--fw-semibold);
-  color: var(--accent);
+  font-weight: var(--fw-bold);
+  color: var(--text);
   white-space: nowrap;
 }
 
@@ -137,50 +145,58 @@
   background: none;
 }
 
-/* Encadrés */
+/* Encadrés : couleur de ligne, pictogramme dans un anneau et libellé — jamais la couleur seule */
 .callout {
-  --callout-color: var(--accent);
-  --callout-bg: var(--accent-bg);
-  --callout-line: var(--accent-line);
+  --callout-color: var(--l02);
 
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-7);
   margin: var(--sp-10) 0;
   padding: var(--sp-7) var(--sp-8);
-  border: var(--bw) solid var(--callout-line);
+  border: var(--bw) solid var(--callout-color);
+  border-left-width: var(--bw-line);
   border-radius: var(--r-2xl);
-  background: var(--callout-bg);
+  background: color-mix(in srgb, var(--callout-color) 9%, var(--surface));
   font-size: var(--fs-body-sm);
   line-height: var(--lh-dense);
 }
 
 .callout-info {
-  --callout-color: var(--sev-info);
-  --callout-bg: var(--sev-info-bg);
-  --callout-line: var(--sev-info-line);
+  --callout-color: var(--l01);
 }
 
 .callout-med {
-  --callout-color: var(--sev-med);
-  --callout-bg: var(--sev-med-bg);
-  --callout-line: var(--sev-med-line);
+  --callout-color: var(--l04);
 }
 
 .callout-high {
-  --callout-color: var(--sev-high);
-  --callout-bg: var(--sev-high-bg);
-  --callout-line: var(--sev-high-line);
+  --callout-color: var(--l03);
 }
 
 .callout-title {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-3);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--ls-caps-mid);
-  text-transform: uppercase;
+  gap: var(--sp-4);
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-black);
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--callout-color);
+}
+
+.callout-title .icon {
+  width: var(--pill-sm);
+  height: var(--pill-sm);
+  padding: var(--sp-1);
+  border: var(--bw-strong) solid currentColor;
+  border-radius: 50%;
+}
+
+.callout > :not(.callout-title) {
+  grid-column: 1 / -1;
 }
 
 .callout > :last-child {
@@ -200,6 +216,7 @@
 
 .callout ul li::before {
   content: '— ';
+  color: var(--callout-color);
 }
 
 .callout li + li {
@@ -210,15 +227,11 @@
 .callout[data-callout='sans-spoiler'] {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--sp-4);
+  align-items: center;
+  gap: var(--sp-2) var(--sp-6);
   padding: var(--sp-6) var(--sp-8);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-ui);
-}
-
-.callout[data-callout='sans-spoiler'] .callout-title {
-  margin-bottom: 0;
 }
 
 .callout[data-callout='sans-spoiler'] p {
@@ -234,7 +247,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--bw);
-  background: var(--border-soft);
+  background: var(--border);
   border: var(--bw) solid var(--border);
   border-radius: var(--r-card);
   overflow: hidden;
@@ -244,7 +257,7 @@
 .steps li {
   position: relative;
   margin: 0;
-  padding: var(--sp-7) var(--sp-8) var(--sp-7) calc(var(--sp-8) + var(--logo) + var(--sp-8));
+  padding: var(--sp-7) var(--sp-8) var(--sp-7) calc(var(--sp-8) + var(--pill) + var(--sp-7));
   background: var(--surface);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-ui);
@@ -256,16 +269,25 @@
   content: counter(step, decimal-leading-zero);
   position: absolute;
   left: var(--sp-8);
-  top: calc(var(--sp-7) + var(--sp-1h));
+  top: var(--sp-7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pill);
+  height: var(--pill);
+  border-radius: 50%;
+  background: var(--line, var(--l08));
+  color: var(--on-line);
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
-  color: var(--accent);
+  font-weight: var(--fw-bold);
 }
 
 .steps li > strong:first-child,
 .steps li > p:first-child > strong:first-child {
   display: block;
   margin-bottom: var(--sp-1);
+  color: var(--text);
 }
 
 .steps li p {
@@ -280,7 +302,7 @@
 }
 
 .timeline table {
-  background: var(--border-soft);
+  background: var(--border);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-snug);
 }
@@ -314,7 +336,8 @@
   flex: none;
   width: var(--timeline-time-w);
   font-size: var(--fs-code);
-  color: var(--text-3);
+  font-weight: var(--fw-bold);
+  color: var(--text-2);
 }
 
 .timeline tbody td:nth-child(2) {
@@ -328,12 +351,13 @@
   color: var(--text-3);
 }
 
-/* Blocs de code */
+/* Blocs de code : fond sombre dans les deux thèmes, en-tête langage + titre + copier */
 .code {
   margin: var(--sp-4) 0 var(--sp-9);
   border: var(--bw) solid var(--border);
   border-radius: var(--r-2xl);
   background: var(--code-bg);
+  color: var(--code-text);
   overflow: hidden;
 }
 
@@ -342,24 +366,29 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-6);
-  padding: var(--sp-3h) var(--sp-4) var(--sp-3h) var(--sp-7);
-  border-bottom: var(--bw) solid var(--border-soft);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-7);
+  background: var(--code-head);
+  font-size: var(--fs-sm);
   line-height: var(--lh-snug);
-  color: var(--text-3);
+  color: var(--code-text);
 }
 
 .code-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--sp-5);
+  align-items: center;
+  gap: var(--sp-2) var(--sp-5);
   min-width: 0;
 }
 
 .code-lang {
-  color: var(--accent);
-  font-weight: var(--fw-semibold);
+  padding: var(--sp-0) var(--sp-3);
+  border: var(--bw) solid var(--code-text-2);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  color: var(--code-text-2);
 }
 
 .code-copy,
@@ -371,31 +400,36 @@
 
 .code-copy {
   flex: none;
-  padding: var(--sp-1h) var(--sp-4h);
-  border: var(--bw) solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text-2);
+  min-height: var(--ctl-sm);
+  padding: 0 var(--sp-5);
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--code-text);
+  font-weight: var(--fw-bold);
   cursor: pointer;
 }
 
 .code-copy:hover {
-  border-color: var(--accent-line);
-  color: var(--text);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.code-copy:focus-visible {
+  outline-color: var(--code-text);
 }
 
 .code pre {
   margin: 0;
   padding: var(--sp-7) var(--sp-8);
   overflow-x: auto;
-  font-size: var(--fs-md);
+  font-size: var(--fs-code);
   line-height: var(--lh-body);
   tab-size: 2;
 }
 
 /* Coloration syntaxique : le thème `css-variables` de Shiki lit ces variables, reliées aux tokens --syn-*. */
 :root {
-  --astro-code-foreground: var(--text);
+  --astro-code-foreground: var(--code-text);
   --astro-code-background: transparent;
   --astro-code-token-constant: var(--syn-num);
   --astro-code-token-string: var(--syn-str);
@@ -404,37 +438,57 @@
   --astro-code-token-keyword: var(--syn-kw);
   --astro-code-token-parameter: var(--syn-field);
   --astro-code-token-function: var(--syn-fn);
-  --astro-code-token-punctuation: var(--text-2);
-  --astro-code-token-link: var(--accent);
+  --astro-code-token-punctuation: var(--code-text-2);
+  --astro-code-token-link: var(--syn-fn);
 }
 
 /* Coloration des filtres et commandes (blocs wireshark / bpf, première colonne des tableaux) */
-.tok-kw {
+.code .tok-kw {
   color: var(--syn-kw);
 }
 
-.tok-str {
+.code .tok-str {
   color: var(--syn-str);
 }
 
-.tok-num {
+.code .tok-num {
   color: var(--syn-num);
 }
 
-.tok-field {
+.code .tok-field {
   color: var(--syn-field);
+}
+
+/* Hors bloc sombre (première colonne des tableaux, lignes de cheat sheet), la coloration suit les lignes */
+.tok-kw {
+  color: var(--l00);
+}
+
+.tok-str {
+  color: var(--l06);
+}
+
+.tok-num {
+  color: var(--l04);
+}
+
+.tok-field {
+  color: var(--l05);
 }
 
 /* Badge ATT&CK écrit dans le texte : `:attack[T1059.001]` */
 .attack-inline {
   display: inline-flex;
-  padding: var(--sp-1) var(--sp-4);
-  border: var(--bw) solid var(--accent-line);
-  border-radius: var(--r-md);
+  align-items: center;
+  min-height: var(--pill-sm);
+  padding: 0 var(--sp-3);
+  border: var(--bw) solid var(--text);
+  border-radius: var(--r-sm);
   font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  line-height: var(--lh-snug);
-  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  color: var(--text);
 }
 
 .prose .attack-line {
@@ -456,16 +510,16 @@
 }
 
 .block-label {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  letter-spacing: var(--ls-caps);
-  text-transform: uppercase;
-  color: var(--text-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text-2);
 }
 
 .qa .block-label {
   grid-row: 1 / span 20;
-  padding-top: var(--sp-2);
+  padding-top: var(--sp-1);
 }
 
 .qa > :not(.block-label) {
@@ -475,6 +529,7 @@
 
 .qa-question p {
   color: var(--text);
+  font-weight: var(--fw-medium);
 }
 
 .finding {
@@ -484,6 +539,7 @@
   margin: var(--sp-6) 0 var(--sp-8);
   padding: var(--sp-6) var(--sp-7);
   border: var(--bw) solid var(--border);
+  border-left: var(--bw-line) solid var(--l06);
   border-radius: var(--r-2xl);
   background: var(--surface);
   font-size: var(--fs-body-sm);
@@ -493,8 +549,7 @@
 .finding .block-label {
   flex: none;
   padding-top: var(--sp-1h);
-  font-weight: var(--fw-semibold);
-  color: var(--sev-low);
+  color: var(--l06);
 }
 
 .finding > :not(.block-label) {
@@ -522,10 +577,10 @@
   content: '→';
   position: absolute;
   left: 0;
-  top: var(--sp-1);
+  top: 0;
   font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  color: var(--accent);
+  font-weight: var(--fw-bold);
+  color: var(--line, var(--text-3));
 }
 
 /* Cheat sheet : chaque tableau « filtre | description | fiche » devient une liste de lignes copiables */
@@ -536,7 +591,7 @@
 }
 
 .prose[data-type='cheatsheet'] table {
-  background: var(--border-soft);
+  background: var(--border);
 }
 
 .prose[data-type='cheatsheet'] thead {
@@ -578,7 +633,8 @@
   flex: 1 1 var(--row-code-min);
   min-width: 0;
   padding-top: var(--sp-1);
-  font-size: var(--fs-md);
+  font-size: var(--fs-code);
+  font-weight: var(--fw-bold);
   line-height: var(--lh-ui);
   color: var(--text);
 }
@@ -601,28 +657,31 @@
 }
 
 .prose[data-type='cheatsheet'] tbody td:nth-child(3) a {
-  padding: var(--sp-0) var(--sp-3h);
-  border: var(--bw) solid var(--accent-line);
-  border-radius: var(--r-sm);
-  font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--pill-sm);
+  padding: 0 var(--sp-4);
+  border: var(--bw) solid var(--border-strong);
+  border-radius: var(--r-pill);
   font-size: var(--fs-sm);
+  text-decoration: none;
 }
 
 .row-copy {
   flex: none;
-  padding: var(--sp-2) var(--sp-4h);
-  border: var(--bw) solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--bg);
-  color: var(--text-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
+  min-height: var(--ctl-sm);
+  padding: 0 var(--sp-5);
+  border: var(--bw) solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
   cursor: pointer;
 }
 
 .row-copy:hover {
-  border-color: var(--accent-line);
-  color: var(--text);
+  border-color: var(--text-2);
 }
 
 .section-count {

@@ -1,8 +1,10 @@
 ---
 import Icon from '../components/Icon.astro';
+import LinePill from '../components/LinePill.astro';
 import Panel from '../components/Panel.astro';
 import { PROFILE } from '../data/profile';
-import { docUrl, getAttackCoverage, getDocs, getRecentDocs, getSectionTrees, getStats } from '../lib/content';
+import { lineStyle } from '../data/sections';
+import { docUrl, getAttackCoverage, getDocs, getRecentDocs, getSectionTrees, getStats, sectionOf } from '../lib/content';
 import { countQueries, getEventMemo, getTopTags, tagEvidence } from '../lib/home';
 import { docTypeLabel, formatDate } from '../lib/nav';
 import Shell from '../layouts/Shell.astro';
@@ -11,12 +13,13 @@ const docs = await getDocs();
 const stats = getStats(docs);
 const sections = getSectionTrees(docs);
 const coverage = getAttackCoverage(docs);
-const maxCoverage = Math.max(1, ...coverage.map((c) => c.techniques.length));
+const covered = coverage.filter((c) => c.techniques.length > 0);
 const recent = getRecentDocs(docs, 6);
 const memo = getEventMemo(docs, 12);
 const topTags = getTopTags(docs, 6);
 const sectionUrl = (dir: string) => docUrl(dir);
 const techniquesUrl = docUrl('03-menaces-detection');
+const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? 's' : ''}`;
 
 /** Une adresse e-mail saisie telle quelle devient un lien `mailto:`. */
 const contactHref = (value: string) => (/^[^\s@/:]+@[^\s@/]+$/.test(value) ? `mailto:${value}` : value);
@@ -30,34 +33,40 @@ const links = [
   { label: 'LinkedIn', href: PROFILE.links.linkedin, newTab: true },
   { label: 'GitHub', href: PROFILE.links.github, newTab: true },
   { label: 'TryHackMe', href: PROFILE.links.tryhackme, newTab: true },
-  { label: 'Contact', href: contactHref(PROFILE.links.contact) },
+  { label: 'Me contacter', href: contactHref(PROFILE.links.contact) },
 ]
   .filter((l) => l.href)
   .map((l) => ({ ...l, attrs: l.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {} }));
 
 const state = [
-  ['fiches', stats.pages],
-  ['techniques ATT&CK', stats.techniques],
-  ['write-ups', stats.writeups],
-  ['requêtes SPL / KQL', countQueries(docs)],
-  ['dernière maj', stats.lastUpdated ? formatDate(stats.lastUpdated) : '—'],
+  ['Fiches', String(stats.pages)],
+  ['Techniques ATT&CK', String(stats.techniques)],
+  ['Write-ups', String(stats.writeups)],
+  ['Requêtes SPL / KQL', String(countQueries(docs))],
+  ['Dernière mise à jour', stats.lastUpdated ? formatDate(stats.lastUpdated) : '—'],
 ] as const;
 
-// Méthode appliquée à chaque fiche technique : elle suit l'ordre des sections du modèle.
+// Méthode appliquée à chaque fiche technique : une ligne à quatre stations, dans l'ordre des sections du modèle.
+// Chaque station prend la couleur de la section où ce savoir vit : observer (01), détecter et qualifier (03), répondre (04).
 const method = [
-  ['Observer', 'Quelles traces laisse le comportement : logs, Event IDs, trafic.'],
-  ['Détecter', 'Une requête par outil (SPL, KQL, Sigma), avec ce qu’elle cherche.'],
-  ['Qualifier', 'Faux positifs connus et pièges documentés avant toute escalade.'],
-  ['Répondre & documenter', 'Actions de réponse, puis lien vers le write-up où je l’ai pratiqué.'],
+  { num: '01', title: 'Observer', body: 'Les traces que laisse le comportement : journaux, Event IDs, trafic.' },
+  { num: '03', title: 'Détecter', body: 'Une requête par outil (SPL, KQL, Sigma), avec ce qu’elle cherche.' },
+  { num: '03', title: 'Qualifier', body: 'Faux positifs connus et pièges documentés avant toute escalade.' },
+  { num: '04', title: 'Répondre', body: 'Actions de réponse, puis lien vers le write-up où je l’ai pratiqué.' },
 ];
+
+const coverageNote =
+  covered.length === 0
+    ? 'Aucune technique documentée pour l’instant : les stations se rempliront au fil des fiches.'
+    : `${plural(stats.techniques, 'technique')} documentée${stats.techniques > 1 ? 's' : ''}, ${covered.length === 1 ? `toutes en ${covered[0]!.tactic.name}` : `réparties sur ${covered.length} tactiques`}. Les autres tactiques se rempliront au fil des fiches.`;
 ---
 
 <Shell>
   <div class="home">
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="hero-main">
-        <p class="status"><span class="dot" aria-hidden="true"></span>{PROFILE.status}</p>
-        <h1>Carnet d'analyste SOC : tout ce que j'apprends, documenté pour être retrouvé.</h1>
+        <p class="status">{PROFILE.status}</p>
+        <h1 id="hero-title">Carnet d'analyste SOC : tout ce que j'apprends, documenté pour être retrouvé.</h1>
         <p class="intro">
           {PROFILE.intro}{' '}
           Chaque concept, filtre, requête et investigation passe par ici, avec la même méthode : ce qu'on observe, comment on le détecte,
@@ -71,36 +80,51 @@ const method = [
               </a>
             ))
           }
-          <a class="btn ghost" href="#parcours">Parcours &amp; méthode ↓</a>
+          <a class="more" href="#parcours">Parcours et formation</a>
         </div>
-      </div>
-      <div class="hero-side">
-        <Panel title="État de la base">
-          <dl class="state">
+
+        <div class="method" aria-labelledby="method-title">
+          <h2 id="method-title">La même méthode sur chaque fiche</h2>
+          <ol>
             {
-              state.map(([label, value]) => (
-                <>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </>
+              method.map((m) => (
+                <li style={lineStyle(m.num)}>
+                  <span class="method-title">{m.title}</span>
+                  <span class="method-body">{m.body}</span>
+                </li>
               ))
             }
-          </dl>
-          {
-            PROFILE.inProgress && (
-              <p class="in-progress">
-                En cours : <span>{PROFILE.inProgress}</span>
-              </p>
-            )
-          }
-        </Panel>
+          </ol>
+        </div>
       </div>
+
+      <aside class="state" aria-labelledby="state-title">
+        <h2 id="state-title">État de la base</h2>
+        <dl>
+          {
+            state.map(([label, value]) => (
+              <div>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        {
+          PROFILE.inProgress && (
+            <p class="in-progress">
+              En cours : <span>{PROFILE.inProgress}</span>
+            </p>
+          )
+        }
+      </aside>
     </section>
 
-    <section class="search-block">
+    <section class="search-block" aria-labelledby="search-title">
+      <h2 id="search-title">Que cherches-tu ?</h2>
       <button type="button" class="search-lg" data-action="open-search">
         <Icon name="search" size="lg" />
-        <span class="search-text">Que cherches-tu ? Filtre, Event ID, technique, requête…</span>
+        <span class="search-text">Filtre Wireshark, Event ID, technique, requête…</span>
         <span class="search-keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
       </button>
       {
@@ -108,19 +132,26 @@ const method = [
           <div class="frequent">
             <span>Fréquent :</span>
             {topTags.slice(0, 5).map((t) => (
-              <button type="button" data-action="open-search" data-query={`#${t.tag}`}>
+              <button type="button" class="chip" data-action="open-search" data-query={`#${t.tag}`}>
                 #{t.tag}
               </button>
             ))}
           </div>
         )
       }
+      <p class="hints">
+        Préfixes : <code>id:</code> Event ID, <code>t:</code> technique, <code>f:</code> filtre, <code>q:</code> requête,
+        <code>wu:</code> write-up, <code>pb:</code> playbook.
+      </p>
     </section>
 
     <section class="pair">
-      <Panel title="Reprendre" note="épinglés · vus récemment">
+      <Panel title="Reprendre" note="épinglés, puis vus récemment">
         <ul class="resume" data-resume></ul>
-        <p class="empty" data-resume-empty>Rien à reprendre pour l'instant : épingle une fiche avec <kbd class="kbd">p</kbd>.</p>
+        <p class="empty" data-resume-empty>
+          Rien à reprendre pour l'instant. Sur une fiche, appuie sur <kbd class="kbd">p</kbd> pour l'épingler ici ; les dernières pages vues
+          s'ajoutent toutes seules.
+        </p>
         <template data-resume-template>
           <li>
             <a>
@@ -131,7 +162,7 @@ const method = [
           </li>
         </template>
       </Panel>
-      <Panel title="Mémo express · Event IDs" note={memo.length > 0 ? 'clic = fiche' : undefined}>
+      <Panel title="Mémo express des Event IDs" note={memo.length > 0 ? 'clic : la fiche' : undefined}>
         {
           memo.length > 0 ? (
             <div class="memo">
@@ -143,120 +174,116 @@ const method = [
               ))}
             </div>
           ) : (
-            <p class="empty">Aucun Event ID documenté pour l'instant.</p>
+            <p class="empty">Aucun Event ID documenté pour l'instant. Ils apparaîtront ici dès la première fiche Windows.</p>
           )
         }
       </Panel>
     </section>
 
-    <section class="block">
+    <section class="block" aria-labelledby="sections-title">
       <div class="block-head">
-        <h2>Sections</h2>
-        <span class="mono-note">00 → 08</span>
+        <h2 id="sections-title">Les neuf sections</h2>
+        <p class="note">Chaque section a son numéro et sa couleur, repris sur toutes les pages.</p>
       </div>
-      <div class="sections">
+      <ol class="lines">
         {
           sections.map(({ section, index, entries }) => (
-            <a href={sectionUrl(section.dir)}>
-              <span class="card-top">
-                <span class="card-num">{section.num}</span>
-                <span>
-                  {entries.length} fiche{entries.length > 1 ? 's' : ''}
+            <li style={lineStyle(section.num)}>
+              <a href={sectionUrl(section.dir)} class:list={{ has: entries.length > 0 }}>
+                <span class="bar" aria-hidden="true" />
+                <span class="name">
+                  <LinePill num={section.num} size="lg" decorative />
+                  <span>
+                    <span class="visually-hidden">Section {section.num}, </span>
+                    {section.title}
+                  </span>
                 </span>
-              </span>
-              <span class="card-title">{section.title}</span>
-              <span class="card-desc">{index?.data.description}</span>
-            </a>
+                <span class="desc">{index?.data.description}</span>
+                <span class="count">{plural(entries.length, 'fiche')}</span>
+              </a>
+            </li>
           ))
         }
-      </div>
+      </ol>
     </section>
 
-    <section class="block">
+    <section class="block" aria-labelledby="attack-title">
       <div class="block-head">
-        <h2>Couverture MITRE ATT&amp;CK</h2>
-        <span class="mono-note">
-          Enterprise · {coverage.length} tactiques · {stats.techniques} technique{stats.techniques > 1 ? 's' : ''} documentée{
-            stats.techniques > 1 ? 's' : ''
-          }
-        </span>
+        <h2 id="attack-title">Couverture MITRE ATT&amp;CK</h2>
+        <p class="note">Enterprise, {coverage.length} tactiques. Une station pleine : au moins une technique documentée avec sa détection.</p>
       </div>
-      <p class="block-intro">Nombre de techniques documentées par tactique, avec détection et réponse.</p>
-      <div class="tactics">
+      <ol class="tactics" aria-label="Techniques documentées par tactique">
         {
           coverage.map(({ tactic, techniques }) => (
-            <a href={`${techniquesUrl}#${tactic.id}`} style={`--heat: ${techniques.length / maxCoverage}`}>
-              <span class="tactic-id">{tactic.id}</span>
-              <span class="tactic-name">{tactic.name}</span>
-              <span class="tactic-count">
-                <span>{techniques.length}</span>
-                <span class="bar" aria-hidden="true">
-                  <span />
+            <li class:list={{ on: techniques.length > 0 }}>
+              <a href={`${techniquesUrl}#${tactic.id}`}>
+                <span class="tactic-id" aria-hidden="true">{tactic.id}</span>
+                <span class="tactic-name">{tactic.name}</span>
+                <span class="tactic-count">
+                  {techniques.length}
+                  <span class="visually-hidden"> {techniques.length > 1 ? 'techniques documentées' : 'technique documentée'}</span>
                 </span>
-              </span>
-            </a>
+              </a>
+            </li>
           ))
         }
-      </div>
+      </ol>
+      <p class="legend">{coverageNote}</p>
     </section>
 
-    <section class="block">
+    <section class="block" aria-labelledby="recent-title">
       <div class="block-head">
-        <h2>Derniers ajouts</h2>
+        <h2 id="recent-title">Derniers ajouts</h2>
       </div>
       {
         recent.length > 0 ? (
-          <div class="recent">
-            {recent.map((doc) => (
-              <a href={docUrl(doc.id)}>
-                <span class="recent-date">{formatDate(doc.data.updated).slice(0, 5)}</span>
-                <span class="recent-type">{docTypeLabel(doc)}</span>
-                <span class="recent-title">{doc.data.title}</span>
-                <span class="recent-tags">
-                  {doc.data.type === 'technique' && <span class="mitre">{doc.data.attack_id}</span>}
-                  {doc.data.tags.slice(0, 2).map((tag) => (
-                    <span>#{tag}</span>
-                  ))}
-                </span>
-              </a>
-            ))}
-          </div>
+          <ol class="recent">
+            {recent.map((doc) => {
+              const num = sectionOf(doc)?.num;
+              return (
+                <li style={lineStyle(num)}>
+                  <span class="recent-date">{formatDate(doc.data.updated).slice(0, 5)}</span>
+                  <span class="recent-type">
+                    {num && <LinePill num={num} size="sm" decorative />}
+                    {docTypeLabel(doc)}
+                  </span>
+                  <span class="recent-main">
+                    <a class="recent-title" href={docUrl(doc.id)}>
+                      {doc.data.title}
+                    </a>
+                    {doc.data.type === 'technique' && <span class="mitre">{doc.data.attack_id}</span>}
+                  </span>
+                  <span class="recent-tags">
+                    {doc.data.tags.slice(0, 2).map((tag) => (
+                      <button type="button" class="chip" data-action="open-search" data-query={`#${tag}`}>
+                        #{tag}
+                      </button>
+                    ))}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
         ) : (
           <p class="empty boxed">Aucune fiche publiée pour l'instant.</p>
         )
       }
     </section>
 
-    <section class="block parcours" id="parcours">
+    <section class="block parcours" id="parcours" aria-labelledby="parcours-title">
       <div class="block-head">
-        <h2>Parcours &amp; méthode</h2>
-        <span class="mono-note">pour les recruteurs</span>
+        <h2 id="parcours-title">Parcours et formation</h2>
+        <p class="note">Chaque compétence renvoie aux fiches et aux write-ups qui la prouvent : rien n'est affirmé sans page derrière.</p>
       </div>
-      <p class="block-intro">Chaque compétence renvoie aux fiches et aux write-ups qui la prouvent.</p>
-      <div class="trio">
-        <Panel title="Méthode d'investigation" note="appliquée partout">
-          <ol class="method">
-            {
-              method.map(([title, body], i) => (
-                <li>
-                  <span class="method-num">{String(i + 1).padStart(2, '0')}</span>
-                  <div>
-                    <div class="item-title">{title}</div>
-                    <div class="item-body">{body}</div>
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
-        </Panel>
-        <Panel title="Compétences" note="preuves">
+      <div class="duo">
+        <Panel title="Compétences prouvées">
           {
             topTags.length > 0 ? (
               <ul class="skills">
                 {topTags.map((t) => (
                   <li>
-                    <button type="button" data-action="open-search" data-query={`#${t.tag}`}>
-                      <span>#{t.tag}</span>
+                    <button type="button" class="chip" data-action="open-search" data-query={`#${t.tag}`}>
+                      #{t.tag}
                       <span class="evidence">{tagEvidence(t)}</span>
                     </button>
                   </li>
@@ -267,17 +294,17 @@ const method = [
             )
           }
         </Panel>
-        <Panel title="Formation & certifications">
+        <Panel title="Formation et certifications">
           {
             PROFILE.formation.length > 0 ? (
               <ul class="formation">
                 {PROFILE.formation.map((f) => (
                   <li>
                     <span class="period">{f.period}</span>
-                    <div>
-                      <div class="item-title">{f.title}</div>
-                      <div class="item-body">{f.detail}</div>
-                    </div>
+                    <span>
+                      <span class="item-title">{f.title}</span>
+                      <span class="item-body">{f.detail}</span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -285,21 +312,21 @@ const method = [
               <p class="empty">À compléter.</p>
             )
           }
-          {
-            links.length > 0 && (
-              <div class="actions panel-actions">
-                {links
-                  .filter((l) => l.primary || l.label === 'Contact')
-                  .map((l) => (
-                    <a class:list={['btn', 'sm', { primary: l.primary }]} href={l.href} {...l.attrs}>
-                      {l.label === 'Contact' ? 'Me contacter' : l.label}
-                    </a>
-                  ))}
-              </div>
-            )
-          }
         </Panel>
       </div>
+      {
+        links.length > 0 && (
+          <div class="actions">
+            {links
+              .filter((l) => l.primary || l.label === 'Me contacter')
+              .map((l) => (
+                <a class:list={['btn', { primary: l.primary }]} href={l.href} {...l.attrs}>
+                  {l.label}
+                </a>
+              ))}
+          </div>
+        )
+      }
     </section>
   </div>
 </Shell>
@@ -308,6 +335,9 @@ const method = [
   .home {
     max-width: var(--home-max);
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-20);
   }
 
   ul,
@@ -321,51 +351,44 @@ const method = [
     margin: 0;
   }
 
-  /* En-tête */
+  /* Accroche */
   .hero {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-12) var(--sp-16);
-    align-items: flex-start;
-    padding-bottom: var(--sp-14);
-    border-bottom: var(--bw) solid var(--border-soft);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--hero-side);
+    gap: var(--sp-16);
+    align-items: start;
   }
 
   .hero-main {
-    flex: 1 1 var(--hero-main);
     min-width: 0;
-  }
-
-  .hero-side {
-    flex: 0 1 var(--hero-side);
-    min-width: var(--hero-side-min);
   }
 
   .status {
     display: inline-flex;
     align-items: center;
     gap: var(--sp-4);
-    padding: var(--sp-2) var(--sp-5) var(--sp-2) var(--sp-4);
-    border: var(--bw) solid var(--border);
+    padding: var(--sp-2) var(--sp-6) var(--sp-2) var(--sp-4);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
+    background: var(--sev-low-bg);
+    color: var(--sev-low);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
     line-height: var(--lh-snug);
-    color: var(--text-2);
   }
 
-  .dot {
+  .status::before {
+    content: '';
     width: var(--dot-lg);
     height: var(--dot-lg);
     border-radius: 50%;
-    background: var(--sev-low);
+    background: currentColor;
   }
 
   h1 {
-    margin: var(--sp-9) 0 var(--sp-7);
+    margin: var(--sp-8) 0 var(--sp-9);
+    max-width: 22ch;
     font-size: var(--fs-hero);
     line-height: var(--lh-hero);
-    text-wrap: balance;
   }
 
   .intro {
@@ -379,65 +402,191 @@ const method = [
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--sp-4);
+    align-items: center;
+    gap: var(--sp-5);
   }
 
-  .btn {
+  .more {
     display: inline-flex;
     align-items: center;
-    height: var(--btn-h);
-    padding: 0 var(--sp-7);
+    min-height: var(--btn-h);
+    margin-left: var(--sp-3);
+    font-weight: var(--fw-bold);
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  /* Méthode d'investigation : la ligne que suit chaque fiche */
+  .method {
+    margin-top: var(--sp-16);
+    padding-top: var(--sp-10);
+    border-top: var(--bw) solid var(--border);
+  }
+
+  .method h2 {
+    margin-bottom: var(--sp-9);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    color: var(--text-2);
+  }
+
+  .method ol {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    counter-reset: method;
+  }
+
+  .method ol::before {
+    content: '';
+    position: absolute;
+    left: var(--sp-9);
+    right: var(--sp-9);
+    top: calc(var(--pill) / 2 - var(--track-w) / 2);
+    height: var(--track-w);
+    border-radius: var(--r-sm);
+    background: linear-gradient(90deg, var(--l01) 0 33%, var(--l03) 0 67%, var(--l04) 0);
+  }
+
+  .method li {
+    position: relative;
+    padding: calc(var(--pill) + var(--sp-6)) var(--sp-6) 0 0;
+    counter-increment: method;
+  }
+
+  .method li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--pill);
+    height: var(--pill);
+    border-radius: 50%;
+    background: var(--surface);
+    border: var(--sp-3) solid var(--line);
+    box-sizing: border-box;
+  }
+
+  /* Un seul moment animé sur le site : au chargement, le tracé de la méthode se dessine et ses stations apparaissent. */
+  @media (prefers-reduced-motion: no-preference) {
+    .method ol::before {
+      transform-origin: left center;
+      animation: draw-track 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+
+    .method li::before {
+      animation: pop-station 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-delay: calc(0.25s + var(--i) * 0.18s);
+    }
+
+    .method li:nth-child(1) {
+      --i: 0;
+    }
+
+    .method li:nth-child(2) {
+      --i: 1;
+    }
+
+    .method li:nth-child(3) {
+      --i: 2;
+    }
+
+    .method li:nth-child(4) {
+      --i: 3;
+    }
+  }
+
+  @keyframes draw-track {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes pop-station {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+  }
+
+  .method-title {
+    display: block;
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-black);
+  }
+
+  .method-title::before {
+    content: counter(method) '  ';
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-3);
+  }
+
+  .method-body {
+    display: block;
+    max-width: 30ch;
+    margin-top: var(--sp-2);
+    font-size: var(--fs-base);
+    line-height: var(--lh-snug);
+    color: var(--text-2);
+  }
+
+  /* État de la base : tableau d'affichage */
+  .state {
     border: var(--bw) solid var(--border);
-    border-radius: var(--r-xl);
-    color: var(--text);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .state h2 {
+    padding: var(--sp-6) var(--sp-8);
+    background: var(--ink);
+    color: var(--on-ink);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0;
+  }
+
+  .state dl {
+    margin: 0;
+    padding: var(--sp-2) var(--sp-8) var(--sp-4);
+  }
+
+  .state dl > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-6);
+    padding: var(--sp-5) 0;
+    border-bottom: var(--bw) solid var(--border-soft);
     font-size: var(--fs-base);
   }
 
-  .btn:hover {
-    border-color: var(--accent-line);
-    text-decoration: none;
-  }
-
-  .btn.primary {
-    padding: 0 var(--sp-8);
-    border-color: transparent;
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-weight: var(--fw-semibold);
-  }
-
-  .btn.ghost {
-    border-color: transparent;
-    color: var(--accent);
-  }
-
-  .btn.sm {
-    height: var(--ctl);
-    font-size: var(--fs-md);
-  }
-
-  .state {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--sp-5) var(--sp-8);
-    margin: 0;
-    padding: var(--sp-7);
-    font-family: var(--font-mono);
-    font-size: var(--fs-md);
-    line-height: var(--lh-snug);
+  .state dl > div:last-child {
+    border-bottom: none;
   }
 
   .state dt {
-    color: var(--text-3);
+    color: var(--text-2);
   }
 
   .state dd {
     margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-stat);
+    font-weight: var(--fw-bold);
     text-align: right;
   }
 
+  .state dl > div:last-child dd {
+    font-size: var(--fs-base);
+  }
+
   .in-progress {
-    padding: var(--sp-5) var(--sp-7);
+    padding: var(--sp-5) var(--sp-8) var(--sp-7);
     border-top: var(--bw) solid var(--border-soft);
     font-size: var(--fs-md);
     color: var(--text-2);
@@ -445,11 +594,13 @@ const method = [
 
   .in-progress span {
     color: var(--text);
+    font-weight: var(--fw-bold);
   }
 
   /* Grande recherche */
-  .search-block {
-    padding: var(--sp-12) 0 var(--sp-4);
+  .search-block h2 {
+    margin-bottom: var(--sp-5);
+    font-size: var(--fs-h3);
   }
 
   .search-lg {
@@ -457,19 +608,23 @@ const method = [
     display: flex;
     align-items: center;
     gap: var(--sp-7);
-    height: var(--search-lg-h);
-    padding: 0 var(--sp-8) 0 var(--sp-8h);
+    min-height: var(--search-lg-h);
+    padding: 0 var(--sp-8) 0 var(--sp-9);
     background: var(--surface);
-    border: var(--bw) solid var(--accent-line);
-    border-radius: var(--r-panel);
-    box-shadow: var(--ring-accent);
+    border: var(--bw-strong) solid var(--ink);
+    border-radius: var(--r-dialog);
     cursor: pointer;
     text-align: left;
+    font-size: var(--fs-lead);
     color: var(--text-3);
   }
 
+  .search-lg:hover {
+    color: var(--text);
+  }
+
   .search-lg :global(.icon) {
-    color: var(--accent);
+    color: var(--text);
   }
 
   .search-text {
@@ -491,37 +646,43 @@ const method = [
     align-items: center;
     gap: var(--sp-4);
     margin-top: var(--sp-7);
+    font-size: var(--fs-base);
+    color: var(--text-2);
+  }
+
+  .frequent .chip {
+    cursor: pointer;
+  }
+
+  .hints {
+    margin-top: var(--sp-5);
     font-size: var(--fs-md);
     color: var(--text-3);
   }
 
-  .frequent button {
-    padding: var(--sp-2) var(--sp-4h);
-    border: var(--bw) solid var(--border);
-    border-radius: var(--r-md);
-    background: var(--surface-2);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: var(--fs-code);
-    cursor: pointer;
+  .hints code {
+    color: var(--text-2);
+    font-weight: var(--fw-bold);
   }
 
   /* Reprendre + mémo */
-  .pair {
+  .pair,
+  .duo {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(var(--panel-min), 100%), 1fr));
-    gap: var(--sp-6);
-    padding-top: var(--sp-14);
+    gap: var(--sp-8);
   }
 
   .empty {
-    padding: var(--sp-7);
+    padding: 0 var(--sp-8) var(--sp-8);
     font-size: var(--fs-base);
-    color: var(--text-3);
+    line-height: var(--lh-ui);
+    color: var(--text-2);
   }
 
   .empty.boxed {
-    border: var(--bw) dashed var(--border);
+    padding: var(--sp-10);
+    border: var(--bw-strong) dashed var(--border-strong);
     border-radius: var(--r-card);
     text-align: center;
   }
@@ -529,7 +690,7 @@ const method = [
   .resume {
     display: flex;
     flex-direction: column;
-    padding: var(--sp-3);
+    padding: 0 var(--sp-4) var(--sp-4);
   }
 
   .resume:empty {
@@ -540,24 +701,22 @@ const method = [
     display: flex;
     align-items: center;
     gap: var(--sp-6);
-    padding: var(--sp-5);
-    border-radius: var(--r-lg);
+    min-height: var(--ctl);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
     color: var(--text);
     line-height: var(--lh-snug);
   }
 
-  .resume a:hover,
-  .skills button:hover {
-    background: var(--surface-2);
+  .resume a:hover {
+    background: var(--bg);
     text-decoration: none;
   }
 
   .resume-type {
     width: var(--resume-type-w);
     flex: none;
-    font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
-    text-transform: uppercase;
+    font-size: var(--fs-sm);
     color: var(--text-3);
   }
 
@@ -565,19 +724,19 @@ const method = [
     flex: 1;
     min-width: 0;
     font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
   }
 
   .resume-mark {
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-sm);
     color: var(--text-3);
   }
 
   .resume :global(.is-pinned) .resume-mark {
-    color: var(--accent);
+    color: var(--text);
   }
 
   .resume :global(a:not(.is-pinned) .icon) {
@@ -587,233 +746,305 @@ const method = [
   .memo {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--memo-min), 1fr));
+    gap: var(--bw);
+    background: var(--border-soft);
+    border-top: var(--bw) solid var(--border-soft);
   }
 
   .memo a {
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
-    padding: var(--sp-4h) var(--sp-6);
-    box-shadow: 0 0 0 var(--hairline) var(--border-soft);
+    min-height: var(--tap);
+    padding: var(--sp-4h) var(--sp-8);
+    background: var(--surface);
     color: var(--text);
     line-height: var(--lh-snug);
   }
 
   .memo a:hover {
-    background: var(--surface-2);
+    background: var(--bg);
     text-decoration: none;
   }
 
   .memo-id {
     font-family: var(--font-mono);
-    font-size: var(--fs-md);
-    font-weight: var(--fw-semibold);
-    color: var(--accent);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
   }
 
   .memo-label {
-    font-size: var(--fs-code);
+    font-size: var(--fs-sm);
     color: var(--text-2);
   }
 
   /* Blocs titrés */
-  .block {
-    padding-top: var(--sp-16);
-  }
-
   .block-head {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--sp-2) var(--sp-8);
-    margin-bottom: var(--sp-8);
+    gap: var(--sp-3) var(--sp-10);
+    margin-bottom: var(--sp-10);
   }
 
-  .block-head:has(+ .block-intro) {
-    margin-bottom: var(--sp-3);
-  }
-
-  h2 {
+  .block-head h2 {
     font-size: var(--fs-h2-home);
   }
 
-  .mono-note {
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
-    color: var(--text-3);
-  }
-
-  .block-intro {
+  .note {
     max-width: var(--measure);
-    margin-bottom: var(--sp-8);
     font-size: var(--fs-base);
     color: var(--text-2);
   }
 
-  /* Sections */
-  .sections {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--section-card-min), 1fr));
-    gap: var(--sp-5);
-  }
-
-  .sections a {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-4);
-    min-height: var(--section-card-h);
-    padding: var(--sp-8);
+  /* Les neuf sections : le plan des lignes */
+  .lines {
     background: var(--surface);
     border: var(--bw) solid var(--border);
     border-radius: var(--r-card);
-    color: var(--text);
-    line-height: var(--lh-snug);
+    overflow: hidden;
   }
 
-  .sections a:hover {
-    border-color: var(--accent-line);
-    background: var(--surface-2);
+  .lines li + li a {
+    border-top: var(--bw) solid var(--border-soft);
+  }
+
+  .lines a {
+    display: grid;
+    grid-template-columns: auto var(--section-name-w) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0 var(--sp-10);
+    min-height: var(--sp-21);
+    padding: 0 var(--sp-10) 0 0;
+    color: var(--text);
+  }
+
+  .lines a:hover {
+    background: var(--bg);
     text-decoration: none;
   }
 
-  .card-top {
+  .lines a:hover .bar {
+    width: calc(var(--bw-line) * 2);
+  }
+
+  .bar {
+    transition: width 0.15s ease-out;
+  }
+
+  .lines a:hover .name > span:last-child {
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  .bar {
+    align-self: stretch;
+    width: var(--bw-line);
+    margin-right: var(--sp-10);
+    background: var(--line);
+  }
+
+  .name {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
-    color: var(--text-3);
+    gap: var(--sp-7);
+    font-size: var(--fs-lead);
+    font-weight: var(--fw-black);
+    line-height: var(--lh-compact);
   }
 
-  .card-num {
-    color: var(--accent);
-  }
-
-  .card-title {
-    font-size: var(--fs-body);
-    font-weight: var(--fw-semibold);
-  }
-
-  .card-desc {
-    font-size: var(--fs-md);
+  .desc {
+    padding: var(--sp-6) 0;
+    font-size: var(--fs-base);
+    line-height: var(--lh-snug);
     color: var(--text-2);
   }
 
-  /* Couverture ATT&CK */
-  .tactics {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--tactic-min), 1fr));
-    gap: var(--sp-3);
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--fs-md);
+    color: var(--text-3);
+    white-space: nowrap;
   }
 
-  .tactics a {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-5);
-    min-height: var(--tactic-h);
-    padding: var(--sp-6);
-    border: var(--bw) solid var(--border);
-    border-radius: var(--r-xl);
-    background: color-mix(in oklch, var(--accent) calc(var(--heat) * var(--heat-max)), var(--surface));
+  .lines a.has .count {
+    font-weight: var(--fw-bold);
     color: var(--text);
   }
 
+  /* Couverture ATT&CK : quatorze stations sur un tracé */
+  .tactics {
+    display: grid;
+    grid-template-columns: repeat(var(--tactic-cols), minmax(0, 1fr));
+    row-gap: var(--sp-12);
+  }
+
+  .tactics li {
+    position: relative;
+  }
+
+  /* Le tracé relie les stations d'une même rangée */
+  .tactics li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--pill) / 2 - var(--track-w) / 2);
+    height: var(--track-w);
+    background: var(--track);
+  }
+
+  .tactics li:nth-child(7n + 1)::before {
+    left: 50%;
+    border-radius: var(--r-sm) 0 0 var(--r-sm);
+  }
+
+  .tactics li:nth-child(7n)::before,
+  .tactics li:last-child::before {
+    right: 50%;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  }
+
+  .tactics a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: var(--tap);
+    padding: calc(var(--pill) + var(--sp-5)) var(--sp-2) 0;
+    text-align: center;
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-compact);
+  }
+
   .tactics a:hover {
-    border-color: var(--accent);
     text-decoration: none;
+    color: var(--text);
+  }
+
+  .tactics a:hover .tactic-name {
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  .tactics a::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--pill) / 2 - var(--pill-sm) / 2);
+    left: 50%;
+    width: var(--pill-sm);
+    height: var(--pill-sm);
+    margin-left: calc(-1 * var(--pill-sm) / 2);
+    border-radius: 50%;
+    background: var(--surface);
+    border: var(--sp-2h) solid var(--track);
+    box-sizing: border-box;
+  }
+
+  .tactics .on a::before {
+    top: 0;
+    width: var(--pill);
+    height: var(--pill);
+    margin-left: calc(-1 * var(--pill) / 2);
+    background: var(--l03);
+    border-color: var(--l03);
+    box-shadow: 0 0 0 var(--sp-2) var(--bg), 0 0 0 calc(var(--sp-2) + var(--sp-1h)) var(--l03);
   }
 
   .tactic-id {
     font-family: var(--font-mono);
     font-size: var(--fs-2xs);
-    line-height: var(--lh-snug);
     color: var(--text-3);
   }
 
   .tactic-name {
-    flex: 1;
-    font-size: var(--fs-md);
-    font-weight: var(--fw-medium);
-    line-height: var(--lh-title);
+    font-weight: var(--fw-bold);
+  }
+
+  .tactics .on .tactic-name {
+    color: var(--text);
   }
 
   .tactic-count {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-4);
+    margin-top: var(--sp-1);
     font-family: var(--font-mono);
-    font-size: var(--fs-stat);
-    font-weight: var(--fw-semibold);
-    line-height: var(--lh-snug);
+    color: var(--text-3);
   }
 
-  .bar {
-    flex: 1;
-    height: var(--sp-1h);
-    border-radius: var(--r-xs);
-    background: var(--border-soft);
-    overflow: hidden;
+  .tactics .on .tactic-count {
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
+    color: var(--l03);
   }
 
-  .bar span {
-    display: block;
-    height: 100%;
-    width: calc(var(--heat) * 100%);
-    background: var(--accent);
+  .legend {
+    margin-top: var(--sp-10);
+    max-width: var(--measure);
+    font-size: var(--fs-base);
+    color: var(--text-2);
   }
 
   /* Derniers ajouts */
   .recent {
-    display: grid;
-    gap: var(--bw);
-    background: var(--border-soft);
+    background: var(--surface);
     border: var(--bw) solid var(--border);
     border-radius: var(--r-card);
     overflow: hidden;
   }
 
-  .recent a {
-    display: flex;
-    flex-wrap: wrap;
+  .recent li {
+    display: grid;
+    grid-template-columns: var(--recent-date-w) var(--recent-type-w) minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--sp-3) var(--sp-8);
-    padding: var(--sp-6) var(--sp-8);
-    background: var(--surface);
-    color: var(--text);
+    gap: var(--sp-6);
+    padding: var(--sp-5) var(--sp-8);
+    border-top: var(--bw) solid var(--border-soft);
     line-height: var(--lh-snug);
   }
 
-  .recent a:hover {
-    background: var(--surface-2);
-    text-decoration: none;
+  .recent li:first-child {
+    border-top: none;
   }
 
   .recent-date {
-    width: var(--recent-date-w);
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
     color: var(--text-3);
   }
 
   .recent-type {
-    width: var(--recent-type-w);
-    padding: var(--sp-1) var(--sp-3h);
-    border: var(--bw) solid var(--border);
-    border-radius: var(--r-sm);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    font-size: var(--fs-md);
     color: var(--text-2);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  }
+
+  .recent-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-4) var(--sp-5);
+    min-width: 0;
   }
 
   .recent-title {
-    flex: 1 1 var(--neighbor-min);
+    display: inline-block;
+    padding: var(--sp-2) 0;
     font-size: var(--fs-body-sm);
-    font-weight: var(--fw-medium);
+    font-weight: var(--fw-bold);
+    color: var(--text);
+  }
+
+  .mitre {
+    padding: var(--sp-0) var(--sp-3);
+    border: var(--bw) solid var(--text);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
   }
 
   .recent-tags {
@@ -822,102 +1053,204 @@ const method = [
     gap: var(--sp-3);
   }
 
-  .recent-tags span {
-    padding: var(--sp-1) var(--sp-3h);
-    border-radius: var(--r-sm);
-    background: var(--surface-2);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    color: var(--text-2);
-  }
-
-  .recent-tags .mitre {
-    background: var(--accent-bg);
-    color: var(--accent);
-  }
-
-  /* Parcours & méthode */
-  .parcours {
-    padding-top: var(--sp-18);
-    padding-bottom: var(--sp-10);
-  }
-
-  .trio {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(var(--parcours-min), 100%), 1fr));
-    gap: var(--sp-6);
-  }
-
-  .method li,
-  .formation li {
-    display: flex;
-    gap: var(--sp-7);
-    padding: var(--sp-6) var(--sp-7);
-    border-bottom: var(--bw) solid var(--border-soft);
-    line-height: var(--lh-snug);
-  }
-
-  .method li:last-child {
-    border-bottom: none;
-  }
-
-  .method-num {
-    flex: none;
-    padding-top: var(--sp-1);
-    font-family: var(--font-mono);
+  .recent-tags .chip {
+    min-height: var(--pill-sm);
     font-size: var(--fs-sm);
-    color: var(--accent);
+    cursor: pointer;
   }
 
-  .item-title {
-    font-size: var(--fs-body-sm);
-    font-weight: var(--fw-semibold);
-  }
-
-  .item-body {
-    font-size: var(--fs-md);
-    color: var(--text-2);
+  /* Parcours et formation */
+  .parcours .actions {
+    margin-top: var(--sp-10);
   }
 
   .skills {
     display: flex;
-    flex-direction: column;
-    padding: var(--sp-3);
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    padding: 0 var(--sp-8) var(--sp-8);
   }
 
-  .skills button {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--sp-2) var(--sp-6);
-    padding: var(--sp-5);
-    border: none;
-    border-radius: var(--r-lg);
-    background: transparent;
+  .skills .chip {
+    min-height: var(--ctl-sm);
     cursor: pointer;
-    text-align: left;
-    font-size: var(--fs-body-sm);
-    color: var(--text);
+    font-weight: var(--fw-medium);
   }
 
   .evidence {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    color: var(--accent);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-regular);
+    color: var(--text-2);
+  }
+
+  .formation {
+    padding: 0 var(--sp-8) var(--sp-5);
+  }
+
+  .formation li {
+    display: grid;
+    grid-template-columns: var(--period-w) minmax(0, 1fr);
+    gap: var(--sp-6);
+    padding: var(--sp-5) 0;
+    border-top: var(--bw) solid var(--border-soft);
+    line-height: var(--lh-snug);
   }
 
   .period {
-    width: var(--period-w);
-    flex: none;
     padding-top: var(--sp-1);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    color: var(--text-3);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-2);
+    white-space: nowrap;
   }
 
-  .panel-actions {
-    margin-top: auto;
-    padding: var(--sp-7);
+  .item-title {
+    display: block;
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-bold);
+  }
+
+  .item-body {
+    display: block;
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  @media (max-width: 1099px) {
+    .lines a {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: var(--sp-2) var(--sp-8);
+      padding: var(--sp-6) var(--sp-8) var(--sp-6) 0;
+    }
+
+    .bar {
+      grid-row: 1 / 3;
+      margin-right: var(--sp-6);
+    }
+
+    .desc {
+      grid-column: 2;
+      padding: 0;
+    }
+
+    .count {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+
+  @media (max-width: 859px) {
+    .home {
+      gap: var(--sp-16);
+    }
+
+    .hero {
+      grid-template-columns: 1fr;
+      gap: var(--sp-12);
+    }
+
+    .method ol {
+      grid-template-columns: 1fr;
+    }
+
+    .method ol::before {
+      left: calc(var(--pill) / 2 - var(--track-w) / 2);
+      right: auto;
+      top: var(--sp-6);
+      bottom: var(--sp-6);
+      width: var(--track-w);
+      height: auto;
+      background: linear-gradient(180deg, var(--l01) 0 33%, var(--l03) 0 67%, var(--l04) 0);
+      transform-origin: center top;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .method ol::before {
+        animation-name: draw-track-v;
+      }
+    }
+
+    @keyframes draw-track-v {
+      from {
+        transform: scaleY(0);
+      }
+    }
+
+    .method li {
+      padding: 0 0 var(--sp-10) calc(var(--pill) + var(--sp-8));
+    }
+
+    .method li:last-child {
+      padding-bottom: 0;
+    }
+
+    /* La couverture ATT&CK devient une liste verticale : une station par ligne, le tracé à gauche */
+    .tactics {
+      position: relative;
+      grid-template-columns: 1fr;
+      row-gap: 0;
+      padding-left: calc(var(--pill) + var(--sp-8));
+    }
+
+    .tactics::after {
+      content: '';
+      position: absolute;
+      left: calc(var(--pill) / 2 - var(--track-w) / 2);
+      top: var(--sp-6);
+      bottom: var(--sp-6);
+      width: var(--track-w);
+      border-radius: var(--r-sm);
+      background: var(--track);
+    }
+
+    .tactics li::before {
+      display: none;
+    }
+
+    .tactics a {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--sp-8);
+      align-items: center;
+      min-height: var(--tap);
+      padding: var(--sp-4) 0;
+      border-bottom: var(--bw) solid var(--border-soft);
+      text-align: left;
+      font-size: var(--fs-base);
+    }
+
+    .tactics li:last-child a {
+      border-bottom: none;
+    }
+
+    .tactics a::before {
+      top: 50%;
+      left: calc(-1 * (var(--pill) + var(--sp-8)) + var(--pill) / 2);
+      margin: calc(-1 * var(--pill-sm) / 2) 0 0 calc(-1 * var(--pill-sm) / 2);
+      z-index: 1;
+    }
+
+    .tactics .on a::before {
+      top: 50%;
+      margin: calc(-1 * var(--pill) / 2) 0 0 calc(-1 * var(--pill) / 2);
+    }
+
+    .tactic-count {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      margin: 0;
+      font-size: var(--fs-base);
+    }
+
+    .recent li {
+      grid-template-columns: auto minmax(0, 1fr);
+      row-gap: var(--sp-2);
+    }
+
+    .recent-main,
+    .recent-tags {
+      grid-column: 1 / 3;
+    }
   }
 </style>

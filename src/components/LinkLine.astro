@@ -1,8 +1,10 @@
 ---
 // Ligne de liens en fin de page : « Techniques liées », « Fiches enrichies », « Utilisé dans ».
+import LinePill from './LinePill.astro';
+
 interface Props {
   label: string;
-  links: { label: string; href: string }[];
+  links: { label: string; href: string; num?: string }[];
 }
 
 const { label, links } = Astro.props;
@@ -11,9 +13,12 @@ const { label, links } = Astro.props;
 {
   links.length > 0 && (
     <p class="link-line">
-      <span>{label} :</span>
+      <span class="label">{label} :</span>
       {links.map((link) => (
-        <a href={link.href}>{link.label}</a>
+        <a class="chip" href={link.href}>
+          {link.num && <LinePill num={link.num} size="sm" decorative />}
+          {link.label}
+        </a>
       ))}
     </p>
   )
@@ -25,22 +30,23 @@ const { label, links } = Astro.props;
     flex-wrap: wrap;
     gap: var(--sp-4);
     align-items: center;
-    margin: var(--sp-9) 0 0;
-    font-size: var(--fs-md);
-    color: var(--text-3);
+    margin: var(--sp-12) 0 0;
+    padding-top: var(--sp-10);
+    border-top: var(--bw) solid var(--border-soft);
+    font-size: var(--fs-base);
+    color: var(--text-2);
   }
 
-  a {
-    padding: var(--sp-1h) var(--sp-4);
-    border: var(--bw) solid var(--accent-line);
-    border-radius: var(--r-md);
-    font-family: var(--font-mono);
-    font-size: var(--fs-code);
-    line-height: var(--lh-snug);
+  .label {
+    margin-right: var(--sp-2);
   }
 
-  a:hover {
-    background: var(--accent-bg);
-    text-decoration: none;
+  .chip {
+    padding-left: var(--sp-2);
+    font-weight: var(--fw-medium);
+  }
+
+  .chip:not(:has(.line-pill)) {
+    padding-left: var(--sp-5);
   }
 </style>

@@ -4,16 +4,21 @@ import type { MarkdownHeading } from 'astro';
 
 interface Props {
   toc: MarkdownHeading[];
+  /** Premier numéro du sommaire : 1 d'ordinaire, 0 sur un write-up. */
+  tocStart?: number;
 }
 
-const { toc } = Astro.props;
+const { toc, tocStart = 1 } = Astro.props;
 ---
 
 <dialog class="sheet" data-dialog="toc" aria-labelledby="toc-sheet-title">
-  <div class="caps" id="toc-sheet-title">Sur cette page</div>
+  <div class="head">
+    <h2 id="toc-sheet-title">Sur cette page</h2>
+    <button type="button" class="kbd" data-action="close-dialog" aria-label="Fermer">Esc</button>
+  </div>
   {
     toc.length > 0 ? (
-      <nav aria-label="Sommaire" data-toc>
+      <nav aria-label="Sommaire" data-toc style={`--toc-start: ${tocStart - 1}`}>
         {toc.map((h) => (
           <a href={`#${h.slug}`} class:list={{ sub: h.depth === 3 }} data-action="close-dialog">
             {h.text}
@@ -47,20 +52,52 @@ const { toc } = Astro.props;
     background: var(--overlay);
   }
 
-  .caps {
-    margin-bottom: var(--sp-3);
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sp-4);
+  }
+
+  h2 {
+    font-size: var(--fs-h3);
+  }
+
+  .head button {
+    background: transparent;
+    cursor: pointer;
+  }
+
+  nav {
+    counter-reset: toc var(--toc-start, 0);
   }
 
   a {
-    display: block;
-    padding: var(--sp-6) 0 var(--sp-6) var(--sp-6);
+    display: flex;
+    gap: var(--sp-5);
+    align-items: baseline;
+    min-height: var(--tap);
+    padding: var(--sp-5) 0;
     border-bottom: var(--bw) solid var(--border-soft);
-    font-size: var(--fs-body-sm);
-    color: var(--text-2);
+    font-size: var(--fs-body);
+    color: var(--text);
+  }
+
+  a:not(.sub)::before {
+    counter-increment: toc;
+    content: counter(toc, decimal-leading-zero);
+    flex: none;
+    min-width: 2ch;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-3);
   }
 
   a.sub {
-    padding-left: var(--sp-10);
+    padding-left: calc(2ch + var(--sp-5));
+    font-size: var(--fs-base);
+    color: var(--text-2);
   }
 
   a:hover {
@@ -68,7 +105,7 @@ const { toc } = Astro.props;
   }
 
   nav :global(a.is-active) {
-    color: var(--text);
+    font-weight: var(--fw-bold);
   }
 
   p {

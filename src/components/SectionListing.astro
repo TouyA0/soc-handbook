@@ -35,34 +35,52 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
   entries.length === 0 ? (
     <p class="empty">Aucune fiche dans cette section pour l'instant.</p>
   ) : (
-    sorted.map(([label, docs]) => (
-      <section>
-        {label && <h2 class="caps" id={label.split(' · ')[0]}>{label}</h2>}
-        <ul>
-          {docs.map((doc) => (
-            <li>
-              <a href={docUrl(doc.id)}>
-                <span class="title">{doc.data.title}</span>
-                {docMeta(doc) && <span class="meta">{docMeta(doc)}</span>}
-                <span class="desc">{doc.data.description}</span>
-                <span class="date">maj {formatDate(doc.data.updated)}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))
+    sorted.map(([label, docs]) => {
+      const [id, name] = label.split(' · ');
+      return (
+        <section>
+          {label && (
+            <h2 id={id}>
+              {name ?? id}
+              {name && <span class="group-id">{id}</span>}
+            </h2>
+          )}
+          <ul>
+            {docs.map((doc) => (
+              <li>
+                <a href={docUrl(doc.id)}>
+                  <span class="title">{doc.data.title}</span>
+                  {docMeta(doc) && <span class="meta">{docMeta(doc)}</span>}
+                  <span class="desc">{doc.data.description}</span>
+                  <span class="date">maj {formatDate(doc.data.updated)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })
   )
 }
 
 <style>
   section {
-    margin-top: var(--sp-10);
+    margin-top: var(--sp-12);
   }
 
   h2 {
-    margin-bottom: var(--sp-5);
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-5);
+    margin-bottom: var(--sp-6);
+    font-size: var(--fs-h3);
+  }
+
+  .group-id {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
     font-weight: var(--fw-regular);
+    color: var(--text-3);
   }
 
   ul {
@@ -71,7 +89,7 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
     padding: 0;
     display: grid;
     gap: var(--bw);
-    background: var(--border-soft);
+    background: var(--border);
     border: var(--bw) solid var(--border);
     border-radius: var(--r-card);
     overflow: hidden;
@@ -81,7 +99,7 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--sp-1) var(--sp-8);
-    padding: var(--sp-6) var(--sp-8);
+    padding: var(--sp-7) var(--sp-8);
     background: var(--surface);
     color: var(--text);
     line-height: var(--lh-snug);
@@ -92,9 +110,14 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
     text-decoration: none;
   }
 
+  a:hover .title {
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
   .title {
-    font-size: var(--fs-body-sm);
-    font-weight: var(--fw-semibold);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-bold);
   }
 
   .meta,
@@ -106,7 +129,8 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
   }
 
   .meta {
-    color: var(--accent);
+    color: var(--text-2);
+    font-weight: var(--fw-bold);
   }
 
   .desc {
@@ -120,12 +144,12 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
   }
 
   .empty {
-    margin-top: var(--sp-10);
+    margin-top: var(--sp-12);
     padding: var(--sp-10);
-    border: var(--bw) dashed var(--border);
+    border: var(--bw-strong) dashed var(--border-strong);
     border-radius: var(--r-card);
     text-align: center;
     font-size: var(--fs-body-sm);
-    color: var(--text-3);
+    color: var(--text-2);
   }
 </style>

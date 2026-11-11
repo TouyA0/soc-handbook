@@ -1,9 +1,8 @@
 ---
 import '../styles/global.css';
 import { SITE, STORAGE } from '../data/site';
-import plexSans from '../assets/fonts/ibm-plex-sans-latin-400-700-normal.woff2?url';
-import plexCondensed from '../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2?url';
-import jetbrainsMono from '../assets/fonts/jetbrains-mono-latin-400-600-normal.woff2?url';
+import sans from '../assets/fonts/atkinson-hyperlegible-next-latin-200-800-normal.woff2?url';
+import mono from '../assets/fonts/atkinson-hyperlegible-mono-latin-200-800-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -19,11 +18,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="color-scheme" content="light dark" />
     <title>{fullTitle}</title>
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
@@ -40,7 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <meta property="og:image:alt" content={`${SITE.name} — Carnet d'analyste SOC`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="description" content={description} />
-    <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système. -->
+    <!-- Thème appliqué avant le premier rendu pour éviter tout flash : choix mémorisé, sinon préférence système, sinon clair. -->
     <script is:inline define:vars={{ STORAGE }}>
       (function () {
         var theme = null;
@@ -50,17 +49,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
           sidebar = localStorage.getItem(STORAGE.sidebar);
         } catch (e) {}
         if (theme !== 'dark' && theme !== 'light') {
-          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.setAttribute('data-theme', theme);
         if (sidebar === 'closed') document.documentElement.setAttribute('data-sidebar', 'closed');
       })();
     </script>
-    {
-      [plexSans, plexCondensed, jetbrainsMono].map((href) => (
-        <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
-      ))
-    }
+    {[sans, mono].map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
   </head>
   <body>
     <a class="skip-link" href="#contenu">Aller au contenu</a>

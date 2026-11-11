@@ -1,12 +1,19 @@
 ---
-// « Fil de connaissance » : concept → technique → détection → réponse → pratique.
+// « Fil de connaissance » : la ligne que suit un sujet, de la section où il naît à celle où il se pratique.
+// Cinq stations : concept → technique → détection → réponse → pratique. Une station sans fiche reste en creux.
+import { lineStyle } from '../data/sections';
+
 export interface ThreadStep {
-  /** Nom de l'étape, ex. « Concept ». Le numéro est ajouté à l'affichage. */
+  /** Nom de l'étape, ex. « Concept ». */
   step: string;
   label: string;
   meta: string;
   href?: string;
   current?: boolean;
+  /** Numéro de la section dont l'étape prend la couleur. */
+  num?: string;
+  /** Étape prévue mais sans fiche pour l'instant. */
+  planned?: boolean;
 }
 
 interface Props {
@@ -17,110 +24,143 @@ const { steps } = Astro.props;
 ---
 
 <nav class="thread" aria-label="Fil de connaissance">
-  <div class="head"><span>Fil de connaissance</span><span>concept → pratique</span></div>
+  <p class="head">Fil de connaissance : d'où ça vient, où ça mène</p>
   <ol>
     {
-      steps.map((s, i) => {
-        const Element = s.href && !s.current ? 'a' : 'span';
-        return (
-          <li>
-            <Element class="step" href={Element === 'a' ? s.href : undefined} aria-current={s.current ? 'step' : undefined}>
-              <span class="num">
-                {String(i + 1).padStart(2, '0')} · {s.step}
-              </span>
-              <span class="label">{s.label}</span>
-              <span class="meta">{s.meta}</span>
-            </Element>
-          </li>
-        );
-      })
+      steps.map((s) => (
+        <li class:list={{ 'is-current': s.current, 'is-planned': s.planned }} style={lineStyle(s.num)} aria-current={s.current ? 'step' : undefined}>
+          <span class="step">
+            {s.num && <span class="num">{s.num}</span>}
+            {s.step}
+          </span>
+          {s.href && !s.current && !s.planned ? <a class="label" href={s.href}>{s.label}</a> : <span class="label">{s.label}</span>}
+          <span class="meta">{s.meta}</span>
+        </li>
+      ))
     }
   </ol>
 </nav>
 
 <style>
   .thread {
-    margin-top: var(--sp-6);
-    padding: var(--sp-6) var(--sp-7) var(--sp-7);
+    margin-top: var(--sp-10);
+    padding: var(--sp-8) var(--sp-8) var(--sp-7);
     border: var(--bw) solid var(--border);
     border-radius: var(--r-card);
     background: var(--surface);
   }
 
   .head {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--sp-6);
-    margin-bottom: var(--sp-5);
-    font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
-    letter-spacing: var(--ls-caps);
-    color: var(--text-3);
-  }
-
-  .head span:first-child {
-    text-transform: uppercase;
+    margin: 0 0 var(--sp-8);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    color: var(--text-2);
   }
 
   ol {
+    position: relative;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-3);
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  /* Le tracé : une voie grise sur laquelle chaque station prend la couleur de sa section */
+  ol::before {
+    content: '';
+    position: absolute;
+    left: var(--sp-7);
+    right: var(--sp-7);
+    top: calc(var(--pill-sm) / 2 - var(--track-w) / 2 + var(--sp-0));
+    height: var(--track-w);
+    border-radius: var(--r-sm);
+    background: var(--track);
   }
 
   li {
-    flex: 1 1 var(--thread-min);
-    min-width: 0;
-    display: flex;
+    position: relative;
+    padding: calc(var(--pill-sm) + var(--sp-5)) var(--sp-5) 0 0;
+    font-size: var(--fs-md);
+    line-height: var(--lh-compact);
+  }
+
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--pill-sm) + var(--sp-1));
+    height: calc(var(--pill-sm) + var(--sp-1));
+    border-radius: 50%;
+    background: var(--surface);
+    border: var(--sp-2h) solid var(--line, var(--track));
+    box-sizing: border-box;
+  }
+
+  li.is-planned::before {
+    border-color: var(--track);
+  }
+
+  li.is-current::before {
+    background: var(--line);
+    box-shadow: 0 0 0 var(--sp-1h) var(--surface), 0 0 0 var(--sp-3) var(--line);
   }
 
   .step {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-1h);
-    padding: var(--sp-4h) var(--sp-5);
-    border: var(--bw) solid var(--border-soft);
-    border-radius: var(--r-lg);
-    background: var(--bg);
-    color: var(--text);
-    line-height: var(--lh-snug);
-  }
-
-  a.step:hover {
-    border-color: var(--accent);
-    text-decoration: none;
-  }
-
-  .step[aria-current] {
-    border-color: var(--accent-line);
-    background: var(--accent-bg);
+    display: block;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
   }
 
   .num {
     font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
-    letter-spacing: var(--ls-caps);
-    text-transform: uppercase;
-    color: var(--text-3);
-  }
-
-  .step[aria-current] .num {
-    color: var(--accent);
+    font-weight: var(--fw-bold);
+    margin-right: var(--sp-2);
   }
 
   .label {
-    font-size: var(--fs-md);
-    font-weight: var(--fw-semibold);
+    display: inline-block;
+    padding: var(--sp-1) 0;
+    font-weight: var(--fw-bold);
+    color: var(--text);
+  }
+
+  a.label {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  .is-planned .label {
+    font-weight: var(--fw-regular);
+    font-style: italic;
+    color: var(--text-3);
   }
 
   .meta {
-    font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
+    display: block;
+    font-size: var(--fs-xs);
     color: var(--text-3);
+  }
+
+  @media (max-width: 859px) {
+    ol {
+      grid-template-columns: 1fr;
+      row-gap: var(--sp-6);
+    }
+
+    ol::before {
+      left: calc(var(--pill-sm) / 2 - var(--track-w) / 2 + var(--sp-0));
+      right: auto;
+      top: var(--sp-5);
+      bottom: var(--sp-5);
+      width: var(--track-w);
+      height: auto;
+    }
+
+    li {
+      padding: 0 0 0 calc(var(--pill-sm) + var(--sp-8));
+    }
   }
 </style>

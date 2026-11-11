@@ -9,7 +9,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--border-strong) transparent;
 }
 
 html {
@@ -27,7 +27,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 h1,
@@ -35,7 +35,8 @@ h2,
 h3 {
   margin: 0;
   font-family: var(--font-heading);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-black);
+  text-wrap: balance;
 }
 
 h1 {
@@ -46,11 +47,13 @@ h1 {
 
 h2 {
   font-size: var(--fs-h2);
+  line-height: var(--lh-compact);
   letter-spacing: var(--ls-h2);
 }
 
 h3 {
   font-size: var(--fs-h3);
+  line-height: var(--lh-compact);
 }
 
 p {
@@ -59,7 +62,7 @@ p {
 
 strong,
 b {
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
 }
 
 a {
@@ -98,17 +101,19 @@ svg {
 
 mark {
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--text);
   border-radius: var(--r-xs);
 }
 
 ::selection {
-  background: var(--accent-line);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 :focus-visible {
   outline: var(--focus-w) solid var(--accent);
   outline-offset: var(--focus-offset);
+  border-radius: var(--r-sm);
 }
 
 /* Lien d'évitement : hors écran tant qu'il n'a pas le focus */
@@ -117,12 +122,12 @@ mark {
   left: var(--sp-8);
   top: calc(-1 * var(--sp-20));
   z-index: var(--z-skip);
-  padding: var(--sp-4h) var(--sp-7);
-  border-radius: var(--r-lg);
-  background: var(--accent);
-  color: var(--accent-ink);
+  padding: var(--sp-5) var(--sp-8);
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--on-ink);
   font-size: var(--fs-base);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
 }
 
 .skip-link:focus {
@@ -132,13 +137,15 @@ mark {
 
 /* Touche de clavier */
 .kbd {
-  padding: var(--sp-1) var(--sp-3);
-  border: var(--bw) solid var(--border);
+  padding: var(--sp-0) var(--sp-3);
+  border: var(--bw) solid var(--border-strong);
+  border-bottom-width: var(--bw-strong);
   border-radius: var(--r-sm);
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--text-2);
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
   line-height: var(--lh-snug);
 }
 
@@ -164,13 +171,106 @@ mark {
   height: var(--icon-lg);
 }
 
-/* Libellé en capitales */
+/* Libellé secondaire : en bas de casse, jamais en capitales espacées */
 .caps {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text-2);
+}
+
+/* Pastille de ligne : numéro de section sur sa couleur (voir LinePill.astro) */
+.line-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--pill);
+  height: var(--pill);
+  border-radius: 50%;
+  border: var(--bw-strong) solid transparent;
+  background: var(--line, var(--l08));
+  color: var(--on-line);
   font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.line-pill.sm {
+  width: var(--pill-sm);
+  height: var(--pill-sm);
   font-size: var(--fs-2xs);
-  letter-spacing: var(--ls-caps-wide);
-  text-transform: uppercase;
-  color: var(--text-3);
+}
+
+.line-pill.lg {
+  width: var(--pill-lg);
+  height: var(--pill-lg);
+  font-size: var(--fs-base);
+}
+
+/* Boutons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  min-height: var(--btn-h);
+  padding: 0 var(--sp-8h);
+  border: var(--bw-strong) solid var(--ink);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.btn.primary {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.btn.primary:hover {
+  background: var(--ink-hover);
+  border-color: var(--ink-hover);
+}
+
+.btn.sm {
+  min-height: var(--ctl);
+  padding: 0 var(--sp-7);
+  font-size: var(--fs-md);
+}
+
+/* Puce : tag, lien de fin de page */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--pill);
+  padding: 0 var(--sp-5);
+  border: var(--bw) solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-md);
+  line-height: var(--lh-snug);
+  text-decoration: none;
+}
+
+a.chip:hover,
+button.chip:hover {
+  border-color: var(--text-2);
+  text-decoration: none;
 }
 
 .visually-hidden {
@@ -196,5 +296,54 @@ mark {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition: none !important;
+  }
+}
+
+/* Impression : le contenu seul, sur fond blanc, les liens avec leur adresse */
+@media print {
+  :root {
+    --bg: #fff;
+    --surface: #fff;
+    --text: #000;
+    --text-2: #222;
+    --text-3: #444;
+  }
+
+  .topbar,
+  .sidebar,
+  .rail,
+  .statusbar,
+  .mobilebar,
+  .skip-link,
+  dialog,
+  [data-toast] {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    color: var(--text-3);
+  }
+
+  .code,
+  .callout,
+  table,
+  figure {
+    break-inside: avoid;
+  }
+}
+
+/* Mode « contraste élevé » de Windows : les pastilles gardent un contour et leur numéro */
+@media (forced-colors: active) {
+  .line-pill {
+    forced-color-adjust: none;
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
   }
 }

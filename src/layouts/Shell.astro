@@ -25,7 +25,7 @@ interface Props {
 const { title, description, doc, noindex, statusMeta } = Astro.props;
 const docs = await getDocs();
 const stats = getStatsParts(docs);
-const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(' · ');
+const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(', ');
 ---
 
 <Base title={title} description={description} noindex={noindex}>

@@ -1,48 +1,52 @@
-/* Tokens de design : toute couleur, police, taille ou espacement des composants passe par ces variables. */
+/* Tokens de design : toute couleur, police, taille ou espacement des composants passe par ces variables.
+   Direction « Plan de lignes » : chaque section 00 → 08 est une ligne numérotée et colorée (--l00 à --l08),
+   une seule famille de caractères (Atkinson Hyperlegible), thème clair par défaut et thème sombre. */
 
 :root {
   /* Familles */
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --font-heading: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Atkinson Hyperlegible Next", system-ui, "Segoe UI", sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, Consolas, monospace;
 
   /* Graisses */
   --fw-regular: 400;
   --fw-medium: 500;
-  --fw-semibold: 600;
+  --fw-semibold: 700;
+  --fw-bold: 700;
+  --fw-black: 800;
 
   /* Tailles de texte (base 16px) */
-  --fs-2xs: 0.65625rem; /* 10.5px — libellés en capitales */
-  --fs-xs: 0.6875rem; /* 11px — barre d'état, compteurs */
-  --fs-sm: 0.75rem; /* 12px — mono courant */
-  --fs-code: 0.78125rem; /* 12.5px — blocs de code */
-  --fs-md: 0.84375rem; /* 13.5px — navigation */
-  --fs-base: 0.875rem; /* 14px — interface */
+  --fs-2xs: 0.6875rem; /* 11px — mentions mono */
+  --fs-xs: 0.75rem; /* 12px — barre d'état, compteurs */
+  --fs-sm: 0.8125rem; /* 13px — mono courant */
+  --fs-code: 0.875rem; /* 14px — blocs de code */
+  --fs-md: 0.875rem; /* 14px — navigation */
+  --fs-base: 0.9375rem; /* 15px — interface */
   --fs-body-sm: 0.9375rem; /* 15px — texte dense */
   --fs-body: 1rem; /* 16px — texte courant */
   --fs-lead: 1.0625rem; /* 17px — chapô */
   --fs-h3: 1.125rem; /* 18px */
-  --fs-h2: 1.375rem; /* 22px */
-  --fs-h1: clamp(1.875rem, 4vw, 2.5rem); /* 30 → 40px */
-  --fs-hero: clamp(1.875rem, 4.4vw, 2.75rem); /* 30 → 44px */
+  --fs-h2: 1.5rem; /* 24px */
+  --fs-h1: clamp(2rem, 1.3rem + 2.4vw, 2.75rem); /* 32 → 44px */
+  --fs-hero: clamp(2rem, 1.2rem + 2.6vw, 3rem); /* 32 → 48px */
   --fs-code-inline: 0.9em;
 
   /* Interlignes */
-  --lh-tight: 1.15;
+  --lh-tight: 1.1;
   --lh-compact: 1.4;
   --lh-snug: 1.5;
   --lh-row: 1.55;
   --lh-ui: 1.6;
   --lh-dense: 1.65;
-  --lh-body: 1.7;
+  --lh-body: 1.65;
   --lh-loose: 1.8;
 
-  /* Interlettrages */
-  --ls-h1: -0.025em;
+  /* Interlettrages : les titres se resserrent légèrement, rien n'est espacé ni en capitales */
+  --ls-h1: -0.015em;
   --ls-h2: -0.01em;
-  --ls-caps: 0.08em;
-  --ls-caps-mid: 0.1em;
-  --ls-caps-wide: 0.12em;
+  --ls-caps: 0;
+  --ls-caps-mid: 0;
+  --ls-caps-wide: 0;
 
   /* Espacements */
   --sp-0: 1px;
@@ -61,7 +65,7 @@
   --sp-18: 56px;
   --sp-20: 80px;
 
-  /* Valeurs intermédiaires de la maquette, pour les paddings de badges, boutons et lignes */
+  /* Valeurs intermédiaires, pour les paddings de badges, boutons et lignes */
   --sp-1h: 3px;
   --sp-2h: 5px;
   --sp-3h: 7px;
@@ -73,49 +77,54 @@
   --sp-21: 96px;
 
   /* Contrôles et pictogrammes */
-  --ctl-sm: 34px;
-  --ctl: 36px;
-  --ctl-lg: 40px;
-  --logo: 22px;
-  --logo-stroke: 1.9; /* sur la grille de 22 du logo */
-  --icon-sm: 13px;
+  --ctl-sm: 36px;
+  --ctl: 40px;
+  --ctl-lg: 44px;
+  --tap: 44px; /* cible tactile minimale */
+  --logo: 28px;
+  --icon-sm: 14px;
   --icon: 16px;
   --icon-lg: 20px;
   --icon-stroke: 2; /* sur la grille de 24 des pictogrammes */
-  --dot: 6px;
-  --dot-lg: 7px;
+  --dot: 8px;
+  --dot-lg: 10px;
+  --pill-sm: 22px;
+  --pill: 28px;
+  --pill-lg: 40px;
   --underline-offset: 3px;
   --opacity-muted: 0.8;
   --bw: 1px;
   --bw-strong: 2px;
+  --bw-line: 6px; /* épaisseur d'une ligne (liseré, barre, tracé) */
+  --track-w: 8px; /* épaisseur d'un tracé de stations */
 
   /* Rayons */
   --r-xs: 2px;
   --r-sm: 4px;
-  --r-md: 5px;
-  --r-lg: 6px;
-  --r-xl: 7px;
-  --r-2xl: 8px;
-  --r-card: 9px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 8px;
+  --r-2xl: 10px;
+  --r-card: 10px;
   --r-panel: 10px;
-  --r-dialog: 12px;
+  --r-dialog: 14px;
   --r-sheet: 14px;
   --r-pill: 999px;
 
   /* Ossature */
-  --topbar-h: 56px;
+  --topbar-h: 60px;
   --statusbar-h: 28px;
   --mobilebar-h: 60px;
   --sidebar-w: 268px;
   --rail-w: 56px;
   --toc-w: 232px;
-  --home-max: 1160px;
+  --home-max: 1120px;
   --article-wrap-max: 1180px;
   --article-max: 780px;
-  --measure: 640px;
+  --measure: 68ch;
   --anchor-offset: 90px;
-  --toc-top: 80px;
-  --search-max: 620px;
+  --toc-top: 84px;
+  --search-max: 560px;
   --drawer-w: 86%;
   --drawer-max: 320px;
   --help-max: 460px;
@@ -126,42 +135,39 @@
   --palette-preview: 45%;
   --sheet-max-h: 72vh;
   --neighbor-min: 240px;
-  --section-num-w: 18px;
   --timeline-time-w: 72px;
   --timeline-event-min: 280px;
   --card-min: 220px;
-  --meta-min: 200px;
+  --meta-min: 180px;
   --thread-min: 118px;
-  --qa-label-w: 76px;
+  --qa-label-w: 84px;
   --row-code-min: 300px;
   --row-desc-min: 200px;
-  --filter-top: 64px;
-  --field-h: 42px;
+  --filter-top: 68px;
+  --field-h: 44px;
   --anchor-offset-filter: 170px;
   --meta-min-sm: 150px;
-  --lead-max: 660px;
+  --lead-max: 68ch;
 
   /* Accueil */
   --hero-main: 440px;
-  --hero-side: 320px;
+  --hero-side: 288px;
   --hero-side-min: 260px;
-  --hero-lead-max: 620px;
+  --hero-lead-max: 68ch;
   --panel-min: 340px;
   --parcours-min: 300px;
   --memo-min: 132px;
-  --section-card-min: 250px;
-  --section-card-h: 118px;
-  --tactic-min: 148px;
-  --tactic-h: 112px;
-  --btn-h: 38px;
-  --search-lg-h: 58px;
+  --section-name-w: 15rem;
+  --tactic-cols: 7;
+  --btn-h: 44px;
+  --search-lg-h: 64px;
   --resume-type-w: 78px;
-  --recent-date-w: 44px;
-  --recent-type-w: 86px;
-  --period-w: 74px;
-  --fs-h2-home: 1.25rem; /* 20px */
-  --fs-stat: 1.125rem; /* 18px */
-  --lh-hero: 1.12;
+  --recent-date-w: 4.5rem;
+  --recent-type-w: 8.5rem;
+  --period-w: 7rem;
+  --fs-h2-home: 1.75rem; /* 28px */
+  --fs-stat: 1.25rem; /* 20px */
+  --lh-hero: 1.1;
   --lh-title: 1.3;
   --hairline: 0.5px;
 
@@ -176,110 +182,144 @@
   --z-skip: 200;
 
   /* Contour de focus */
-  --focus-w: 2px;
+  --focus-w: 3px;
   --focus-offset: 2px;
 
   /* Voiles derrière les panneaux (identiques dans les deux thèmes) */
-  --overlay: oklch(0.1 0.01 255 / 0.55);
-  --overlay-strong: oklch(0.1 0.01 255 / 0.62);
+  --overlay: oklch(0.15 0.02 265 / 0.55);
+  --overlay-strong: oklch(0.15 0.02 265 / 0.62);
 
   /* Ombres */
   --shadow-dialog: 0 24px 64px var(--shadow);
   --shadow-toast: 0 8px 24px var(--shadow);
+  --shadow-card: 0 1px 2px var(--shadow-soft), 0 8px 24px -16px var(--shadow);
   --ring-accent: 0 0 0 4px var(--accent-bg);
+
+  /* Coloration syntaxique : les blocs de code gardent un fond sombre dans les deux thèmes */
+  --code-bg: #1b2340;
+  --code-head: #2d3a63;
+  --code-text: #e8ecf4;
+  --code-text-2: #aeb7ca;
+  --syn-kw: #8cc1f0;
+  --syn-str: #9cd49a;
+  --syn-num: #f0b46b;
+  --syn-fn: #7fd1cb;
+  --syn-field: #e3a6dc;
+  --syn-com: #8792ab;
 }
 
+/* Thème clair (par défaut) */
 :root,
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  --bg: oklch(0.165 0.008 255);
-  --bg-2: oklch(0.18 0.009 255);
-  --surface: oklch(0.205 0.01 255);
-  --surface-2: oklch(0.24 0.012 255);
-  --code-bg: oklch(0.145 0.008 255);
-  --shadow: oklch(0 0 0 / 0.45);
-  --heat-max: 34%;
-
-  --border: oklch(0.3 0.012 255);
-  --border-soft: oklch(0.25 0.01 255);
-
-  --text: oklch(0.94 0.006 255);
-  --text-2: oklch(0.8 0.01 255);
-  --text-3: oklch(0.64 0.012 255);
-
-  --accent: oklch(0.8 0.11 215);
-  --accent-bg: oklch(0.8 0.11 215 / 0.12);
-  --accent-line: oklch(0.8 0.11 215 / 0.4);
-  --accent-ink: oklch(0.18 0.03 230);
-
-  --sev-info: oklch(0.78 0.06 255);
-  --sev-info-bg: oklch(0.78 0.06 255 / 0.13);
-  --sev-info-line: oklch(0.78 0.06 255 / 0.35);
-  --sev-low: oklch(0.79 0.12 160);
-  --sev-low-bg: oklch(0.79 0.12 160 / 0.13);
-  --sev-low-line: oklch(0.79 0.12 160 / 0.35); /* absent de la maquette, créé par analogie */
-  --sev-med: oklch(0.85 0.13 90);
-  --sev-med-bg: oklch(0.85 0.13 90 / 0.11);
-  --sev-med-line: oklch(0.85 0.13 90 / 0.35);
-  --sev-high: oklch(0.77 0.14 55);
-  --sev-high-bg: oklch(0.77 0.14 55 / 0.13);
-  --sev-high-line: oklch(0.77 0.14 55 / 0.4);
-  --sev-crit: oklch(0.7 0.18 25);
-  --sev-crit-bg: oklch(0.7 0.18 25 / 0.15);
-  --sev-crit-line: oklch(0.7 0.18 25 / 0.4); /* absent de la maquette, créé par analogie */
-
-  --syn-kw: oklch(0.78 0.11 300);
-  --syn-str: oklch(0.82 0.11 145);
-  --syn-num: oklch(0.84 0.11 70);
-  --syn-fn: oklch(0.8 0.11 215);
-  --syn-field: oklch(0.86 0.06 250);
-  --syn-com: oklch(0.58 0.012 255);
-}
-
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: oklch(0.985 0.003 255);
-  --bg-2: oklch(0.97 0.004 255);
-  --surface: oklch(1 0 0);
-  --surface-2: oklch(0.955 0.005 255);
-  --code-bg: oklch(0.97 0.005 255);
-  --shadow: oklch(0.2 0.02 255 / 0.18);
-  --heat-max: 26%;
+  /* Lignes : une couleur par section, texte blanc dessus (contraste ≥ 5,3:1) */
+  --l00: #5b4bb7;
+  --l01: #1f6fb2;
+  --l02: #0e7471;
+  --l03: #b8322a;
+  --l04: #9a520b;
+  --l05: #87397f;
+  --l06: #2e7432;
+  --l07: #6a5a2b;
+  --l08: #4a5568;
+  --on-line: #ffffff;
+  --track: #c5cbd6;
 
-  --border: oklch(0.87 0.008 255);
-  --border-soft: oklch(0.92 0.006 255);
+  --bg: #f4f5f7;
+  --bg-2: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eaedf2;
+  --shadow: rgb(27 35 64 / 0.22);
+  --shadow-soft: rgb(27 35 64 / 0.06);
 
-  --text: oklch(0.22 0.015 255);
-  --text-2: oklch(0.38 0.015 255);
-  --text-3: oklch(0.52 0.012 255);
+  --border: #d5dae3;
+  --border-soft: #e4e7ed;
+  --border-strong: #b9c0ce;
 
-  --accent: oklch(0.5 0.13 235);
-  --accent-bg: oklch(0.5 0.13 235 / 0.08);
-  --accent-line: oklch(0.5 0.13 235 / 0.35);
-  --accent-ink: oklch(0.99 0 0);
+  --text: #1b2340;
+  --text-2: #4a5268;
+  --text-3: #5a6380; /* ≥ 5,4:1 sur --bg */
 
-  --sev-info: oklch(0.48 0.08 255);
-  --sev-info-bg: oklch(0.48 0.08 255 / 0.09);
-  --sev-info-line: oklch(0.48 0.08 255 / 0.3);
-  --sev-low: oklch(0.48 0.11 160);
-  --sev-low-bg: oklch(0.48 0.11 160 / 0.1);
-  --sev-low-line: oklch(0.48 0.11 160 / 0.3); /* absent de la maquette, créé par analogie */
-  --sev-med: oklch(0.5 0.11 80);
-  --sev-med-bg: oklch(0.75 0.13 90 / 0.14);
-  --sev-med-line: oklch(0.6 0.12 85 / 0.4);
-  --sev-high: oklch(0.52 0.15 50);
-  --sev-high-bg: oklch(0.65 0.15 55 / 0.1);
-  --sev-high-line: oklch(0.55 0.15 50 / 0.35);
-  --sev-crit: oklch(0.52 0.19 25);
-  --sev-crit-bg: oklch(0.55 0.19 25 / 0.1);
-  --sev-crit-line: oklch(0.52 0.19 25 / 0.35); /* absent de la maquette, créé par analogie */
+  /* Encre : boutons principaux, en-têtes pleins */
+  --ink: #1b2340;
+  --on-ink: #ffffff;
+  --ink-hover: #2d3a63;
 
-  --syn-kw: oklch(0.48 0.16 300);
-  --syn-str: oklch(0.48 0.12 150);
-  --syn-num: oklch(0.52 0.13 55);
-  --syn-fn: oklch(0.48 0.13 235);
-  --syn-field: oklch(0.4 0.08 255);
-  --syn-com: oklch(0.58 0.01 255);
+  /* Accent : liens, focus, sélection — la ligne 01 */
+  --accent: var(--l01);
+  --accent-bg: rgb(31 111 178 / 0.1);
+  --accent-line: rgb(31 111 178 / 0.45);
+  --accent-ink: #ffffff;
+
+  /* Sévérité : la couleur suit une ligne, l'information est portée par le libellé et les segments */
+  --sev-info: var(--l01);
+  --sev-low: var(--l06);
+  --sev-med: var(--l04);
+  --sev-high: var(--l03);
+  --sev-crit: #8b1e17;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Lignes éclaircies, texte sombre dessus (contraste ≥ 9:1) */
+  --l00: #b9aef5;
+  --l01: #8cc1f0;
+  --l02: #7fd1cb;
+  --l03: #f3a39b;
+  --l04: #f0b46b;
+  --l05: #e3a6dc;
+  --l06: #9cd49a;
+  --l07: #d9c48a;
+  --l08: #b6c0d2;
+  --on-line: #0f1424;
+  --track: #3d4866;
+
+  --bg: #121829;
+  --bg-2: #161e33;
+  --surface: #1a2236;
+  --surface-2: #222c44;
+  --shadow: rgb(0 0 0 / 0.5);
+  --shadow-soft: rgb(0 0 0 / 0.2);
+
+  --border: #2b3550;
+  --border-soft: #232c44;
+  --border-strong: #3d4866;
+
+  --text: #e8ecf4;
+  --text-2: #aeb7ca;
+  --text-3: #8792ab;
+
+  --ink: #e8ecf4;
+  --on-ink: #121829;
+  --ink-hover: #ffffff;
+
+  --accent: var(--l01);
+  --accent-bg: rgb(140 193 240 / 0.12);
+  --accent-line: rgb(140 193 240 / 0.45);
+  --accent-ink: #0f1424;
+
+  --sev-info: var(--l01);
+  --sev-low: var(--l06);
+  --sev-med: var(--l04);
+  --sev-high: var(--l03);
+  --sev-crit: #f7b7b0;
+
+  --code-bg: #0d1220;
+  --code-head: #161d30;
+}
+
+/* Fonds et liserés dérivés des sévérités, dans les deux thèmes */
+:root {
+  --sev-info-bg: color-mix(in srgb, var(--sev-info) 10%, var(--surface));
+  --sev-info-line: color-mix(in srgb, var(--sev-info) 45%, transparent);
+  --sev-low-bg: color-mix(in srgb, var(--sev-low) 10%, var(--surface));
+  --sev-low-line: color-mix(in srgb, var(--sev-low) 45%, transparent);
+  --sev-med-bg: color-mix(in srgb, var(--sev-med) 12%, var(--surface));
+  --sev-med-line: color-mix(in srgb, var(--sev-med) 45%, transparent);
+  --sev-high-bg: color-mix(in srgb, var(--sev-high) 10%, var(--surface));
+  --sev-high-line: color-mix(in srgb, var(--sev-high) 45%, transparent);
+  --sev-crit-bg: color-mix(in srgb, var(--sev-crit) 12%, var(--surface));
+  --sev-crit-line: color-mix(in srgb, var(--sev-crit) 50%, transparent);
 }

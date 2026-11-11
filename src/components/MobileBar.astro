@@ -11,7 +11,7 @@ const { hasToc } = Astro.props;
 
 <nav class="mobilebar" aria-label="Navigation mobile">
   <button type="button" class="menu" data-action="toggle-sidebar"><Icon name="menu" size="lg" />Menu</button>
-  <button type="button" class="is-accent" data-action="open-search"><Icon name="search" size="lg" />Rechercher</button>
+  <button type="button" data-action="open-search"><Icon name="search" size="lg" />Rechercher</button>
   {
     hasToc ? (
       <button type="button" data-action="open-toc"><Icon name="list" size="lg" />Sommaire</button>
@@ -30,7 +30,8 @@ const { hasToc } = Astro.props;
     bottom: 0;
     z-index: var(--z-bottombar);
     grid-template-columns: repeat(3, 1fr);
-    height: var(--mobilebar-h);
+    min-height: var(--mobilebar-h);
+    padding-bottom: env(safe-area-inset-bottom);
     background: var(--bg-2);
     border-top: var(--bw) solid var(--border);
   }
@@ -41,16 +42,18 @@ const { hasToc } = Astro.props;
     align-items: center;
     justify-content: center;
     gap: var(--sp-2);
+    min-height: var(--mobilebar-h);
     border: none;
     background: transparent;
     cursor: pointer;
     font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
     color: var(--text-2);
   }
 
-  .is-accent,
   :global(html[data-drawer='open']) .menu {
-    color: var(--accent);
+    background: var(--surface-2);
+    color: var(--text);
   }
 
   @media (max-width: 859px) {

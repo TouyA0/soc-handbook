@@ -1,5 +1,6 @@
 ---
 // Page de contenu : fil d'Ariane, en-tête selon le type de page, corps, compléments, pied d'article et colonne de droite.
+// L'article porte la ligne de sa section (`--line`) : liseré en haut, numéros de titres, pastilles.
 import type { MarkdownHeading } from 'astro';
 import ArticleAside from '../components/ArticleAside.astro';
 import ArticleFooter from '../components/ArticleFooter.astro';
@@ -10,9 +11,9 @@ import PinButton from '../components/PinButton.astro';
 import PracticedCards from '../components/PracticedCards.astro';
 import SectionListing from '../components/SectionListing.astro';
 import TocSheet from '../components/TocSheet.astro';
-import { SECTIONS } from '../data/sections';
+import { lineStyle, SECTIONS } from '../data/sections';
 import { PLATFORMS } from '../data/writeups';
-import { docUrl, getBacklinks, getDocs, getNeighbors, getSectionTrees, isType, type Doc } from '../lib/content';
+import { docUrl, getBacklinks, getDocs, getNeighbors, getSectionTrees, isType, sectionOf, type Doc } from '../lib/content';
 import { formatDate, getCrumbs, neighborLabel, readingTime } from '../lib/nav';
 import { buildThread, findSection } from '../lib/thread';
 import Shell from './Shell.astro';
@@ -31,7 +32,7 @@ const docs = await getDocs();
 const backlinks = getBacklinks(docs, doc);
 const updated = formatDate(doc.data.updated);
 const resolve = (refs: { id: string }[]) => refs.flatMap((ref) => docs.find((d) => d.id === ref.id) ?? []);
-const link = (d: Doc) => ({ label: neighborLabel(d), href: docUrl(d.id) });
+const link = (d: Doc) => ({ label: neighborLabel(d), href: docUrl(d.id), num: sectionOf(d)?.num });
 
 // Titre : la partie après « — » est affichée en retrait (« Wireshark — filtres d'affichage »).
 const [titleMain, ...titleRest] = doc.data.title.split(' — ');
@@ -58,17 +59,21 @@ const usedIn = isType(doc, 'cheatsheet')
       .map((b) => ({
         label: isType(b, 'writeup') ? `${b.data.title} (${PLATFORMS[b.data.platform]})` : b.data.title,
         href: docUrl(b.id),
+        num: sectionOf(b)?.num,
       }))
   : [];
 
 // Index de section : liste de ses pages.
 const section = SECTIONS.find((s) => s.dir === doc.id);
 const sectionEntries = section ? (getSectionTrees(docs).find((t) => t.section === section)?.entries ?? []) : undefined;
+
+// Les write-ups numérotent le contexte 00 : le sommaire démarre au même numéro que le corps.
+const tocStart = doc.data.type === 'writeup' ? 0 : 1;
 ---
 
 <Shell title={doc.data.title} description={doc.data.description} doc={doc} statusMeta={`maj ${updated}`}>
   <div class="wrap">
-    <article>
+    <article style={lineStyle(sectionOf(doc)?.num)}>
       <div class="top">
         <Breadcrumb crumbs={getCrumbs(doc)} />
         <div class="page-meta">
@@ -89,9 +94,9 @@ const sectionEntries = section ? (getSectionTrees(docs).find((t) => t.section ==
       {sectionEntries && <SectionListing entries={sectionEntries} />}
       <ArticleFooter doc={doc} neighbors={getNeighbors(docs, doc)} updated={updated} />
     </article>
-    <ArticleAside toc={toc} backlinks={backlinks} />
+    <ArticleAside toc={toc} backlinks={backlinks} tocStart={tocStart} />
   </div>
-  <TocSheet slot="dialogs" toc={toc} />
+  <TocSheet slot="dialogs" toc={toc} tocStart={tocStart} />
 </Shell>
 
 <style>
@@ -107,7 +112,9 @@ const sectionEntries = section ? (getSectionTrees(docs).find((t) => t.section ==
     flex: 1;
     min-width: 0;
     max-width: var(--article-max);
+    padding-top: var(--sp-10);
     padding-bottom: var(--sp-14);
+    border-top: var(--bw-line) solid var(--line, var(--border));
   }
 
   .top {
@@ -121,19 +128,33 @@ const sectionEntries = section ? (getSectionTrees(docs).find((t) => t.section ==
   .page-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--sp-4);
+    gap: var(--sp-5);
     align-items: center;
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-sm);
     color: var(--text-3);
   }
 
   h1 {
-    margin: var(--sp-7) 0;
+    margin: var(--sp-8) 0 var(--sp-6);
   }
 
   .subtitle {
     color: var(--text-3);
-    font-weight: var(--fw-regular);
+    font-weight: var(--fw-medium);
+  }
+
+  @media print {
+    .wrap {
+      display: block;
+    }
+
+    article {
+      max-width: none;
+    }
+
+    .page-meta,
+    :global(aside[aria-label='Sur cette page']) {
+      display: none;
+    }
   }
 </style>

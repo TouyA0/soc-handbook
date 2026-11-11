@@ -1,24 +1,27 @@
 ---
 import type { MarkdownHeading } from 'astro';
-import { docUrl, type Doc } from '../lib/content';
+import { docUrl, sectionOf, type Doc } from '../lib/content';
 import { docTypeLabel } from '../lib/nav';
 import Icon from './Icon.astro';
+import LinePill from './LinePill.astro';
 import PinButton from './PinButton.astro';
 
 interface Props {
   toc: MarkdownHeading[];
   backlinks: Doc[];
+  /** Premier numéro du sommaire : 1 d'ordinaire, 0 sur un write-up (contexte numéroté 00). */
+  tocStart?: number;
 }
 
-const { toc, backlinks } = Astro.props;
+const { toc, backlinks, tocStart = 1 } = Astro.props;
 ---
 
 <aside aria-label="Sur cette page">
   {
     toc.length > 0 && (
       <div>
-        <div class="caps title">Sur cette page</div>
-        <nav class="toc" aria-label="Sommaire" data-toc>
+        <h2 class="title">Sur cette page</h2>
+        <nav class="toc" aria-label="Sommaire" data-toc style={`--toc-start: ${tocStart - 1}`}>
           {toc.map((h) => (
             <a href={`#${h.slug}`} class:list={{ sub: h.depth === 3 }}>
               {h.text}
@@ -28,28 +31,37 @@ const { toc, backlinks } = Astro.props;
       </div>
     )
   }
+  <div>
+    <h2 class="title">Actions</h2>
+    <ul class="actions">
+      <li><PinButton variant="link" /></li>
+      <li><button type="button" data-action="copy-link"><Icon name="link" size="sm" />Copier le lien</button></li>
+      <li><button type="button" data-action="top"><Icon name="arrow-up" size="sm" />Haut de page</button></li>
+    </ul>
+  </div>
   {
     backlinks.length > 0 && (
       <div>
-        <div class="caps title">Liens entrants · {backlinks.length}</div>
+        <h2 class="title">Pages qui mènent ici</h2>
         <ul class="backlinks">
-          {backlinks.map((b) => (
-            <li>
-              <a href={docUrl(b.id)}>
-                <span class="type">{docTypeLabel(b)}</span>
-                <span>{b.data.title}</span>
-              </a>
-            </li>
-          ))}
+          {backlinks.map((b) => {
+            const num = sectionOf(b)?.num;
+            return (
+              <li>
+                <a href={docUrl(b.id)}>
+                  {num && <LinePill num={num} size="sm" />}
+                  <span class="back-text">
+                    <span>{b.data.title}</span>
+                    <span class="type">{docTypeLabel(b)}</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </div>
     )
   }
-  <div class="actions">
-    <PinButton variant="link" />
-    <button type="button" data-action="copy-link"><Icon name="link" size="sm" />Copier le lien de la page</button>
-    <button type="button" data-action="top"><Icon name="arrow-up" size="sm" />Haut de page</button>
-  </div>
 </aside>
 
 <style>
@@ -63,30 +75,56 @@ const { toc, backlinks } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: var(--sp-11);
+    font-size: var(--fs-md);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   .title {
-    margin-bottom: var(--sp-5);
+    margin-bottom: var(--sp-4);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0;
   }
 
   .toc {
     display: flex;
     flex-direction: column;
-    border-left: var(--bw) solid var(--border);
+    border-left: var(--bw-strong) solid var(--border);
+    counter-reset: toc var(--toc-start, 0);
   }
 
   .toc a {
-    display: block;
-    margin-left: calc(-1 * var(--bw));
-    padding: var(--sp-2h) 0 var(--sp-2h) var(--sp-6);
+    display: flex;
+    gap: var(--sp-4);
+    align-items: baseline;
+    margin-left: calc(-1 * var(--bw-strong));
+    min-height: var(--ctl-sm);
+    padding: var(--sp-3) 0 var(--sp-3) var(--sp-6);
     border-left: var(--bw-strong) solid transparent;
-    font-size: var(--fs-md);
     line-height: var(--lh-compact);
     color: var(--text-2);
   }
 
+  .toc a:not(.sub)::before {
+    counter-increment: toc;
+    content: counter(toc, decimal-leading-zero);
+    flex: none;
+    min-width: 2ch;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    color: var(--text-3);
+  }
+
   .toc a.sub {
-    padding-left: var(--sp-10);
+    padding-left: calc(var(--sp-6) + 2ch + var(--sp-4));
+    font-size: var(--fs-sm);
+    min-height: var(--pill);
   }
 
   .toc a:hover {
@@ -95,14 +133,38 @@ const { toc, backlinks } = Astro.props;
   }
 
   .toc :global(a.is-active) {
-    border-left-color: var(--accent);
+    border-left-color: var(--line, var(--accent));
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+
+  .actions button,
+  .actions :global(.pin) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-4);
+    min-height: var(--ctl-sm);
+    padding: 0;
+    font: inherit;
+    font-weight: var(--fw-medium);
+    background: none;
+    border: none;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+
+  .actions button:hover,
+  .actions :global(.pin:hover) {
     color: var(--text);
   }
 
   .backlinks {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
@@ -110,53 +172,30 @@ const { toc, backlinks } = Astro.props;
 
   .backlinks a {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-0);
-    padding: var(--sp-3) var(--sp-4);
-    margin-left: calc(-1 * var(--sp-4));
-    border-radius: var(--r-md);
-    font-size: var(--fs-md);
-    line-height: var(--lh-compact);
+    align-items: center;
+    gap: var(--sp-4);
+    min-height: var(--ctl-sm);
+    padding: var(--sp-2) 0;
     color: var(--text-2);
+    line-height: var(--lh-compact);
   }
 
   .backlinks a:hover {
-    background: var(--surface);
     color: var(--text);
     text-decoration: none;
   }
 
-  .type {
-    font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
-    letter-spacing: var(--ls-caps);
-    text-transform: uppercase;
-    color: var(--text-3);
-  }
-
-  .actions {
+  .back-text {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-4);
-    font-family: var(--font-mono);
+  }
+
+  .type {
     font-size: var(--fs-xs);
-  }
-
-  .actions button:not(.pin) {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-2h);
-    font: inherit;
-    background: none;
-    border: none;
-    padding: 0;
     color: var(--text-3);
-    cursor: pointer;
   }
 
-  /* La maquette n'affiche la colonne de droite qu'à partir de 1200px. */
+  /* La colonne de droite n'apparaît qu'à partir de 1200px. */
   @media (max-width: 1199px) {
     aside {
       display: none;

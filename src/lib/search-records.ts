@@ -8,7 +8,7 @@ import { docUrl, sectionOf, type Doc } from './content';
 import { getStatusPath } from './nav';
 
 const QUERY_LANGS: Record<string, string> = { spl: 'SPL', splunk: 'SPL', kql: 'KQL', kusto: 'KQL', sigma: 'SIGMA' };
-const FILTER_LANGS: Record<string, string> = { wireshark: 'DISPLAY FILTER', bpf: 'BPF' };
+const FILTER_LANGS: Record<string, string> = { wireshark: 'Filtre Wireshark', bpf: 'Filtre BPF' };
 const PLAYBOOK_DIR = SECTIONS.find((s) => s.num === '04')!.dir;
 
 /** Cellules d'une ligne de tableau Markdown ; `\|` est une barre verticale, pas un séparateur. */
@@ -101,7 +101,7 @@ export function buildRecords(doc: Doc, headings: MarkdownHeading[]): SearchRecor
           title: title || `${label} — ${data.title}`,
           mono: label,
           path: sectionPath(),
-          desc: title ? `${label} · ${data.title}` : '',
+          desc: title ? `${label}, ${data.title}` : '',
           snippet: code,
           lang: label,
         });

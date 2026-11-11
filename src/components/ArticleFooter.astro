@@ -1,7 +1,8 @@
 ---
 import { SITE } from '../data/site';
-import { docUrl, type Doc } from '../lib/content';
+import { docUrl, sectionOf, type Doc } from '../lib/content';
 import { neighborContext, neighborLabel } from '../lib/nav';
+import LinePill from './LinePill.astro';
 
 interface Props {
   doc: Doc;
@@ -21,13 +22,21 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
     <nav class="neighbors" aria-label="Pages voisines">
       {prev && (
         <a class="prev" href={docUrl(prev.id)} rel="prev">
-          <span class="ctx">← PRÉCÉDENT · {neighborContext(prev)}</span>
+          <span class="dir">Précédent</span>
+          <span class="ctx">
+            {sectionOf(prev) && <LinePill num={sectionOf(prev)!.num} size="sm" decorative />}
+            {neighborContext(prev)}
+          </span>
           <span class="label">{neighborLabel(prev)}</span>
         </a>
       )}
       {next && (
         <a class="next" href={docUrl(next.id)} rel="next">
-          <span class="ctx">SUIVANT · {neighborContext(next)} →</span>
+          <span class="dir">Suivant</span>
+          <span class="ctx">
+            {neighborContext(next)}
+            {sectionOf(next) && <LinePill num={sectionOf(next)!.num} size="sm" decorative />}
+          </span>
           <span class="label">{neighborLabel(next)}</span>
         </a>
       )}
@@ -36,7 +45,7 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
 }
 
 <footer>
-  <span>Dernière modification : {updated}</span>
+  <span>Dernière modification le {updated}</span>
   <span class="links">
     {historyUrl && <a href={historyUrl} target="_blank" rel="noopener noreferrer">Historique sur GitHub</a>}
     <a href={issueUrl} target="_blank" rel="noopener noreferrer">Signaler une erreur</a>
@@ -65,7 +74,7 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
   }
 
   .neighbors a:hover {
-    border-color: var(--accent-line);
+    border-color: var(--border-strong);
     text-decoration: none;
   }
 
@@ -79,15 +88,22 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
     grid-column: -2;
   }
 
-  .ctx {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+  .dir {
+    font-size: var(--fs-sm);
     color: var(--text-3);
+  }
+
+  .ctx {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
   }
 
   .label {
     font-size: var(--fs-body-sm);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-bold);
   }
 
   footer {
@@ -98,13 +114,25 @@ const issueUrl = `${SITE.repo}/issues/new?title=${encodeURIComponent(`Erreur dan
     margin-top: var(--sp-9);
     padding-top: var(--sp-8);
     border-top: var(--bw) solid var(--border-soft);
-    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    color: var(--text-3);
+    color: var(--text-2);
   }
 
   .links {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--sp-8);
+  }
+
+  .links a {
+    display: inline-block;
+    padding: var(--sp-2) 0;
+    color: var(--text-2);
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  .links a:hover {
+    color: var(--text);
   }
 </style>

@@ -66,9 +66,14 @@ export function toast(message: string): void {
 
 function applyTheme(theme: string): void {
   root.dataset.theme = theme;
-  for (const button of $$('[data-action="set-theme"]')) {
-    button.setAttribute('aria-pressed', String(button.dataset.themeValue === theme));
+  // Le bouton de bascule est « enfoncé » quand le thème sombre est actif ; son libellé change en CSS.
+  for (const button of $$('[data-action="toggle-theme"]')) {
+    button.setAttribute('aria-pressed', String(theme === 'dark'));
   }
+}
+
+function toggleTheme(): void {
+  setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
 }
 
 function setTheme(theme: string): void {
@@ -141,6 +146,13 @@ function renderList(name: 'pins' | 'recents', pages: SavedPage[]): void {
       const link = item.querySelector('a')!;
       link.href = p.url;
       if (p.id === page?.id) link.setAttribute('aria-current', 'page');
+      // La pastille reprend la ligne de la section, lue dans l'identifiant de la page (« 03-menaces-detection/… »).
+      const num = /^(\d{2})-/.exec(p.id)?.[1];
+      const pill = item.querySelector<HTMLElement>('.entry-pill');
+      if (pill && num) {
+        pill.textContent = num;
+        link.style.setProperty('--line', `var(--l${num})`);
+      }
       item.querySelector('.entry-label')!.textContent = p.title;
       item.querySelector('.entry-meta')!.textContent = p.meta;
       return item;
@@ -287,7 +299,7 @@ const actions: Record<string, (el: HTMLElement) => void> = {
   'close-drawer': () => setDrawer(false),
   'toggle-section': (el) => setSectionOpen(el, el.getAttribute('aria-expanded') !== 'true'),
   'open-section': (el) => openSection(el.dataset.section ?? ''),
-  'set-theme': (el) => setTheme(el.dataset.themeValue ?? 'dark'),
+  'toggle-theme': toggleTheme,
   'open-search': (el) => openSearch(el.dataset.query ?? ''),
   'open-help': () => openDialog('help'),
   'open-toc': () => {
@@ -361,7 +373,7 @@ document.addEventListener('keydown', (event) => {
       openDialog('help');
       break;
     case 't':
-      setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+      toggleTheme();
       break;
     case 'p':
       togglePin();
@@ -376,7 +388,7 @@ document.addEventListener('sockb:toast', (event) => toast((event as CustomEvent<
 
 /* Initialisation */
 
-applyTheme(root.dataset.theme ?? 'dark');
+applyTheme(root.dataset.theme ?? 'light');
 syncSidebarToggle();
 mobile.addEventListener('change', () => {
   setDrawer(false);

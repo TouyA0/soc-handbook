@@ -131,15 +131,15 @@ const scopes = [
     padding: 0 var(--sp-8);
     border-bottom: var(--bw) solid var(--border);
     flex: none;
-    color: var(--accent);
+    color: var(--text-2);
   }
 
   .prefix {
     flex: none;
     padding: var(--sp-1h) var(--sp-4);
     border-radius: var(--r-md);
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: var(--ink);
+    color: var(--on-ink);
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     font-weight: var(--fw-semibold);
@@ -198,9 +198,14 @@ const scopes = [
   }
 
   .scopes button[aria-pressed='true'] {
-    border-color: var(--accent-line);
-    background: var(--accent-bg);
-    color: var(--accent);
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--on-ink);
+    font-weight: var(--fw-bold);
+  }
+
+  .scopes button[aria-pressed='true'] span {
+    color: inherit;
   }
 
   .scopes span {
@@ -259,8 +264,8 @@ const scopes = [
   }
 
   .result[aria-selected='true'] {
-    background: var(--accent-bg);
-    box-shadow: inset 0 0 0 var(--bw) var(--accent-line);
+    background: var(--surface-2);
+    box-shadow: inset var(--bw-strong) 0 0 0 var(--ink);
   }
 
   .result-main {
@@ -292,7 +297,8 @@ const scopes = [
     flex: none;
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    color: var(--accent);
+    font-weight: var(--fw-bold);
+    color: var(--text-2);
   }
 
   .message {
@@ -340,13 +346,14 @@ const scopes = [
   }
 
   .pv-mono {
-    color: var(--accent);
+    font-weight: var(--fw-bold);
+    color: var(--text-2);
   }
 
   .pv-title {
     font-family: var(--font-heading);
     font-size: var(--fs-h2);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-black);
     line-height: var(--lh-title);
     overflow-wrap: anywhere;
   }
@@ -377,6 +384,7 @@ const scopes = [
     border: var(--bw) solid var(--border);
     border-radius: var(--r-2xl);
     background: var(--code-bg);
+    color: var(--code-text);
     overflow: hidden;
   }
 
@@ -385,21 +393,25 @@ const scopes = [
     justify-content: space-between;
     align-items: center;
     padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-6);
-    border-bottom: var(--bw) solid var(--border-soft);
+    background: var(--code-head);
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
-    font-weight: var(--fw-semibold);
-    color: var(--accent);
+    font-weight: var(--fw-bold);
+    color: var(--code-text-2);
   }
 
   .pv-snippet-head button {
     padding: var(--sp-1h) var(--sp-4h);
-    border: var(--bw) solid var(--border);
+    border: none;
     border-radius: var(--r-sm);
-    background: var(--surface);
-    color: var(--text-2);
-    font-weight: var(--fw-regular);
+    background: transparent;
+    color: var(--code-text);
+    font-weight: var(--fw-bold);
     cursor: pointer;
+  }
+
+  .pv-snippet-head button:hover {
+    background: rgb(255 255 255 / 0.08);
   }
 
   .pv-snippet pre {
@@ -424,11 +436,11 @@ const scopes = [
     align-items: center;
     height: var(--ctl);
     padding: 0 var(--sp-7);
-    border-radius: var(--r-xl);
-    background: var(--accent);
-    color: var(--accent-ink);
+    border-radius: var(--r-md);
+    background: var(--ink);
+    color: var(--on-ink);
     font-size: var(--fs-md);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-bold);
   }
 
   .pv-open a:hover {

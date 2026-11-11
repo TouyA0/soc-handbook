@@ -28,7 +28,7 @@ export function docMeta(doc: Doc): string {
     case 'cheatsheet':
       return 'cheat sheet';
     case 'writeup':
-      return `${PLATFORMS[data.platform]} · ${DIFFICULTIES[data.difficulty].label.toLowerCase()}`;
+      return `${PLATFORMS[data.platform]}, ${DIFFICULTIES[data.difficulty].label.toLowerCase()}`;
     default:
       return '';
   }
@@ -84,6 +84,8 @@ export function getNavSections(docs: Doc[], currentId: string | undefined): NavS
 export interface Crumb {
   label: string;
   href?: string;
+  /** Numéro de section : affiché en pastille de ligne devant le libellé. */
+  num?: string;
 }
 
 /** Fil d'Ariane : accueil, section, regroupement éventuel (tactique ou plateforme), page courante. */
@@ -92,9 +94,8 @@ export function getCrumbs(doc: Doc): Crumb[] {
   const section = sectionOf(doc);
   if (!section) return [...crumbs, { label: doc.data.title }];
 
-  const sectionLabel = `${section.num} ${section.title}`;
-  if (doc.id === section.dir) return [...crumbs, { label: sectionLabel }];
-  crumbs.push({ label: sectionLabel, href: docUrl(section.dir) });
+  if (doc.id === section.dir) return [...crumbs, { label: section.title, num: section.num }];
+  crumbs.push({ label: section.title, href: docUrl(section.dir), num: section.num });
 
   const { data } = doc;
   if (data.type === 'technique') {
@@ -111,15 +112,15 @@ export function getCrumbs(doc: Doc): Crumb[] {
 /** Chemin affiché dans la barre d'état. */
 export function getStatusPath(doc: Doc | undefined): string {
   if (!doc) return `${SITE.name} / accueil`;
-  return [SITE.name, ...getCrumbs(doc).slice(1).map((c) => c.label)].join(' / ');
+  return [SITE.name, ...getCrumbs(doc).slice(1).map((c) => (c.num ? `${c.num} ${c.label}` : c.label))].join(' / ');
 }
 
-/** Résumé de la base : « 12 fiches · 3 write-ups · maj 03/10/2026 ». */
+/** Résumé de la base : « 12 fiches, 3 write-ups » et « maj 03/10/2026 ». */
 export function getStatsParts(docs: Doc[]): { counts: string; updated: string } {
   const stats = getStats(docs);
   const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? 's' : ''}`;
   return {
-    counts: `${plural(stats.pages, 'fiche')} · ${plural(stats.writeups, 'write-up')}`,
+    counts: `${plural(stats.pages, 'fiche')}, ${plural(stats.writeups, 'write-up')}`,
     updated: stats.lastUpdated ? `maj ${formatDate(stats.lastUpdated)}` : '',
   };
 }
@@ -138,10 +139,10 @@ export function neighborContext(doc: Doc): string {
   return section ? `${section.num} ${section.title}` : '';
 }
 
-/** Titre d'une page voisine : « T1558.003 · Kerberoasting » pour une technique. */
+/** Titre d'une page voisine : « Kerberoasting (T1558.003) » pour une technique. */
 export function neighborLabel(doc: Doc): string {
   const { data } = doc;
-  if (data.type === 'technique') return `${data.attack_id} · ${data.title}`;
-  if (data.type === 'writeup') return `${data.title} · ${PLATFORMS[data.platform]}`;
+  if (data.type === 'technique') return `${data.title} (${data.attack_id})`;
+  if (data.type === 'writeup') return `${data.title} (${PLATFORMS[data.platform]})`;
   return data.title;
 }

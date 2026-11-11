@@ -28,24 +28,28 @@ const { compact = false } = Astro.props;
     grid-template-columns: repeat(auto-fit, minmax(min(var(--meta-min-sm), 100%), 1fr));
   }
 
+  /* Les séparateurs sont portés par les cases : une rangée incomplète ne laisse pas de vide coloré */
   .meta-band :global(> div) {
-    padding: var(--sp-6) var(--sp-7);
+    padding: var(--sp-6) var(--sp-8);
     background: var(--surface);
     outline: var(--bw) solid var(--border-soft);
   }
 
   .meta-band :global(dt) {
-    margin-bottom: var(--sp-2);
-    font-family: var(--font-mono);
-    font-size: var(--fs-2xs);
-    letter-spacing: var(--ls-caps);
-    text-transform: uppercase;
-    color: var(--text-3);
+    margin-bottom: var(--sp-1);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
   }
 
   .meta-band :global(dd) {
     margin: 0;
     font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
     line-height: var(--lh-snug);
+  }
+
+  .meta-band :global(dd .line-pill) {
+    margin-right: var(--sp-3);
+    vertical-align: middle;
   }
 </style>

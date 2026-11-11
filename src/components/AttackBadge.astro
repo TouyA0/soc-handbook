@@ -2,7 +2,7 @@
 interface Props {
   /** Identifiant ATT&CK, ex. `T1558.003`. */
   id: string;
-  /** `full` : libellé « ATT&CK » + identifiant ; `compact` : identifiant seul. */
+  /** `full` : marque « A » + identifiant ; `compact` : identifiant seul, plus petit. */
   variant?: 'full' | 'compact';
 }
 
@@ -10,7 +10,8 @@ const { id, variant = 'full' } = Astro.props;
 ---
 
 <span class:list={['attack', variant]}>
-  {variant === 'full' && <span class="label">ATT&amp;CK</span>}
+  {variant === 'full' && <span class="mark" aria-hidden="true">A</span>}
+  <span class="visually-hidden">Technique MITRE ATT&amp;CK </span>
   <span class="id">{id}</span>
 </span>
 
@@ -18,32 +19,35 @@ const { id, variant = 'full' } = Astro.props;
   .attack {
     display: inline-flex;
     align-items: center;
-    border: var(--bw) solid var(--accent-line);
-    border-radius: var(--r-md);
-    overflow: hidden;
+    gap: var(--sp-4);
+    min-height: var(--pill);
+    padding: 0 var(--sp-5) 0 var(--sp-3);
+    border: var(--bw-strong) solid var(--text);
+    border-radius: var(--r-sm);
     font-family: var(--font-mono);
-    font-size: var(--fs-code);
-    line-height: var(--lh-snug);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--text);
   }
 
-  .label {
-    padding: var(--sp-1h) var(--sp-3h);
-    background: var(--accent-bg);
-    color: var(--text-3);
-  }
-
-  .id {
-    padding: var(--sp-1h) var(--sp-4);
-    color: var(--accent);
-    font-weight: var(--fw-semibold);
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--pill-sm);
+    height: var(--pill-sm);
+    border-radius: 50%;
+    background: var(--l03);
+    color: var(--on-line);
+    font-size: var(--fs-2xs);
   }
 
   .compact {
-    font-size: var(--fs-sm);
-  }
-
-  .compact .id {
-    padding: var(--sp-1) var(--sp-4);
-    font-weight: var(--fw-regular);
+    min-height: var(--pill-sm);
+    padding: 0 var(--sp-3);
+    border-width: var(--bw);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
   }
 </style>

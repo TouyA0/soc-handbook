@@ -70,10 +70,10 @@ export function getTopTags(docs: Doc[], limit: number): TagUsage[] {
     .slice(0, limit);
 }
 
-/** « 3 fiches · 1 write-up » */
+/** « 3 fiches, 1 write-up » */
 export function tagEvidence({ pages, writeups }: TagUsage): string {
   const parts = [];
   if (pages > 0) parts.push(`${pages} fiche${pages > 1 ? 's' : ''}`);
   if (writeups > 0) parts.push(`${writeups} write-up${writeups > 1 ? 's' : ''}`);
-  return parts.join(' · ');
+  return parts.join(', ');
 }

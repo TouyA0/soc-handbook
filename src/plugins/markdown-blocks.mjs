@@ -33,15 +33,24 @@ const LABELLED = {
 /** Langages colorés ici plutôt que par Shiki, qui n'a pas de grammaire pour eux. */
 const FILTER_LANGS = new Set(['wireshark', 'bpf']);
 
-/** Libellé affiché pour un langage de bloc de code ; par défaut, son nom en capitales. */
+/** Libellé affiché pour un langage de bloc de code ; par défaut, son nom avec une initiale en capitale. */
 const LANG_LABELS = {
-  wireshark: 'DISPLAY FILTER',
+  wireshark: 'Filtre Wireshark',
+  bpf: 'Filtre BPF',
   kusto: 'KQL',
+  kql: 'KQL',
   splunk: 'SPL',
+  spl: 'SPL',
+  sigma: 'Sigma',
+  yaml: 'YAML',
   yml: 'YAML',
-  sh: 'BASH',
-  shell: 'BASH',
-  ps1: 'POWERSHELL',
+  json: 'JSON',
+  sh: 'Bash',
+  bash: 'Bash',
+  shell: 'Bash',
+  ps1: 'PowerShell',
+  powershell: 'PowerShell',
+  sql: 'SQL',
   text: '',
   txt: '',
   plaintext: '',
@@ -159,7 +168,7 @@ function code(node, ctx) {
   // Un bloc déjà enveloppé est revisité après remplacement : on le reconnaît à sa marque.
   if (node.data?.framed) return;
   const lang = (node.lang ?? '').toLowerCase();
-  const label = lang in LANG_LABELS ? LANG_LABELS[lang] : lang.toUpperCase();
+  const label = lang in LANG_LABELS ? LANG_LABELS[lang] : lang.charAt(0).toUpperCase() + lang.slice(1);
   const title = codeTitle(node.meta);
   const head =
     `<figure class="code">` +

@@ -12,3 +12,9 @@ export const SECTIONS = [
 ] as const;
 
 export type Section = (typeof SECTIONS)[number];
+
+/**
+ * Chaque section est une « ligne » avec sa couleur (`--l00` à `--l08` dans tokens.css).
+ * À poser en attribut `style` sur l'élément qui porte la ligne : ses pastilles, barres et liserés lisent `--line`.
+ */
+export const lineStyle = (num: string | undefined) => (num ? `--line: var(--l${num})` : undefined);

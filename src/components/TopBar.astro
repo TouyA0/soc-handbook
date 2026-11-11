@@ -10,31 +10,30 @@ import Icon from './Icon.astro';
   </button>
 
   <a class="logo" href={docUrl('')} aria-label={`Accueil ${SITE.name}`} data-home-link>
-    <!-- Même tracé que public/favicon.svg -->
-    <svg class="logo-mark" viewBox="0 0 22 22" aria-hidden="true">
-      <rect width="22" height="22" rx="5"></rect>
-      <path d="M3.5 11.5H7l2-5.5 3.5 10 2-4.5h4"></path>
+    <!-- Le « k » de soc.kb en jonction de plan : la ligne 01 rejoint la ligne 03, la station marque la correspondance. Même dessin que public/favicon.svg -->
+    <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path class="l3" d="M8 3v26" fill="none" stroke-width="5.5" stroke-linecap="round"></path>
+      <path class="l1" d="M27 5L10 19.5L27 29" fill="none" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      <circle class="st" cx="9" cy="19.5" r="4.75" stroke-width="2.75"></circle>
     </svg>
-    <span class="logo-text">soc<span>.kb</span></span>
+    <span class="logo-text">{SITE.name}</span>
   </a>
 
-  <button class="search" type="button" data-action="open-search" aria-label="Recherche globale (Ctrl+K)">
-    <span class="search-scope">
-      <Icon name="search" size="sm" />
-      <span>tout</span>
-    </span>
-    <span class="search-placeholder">Filtre, Event ID, T-ID, requête…<span class="search-example">id:4769</span></span>
+  <button class="search" type="button" data-action="open-search" aria-label="Recherche globale (Ctrl K)">
+    <Icon name="search" size="sm" />
+    <span class="search-placeholder"><span class="long">Rechercher une fiche, un filtre, un Event ID…</span><span class="short">Rechercher</span></span>
     <span class="search-keys desktop-only" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
   </button>
 
-  <button class="icon-btn help desktop-only" type="button" data-action="open-help" aria-label="Raccourcis clavier" title="Raccourcis clavier (?)">
+  <button class="ctl desktop-only" type="button" data-action="open-help" aria-label="Raccourcis clavier" title="Raccourcis clavier (?)">
     <Icon name="keyboard" />
   </button>
 
-  <div class="theme" role="group" aria-label="Thème">
-    <button type="button" data-action="set-theme" data-theme-value="dark" aria-pressed="false">Sombre</button>
-    <button type="button" data-action="set-theme" data-theme-value="light" aria-pressed="false">Clair</button>
-  </div>
+  <button class="ctl theme desktop-only" type="button" data-action="toggle-theme" aria-pressed="false">
+    <span class="swatch" aria-hidden="true"></span>
+    <span class="when-light">Thème sombre</span>
+    <span class="when-dark">Thème clair</span>
+  </button>
 </header>
 
 <style>
@@ -47,26 +46,37 @@ import Icon from './Icon.astro';
     align-items: center;
     gap: var(--sp-6);
     padding: 0 var(--sp-8);
-    background: var(--bg);
+    background: var(--bg-2);
     border-bottom: var(--bw) solid var(--border);
+  }
+
+  .icon-btn,
+  .ctl {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-4);
+    min-height: var(--ctl);
+    padding: 0 var(--sp-5);
+    background: var(--surface);
+    border: var(--bw) solid var(--border-strong);
+    border-radius: var(--r-lg);
+    cursor: pointer;
+    color: var(--text-2);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
   }
 
   .icon-btn {
     width: var(--ctl);
-    height: var(--ctl);
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: var(--bw) solid var(--border);
-    border-radius: var(--r-lg);
-    cursor: pointer;
-    color: var(--text-2);
+    padding: 0;
   }
 
-  .icon-btn:hover {
+  .icon-btn:hover,
+  .ctl:hover {
     color: var(--text);
+    border-color: var(--text-3);
   }
 
   .logo {
@@ -74,7 +84,11 @@ import Icon from './Icon.astro';
     align-items: center;
     gap: var(--sp-5);
     flex: none;
+    min-height: var(--tap);
     color: var(--text);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-black);
+    letter-spacing: var(--ls-h2);
   }
 
   .logo:hover {
@@ -87,27 +101,17 @@ import Icon from './Icon.astro';
     flex: none;
   }
 
-  .logo-mark rect {
-    fill: var(--accent);
+  .logo-mark .l1 {
+    stroke: var(--l01);
   }
 
-  .logo-mark path {
-    fill: none;
-    stroke: var(--accent-ink);
-    stroke-width: var(--logo-stroke);
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  .logo-mark .l3 {
+    stroke: var(--l03);
   }
 
-  .logo-text {
-    font-family: var(--font-mono);
-    font-size: var(--fs-base);
-    font-weight: var(--fw-semibold);
-    letter-spacing: var(--ls-h2);
-  }
-
-  .logo-text span {
-    color: var(--text-3);
+  .logo-mark .st {
+    fill: var(--bg-2);
+    stroke: var(--text);
   }
 
   .search {
@@ -115,92 +119,75 @@ import Icon from './Icon.astro';
     min-width: 0;
     max-width: var(--search-max);
     margin: 0 auto;
-    height: var(--ctl-lg);
+    min-height: var(--ctl);
     display: flex;
-    align-items: stretch;
-    padding: 0;
-    background: var(--surface);
-    border: var(--bw) solid var(--border);
+    align-items: center;
+    gap: var(--sp-5);
+    padding: 0 var(--sp-6);
+    background: var(--bg);
+    border: var(--bw) solid var(--border-strong);
     border-radius: var(--r-2xl);
     cursor: pointer;
-    color: var(--text-3);
+    color: var(--text-2);
     font-size: var(--fs-base);
     text-align: left;
-    overflow: hidden;
   }
 
   .search:hover {
-    border-color: var(--accent-line);
-  }
-
-  .search-scope {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3h);
-    padding: 0 var(--sp-5h);
-    border-right: var(--bw) solid var(--accent-line);
-    background: var(--accent-bg);
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
-    flex: none;
+    border-color: var(--text-3);
+    color: var(--text);
   }
 
   .search-placeholder {
     flex: 1;
     min-width: 0;
-    display: block;
-    align-self: center;
-    padding: 0 var(--sp-6);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
 
-  .search-example {
-    margin-left: var(--sp-4);
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
-    opacity: var(--opacity-muted);
+  .search .short {
+    display: none;
   }
 
   .search-keys {
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    padding: 0 var(--sp-5);
   }
 
-  .theme {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-1);
-    padding: var(--sp-1);
-    border: var(--bw) solid var(--border);
-    border-radius: var(--r-xl);
-    flex: none;
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+  .swatch {
+    width: var(--icon);
+    height: var(--icon);
+    border-radius: 50%;
+    border: var(--bw-strong) solid currentColor;
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
   }
 
-  .theme button {
-    border: none;
-    cursor: pointer;
-    border-radius: var(--r-md);
-    padding: var(--sp-2h) var(--sp-4h);
-    background: transparent;
-    color: var(--text-3);
+  .when-dark,
+  :global(html[data-theme='dark']) .when-light {
+    display: none;
   }
 
-  .theme button[aria-pressed='true'] {
-    background: var(--surface-2);
-    color: var(--text);
+  :global(html[data-theme='dark']) .when-dark {
+    display: inline;
+  }
+
+  :global(html[data-theme='dark']) .swatch {
+    background: linear-gradient(90deg, transparent 50%, currentColor 50%);
   }
 
   @media (max-width: 859px) {
     .desktop-only {
       display: none;
+    }
+
+    .search .long {
+      display: none;
+    }
+
+    .search .short {
+      display: inline;
     }
   }
 </style>

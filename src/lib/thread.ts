@@ -23,9 +23,13 @@ function subsections(headings: MarkdownHeading[], parent: MarkdownHeading): Mark
 /** « Splunk — SPL » → « SPL » : le nom court d'un outil de détection. */
 const shortTool = (text: string) => text.split(' — ').pop()!.trim();
 
+/* Section dont chaque étape prend la couleur quand aucune fiche ne la porte encore. */
+const LINE = { concept: '01', detection: '02', technique: '03', response: '04', practice: '06' } as const;
+
 /**
  * Fil de connaissance d'une technique : concept → technique → détection → réponse → pratique.
- * Une étape sans matière (pas de page de concept, pas de write-up…) est omise.
+ * Les cinq étapes sont toujours présentes : une étape sans fiche est marquée « prévue »,
+ * pour montrer où le sujet s'inscrit même quand la base n'est pas encore complète.
  */
 export function buildThread(
   doc: DocOf<'technique'>,
@@ -39,28 +43,47 @@ export function buildThread(
 
   const concept = byId(doc.data.concept?.id);
   if (concept) {
-    steps.push({ step: 'Concept', label: concept.data.title, meta: sectionLabel(concept), href: docUrl(concept.id) });
+    steps.push({
+      step: 'Concept',
+      label: concept.data.title,
+      meta: sectionLabel(concept),
+      href: docUrl(concept.id),
+      num: sectionOf(concept)?.num ?? LINE.concept,
+    });
+  } else {
+    steps.push({ step: 'Concept', label: 'Pas encore de fiche', meta: 'Fondamentaux, à venir', num: LINE.concept, planned: true });
   }
 
-  steps.push({ step: 'Technique', label: doc.data.title, meta: 'vous êtes ici', current: true });
+  steps.push({ step: 'Technique', label: doc.data.title, meta: 'cette fiche', current: true, num: sectionOf(doc)?.num ?? LINE.technique });
 
   const detection = findSection(headings, 'Détection');
   if (detection) {
     const tools = subsections(headings, detection);
     steps.push({
       step: 'Détection',
-      label: tools.length > 0 ? tools.map((h) => shortTool(h.text)).join(' · ') : 'Détection',
-      meta: tools.length > 0 ? `${tools.length} outil${tools.length > 1 ? 's' : ''}` : 'sur cette page',
+      label: tools.length > 0 ? tools.map((h) => shortTool(h.text)).join(', ') : 'Détection',
+      meta: tools.length > 0 ? `${tools.length} outil${tools.length > 1 ? 's' : ''}, sur cette fiche` : 'sur cette fiche',
       href: `#${detection.slug}`,
+      num: LINE.detection,
     });
+  } else {
+    steps.push({ step: 'Détection', label: 'Pas encore de requête', meta: 'à compléter', num: LINE.detection, planned: true });
   }
 
   const playbook = byId(doc.data.playbook?.id);
   const response = findSection(headings, 'Réponse');
   if (playbook) {
-    steps.push({ step: 'Réponse', label: playbook.data.title, meta: sectionLabel(playbook), href: docUrl(playbook.id) });
+    steps.push({
+      step: 'Réponse',
+      label: playbook.data.title,
+      meta: sectionLabel(playbook),
+      href: docUrl(playbook.id),
+      num: sectionOf(playbook)?.num ?? LINE.response,
+    });
   } else if (response) {
-    steps.push({ step: 'Réponse', label: 'Réponse', meta: 'sur cette page', href: `#${response.slug}` });
+    steps.push({ step: 'Réponse', label: 'Réponse', meta: 'sur cette fiche', href: `#${response.slug}`, num: LINE.response });
+  } else {
+    steps.push({ step: 'Réponse', label: 'Pas encore de playbook', meta: 'Playbooks, à venir', num: LINE.response, planned: true });
   }
 
   if (writeups.length > 0) {
@@ -68,9 +91,12 @@ export function buildThread(
     steps.push({
       step: 'Pratique',
       label: `${writeups.length} write-up${writeups.length > 1 ? 's' : ''}`,
-      meta: platforms.join(' · '),
+      meta: platforms.join(', '),
       href: `#${practiceAnchor}`,
+      num: LINE.practice,
     });
+  } else {
+    steps.push({ step: 'Pratique', label: 'Aucun write-up encore', meta: 'Write-ups, à venir', num: LINE.practice, planned: true });
   }
 
   return steps;

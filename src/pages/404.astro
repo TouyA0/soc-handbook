@@ -8,7 +8,7 @@ import { docUrl } from '../lib/content';
     <p class="caps">Erreur 404</p>
     <h1>Page introuvable</h1>
     <p>Cette page n'existe pas ou a été déplacée. La navigation et la recherche (<kbd class="kbd">Ctrl</kbd> <kbd class="kbd">K</kbd>) permettent de la retrouver.</p>
-    <a href={docUrl('')}>← Retour à l'accueil</a>
+    <a class="btn primary" href={docUrl('')}>Retour à l'accueil</a>
   </div>
 </Shell>
 
@@ -23,6 +23,7 @@ import { docUrl } from '../lib/content';
   }
 
   p:not(.caps) {
+    margin-bottom: var(--sp-10);
     color: var(--text-2);
   }
 </style>

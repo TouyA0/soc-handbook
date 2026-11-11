@@ -26,8 +26,8 @@ export const PROFILE = {
   /** Certification ou formation en cours, affichée sous l'état de la base. */
   inProgress: '',
   formation: [
-    { period: '2026 – 29', title: 'Bachelor Cybersécurité', detail: 'Ynov Campus · 1re année en cours' },
-    { period: '2024 – 26', title: 'Licence Informatique', detail: 'Université Paul Sabatier · deux années suivies' },
+    { period: '2026 – 29', title: 'Bachelor Cybersécurité', detail: 'Ynov Campus, 1re année en cours' },
+    { period: '2024 – 26', title: 'Licence Informatique', detail: 'Université Paul Sabatier, deux années suivies' },
     { period: '2026', title: 'Cyber Security 101', detail: 'TryHackMe' },
     { period: '2025', title: 'SecNumacadémie', detail: 'ANSSI' },
     { period: '2025', title: 'Introduction to Cybersecurity', detail: 'Cisco Networking Academy' },

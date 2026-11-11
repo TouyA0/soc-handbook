@@ -8,11 +8,11 @@ const { path, meta } = Astro.props;
 ---
 
 <div class="statusbar">
-  <span class="mode" data-status-mode>LECTURE</span>
+  <span class="mode" data-status-mode>Lecture</span>
   <span class="path">{path}</span>
   {meta && <span class="meta">{meta}</span>}
-  <button type="button" data-action="open-search">Ctrl K rechercher</button>
-  <button type="button" data-action="open-help">? raccourcis</button>
+  <button type="button" data-action="open-search"><kbd>Ctrl K</kbd> rechercher</button>
+  <button type="button" data-action="open-help"><kbd>?</kbd> raccourcis</button>
 </div>
 
 <style>
@@ -27,24 +27,23 @@ const { path, meta } = Astro.props;
     align-items: stretch;
     background: var(--bg-2);
     border-top: var(--bw) solid var(--border);
-    font-family: var(--font-mono);
     font-size: var(--fs-xs);
     line-height: var(--lh-snug);
-    color: var(--text-3);
+    color: var(--text-2);
   }
 
   .statusbar > * {
     display: flex;
     align-items: center;
+    gap: var(--sp-3);
     padding: 0 var(--sp-6);
     flex: none;
   }
 
   .mode {
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-weight: var(--fw-semibold);
-    letter-spacing: var(--ls-caps);
+    background: var(--ink);
+    color: var(--on-ink);
+    font-weight: var(--fw-bold);
   }
 
   .path {
@@ -55,6 +54,7 @@ const { path, meta } = Astro.props;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-family: var(--font-mono);
   }
 
   .meta,
@@ -66,12 +66,17 @@ const { path, meta } = Astro.props;
     background: none;
     border-block: none;
     border-right: none;
-    color: var(--text-3);
+    color: var(--text-2);
     cursor: pointer;
   }
 
   button:hover {
     color: var(--text);
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-bold);
   }
 
   @media (max-width: 859px) {

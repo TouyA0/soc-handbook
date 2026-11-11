@@ -56,13 +56,16 @@ const categories = headings.filter((h) => h.depth === 2);
   }
 
   .field:focus-within {
-    border-color: var(--accent-line);
+    border-color: var(--ink);
+    outline: var(--focus-w) solid var(--accent);
+    outline-offset: var(--focus-offset);
   }
 
   .prompt {
     font-family: var(--font-mono);
     font-size: var(--fs-md);
-    color: var(--accent);
+    font-weight: var(--fw-bold);
+    color: var(--text-2);
   }
 
   input {
@@ -96,19 +99,20 @@ const categories = headings.filter((h) => h.depth === 2);
 
   .chips a {
     flex: none;
-    padding: var(--sp-2) var(--sp-4h);
-    border: var(--bw) solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--pill);
+    padding: 0 var(--sp-5);
+    border: var(--bw) solid var(--border-strong);
     border-radius: var(--r-pill);
     background: var(--surface);
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
     line-height: var(--lh-snug);
-    color: var(--text-2);
+    color: var(--text);
   }
 
   .chips a:hover {
-    border-color: var(--accent-line);
-    color: var(--accent);
+    border-color: var(--text-2);
     text-decoration: none;
   }
 

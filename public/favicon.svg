@@ -1,12 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Le « k » de soc.kb dessiné comme une jonction de plan : la ligne 01 (fondamentaux) rejoint la ligne 03 (menaces),
+       la station en anneau marque la correspondance. Même dessin que le logo de la barre supérieure (TopBar.astro). -->
   <style>
-    .mark { fill: oklch(0.5 0.13 235); }
-    .ink { stroke: oklch(0.99 0 0); }
+    .l1 { stroke: #1f6fb2; }
+    .l3 { stroke: #b8322a; }
+    .st { fill: #ffffff; stroke: #1b2340; }
     @media (prefers-color-scheme: dark) {
-      .mark { fill: oklch(0.8 0.11 215); }
-      .ink { stroke: oklch(0.18 0.03 230); }
+      .l1 { stroke: #8cc1f0; }
+      .l3 { stroke: #f3a39b; }
+      .st { fill: #121829; stroke: #e8ecf4; }
     }
   </style>
-  <rect class="mark" width="22" height="22" rx="5" />
-  <path class="ink" d="M3.5 11.5H7l2-5.5 3.5 10 2-4.5h4" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+  <path class="l3" d="M8 3v26" fill="none" stroke-width="5.5" stroke-linecap="round" />
+  <path class="l1" d="M27 5L10 19.5L27 29" fill="none" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle class="st" cx="9" cy="19.5" r="4.75" stroke-width="2.75" />
 </svg>
