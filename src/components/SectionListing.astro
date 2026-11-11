@@ -4,7 +4,7 @@
 import { TACTICS } from '../data/attack';
 import { PLATFORMS } from '../data/writeups';
 import { docUrl, type Doc } from '../lib/content';
-import { docMeta, formatDate } from '../lib/nav';
+import { docMeta, formatDate, groupAnchor } from '../lib/nav';
 
 interface Props {
   entries: Doc[];
@@ -40,7 +40,7 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
       return (
         <section>
           {label && (
-            <h2 id={id}>
+            <h2 id={groupAnchor(id!)}>
               {name ?? id}
               {name && <span class="group-id">{id}</span>}
             </h2>

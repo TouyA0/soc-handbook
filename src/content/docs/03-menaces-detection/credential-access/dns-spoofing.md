@@ -2,7 +2,7 @@
 title: "DNS Spoofing"
 description: "L'attaquant répond à la place du serveur DNS pour qu'un nom de domaine légitime pointe vers sa propre machine."
 tags: [réseau, dns, mitm, wireshark]
-updated: 2026-10-05
+updated: 2026-11-11
 draft: false
 type: technique
 attack_id: T1557
@@ -40,7 +40,7 @@ Dans les journaux ou dans une capture réseau, les signes à chercher sont :
 
 ### Wireshark
 
-La démarche : isoler le DNS, regarder à quoi ressemblent les réponses normales, puis chercher les réponses qui ne viennent pas du résolveur attendu. Dans les exemples, `8.8.8.8` est le résolveur légitime et `portail.exemple.local` le domaine étudié : les remplacer par ceux du réseau analysé.
+La démarche : isoler le DNS, regarder à quoi ressemblent les réponses normales, puis chercher les réponses qui ne viennent pas du résolveur attendu. Dans les exemples, `8.8.8.8` est le résolveur légitime et `portail.example.com` le domaine étudié : les remplacer par ceux du réseau analysé.
 
 ```wireshark title="tout le trafic DNS"
 dns
@@ -57,15 +57,15 @@ dns.flags.response == 1
 Dans cette liste, on cherche les réponses dont l'IP source n'est pas celle du résolveur habituel.
 
 ```wireshark title="tout le DNS concernant le domaine étudié"
-dns && dns.qry.name == "portail.exemple.local"
+dns && dns.qry.name == "portail.example.com"
 ```
 
 ```wireshark title="réponses du résolveur légitime pour ce domaine"
-dns.flags.response == 1 && ip.src == 8.8.8.8 && dns.qry.name == "portail.exemple.local"
+dns.flags.response == 1 && ip.src == 8.8.8.8 && dns.qry.name == "portail.example.com"
 ```
 
 ```wireshark title="réponses pour ce domaine venant d'une autre source"
-dns.flags.response == 1 && ip.src != 8.8.8.8 && dns.qry.name == "portail.exemple.local"
+dns.flags.response == 1 && ip.src != 8.8.8.8 && dns.qry.name == "portail.example.com"
 ```
 
 C'est le filtre décisif : s'il renvoie des paquets, une machine du réseau se comporte comme un faux serveur DNS et envoie des réponses usurpées.

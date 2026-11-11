@@ -29,7 +29,8 @@ import Icon from './Icon.astro';
     <Icon name="keyboard" />
   </button>
 
-  <button class="ctl theme desktop-only" type="button" data-action="toggle-theme" aria-pressed="false">
+  <!-- Sur mobile, la pastille seule reste visible ; le libellé est conservé pour les lecteurs d'écran. -->
+  <button class="ctl theme" type="button" data-action="toggle-theme" aria-pressed="false" title="Changer de thème (t)">
     <span class="swatch" aria-hidden="true"></span>
     <span class="when-light">Thème sombre</span>
     <span class="when-dark">Thème clair</span>
@@ -188,6 +189,21 @@ import Icon from './Icon.astro';
 
     .search .short {
       display: inline;
+    }
+
+    .theme {
+      width: var(--ctl);
+      padding: 0;
+    }
+
+    .theme .when-light,
+    :global(html[data-theme='dark']) .theme .when-dark {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
   }
 </style>

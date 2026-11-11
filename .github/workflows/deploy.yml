@@ -18,10 +18,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Les dates de mise à jour viennent du frontmatter (`updated`) : l'historique git n'est pas nécessaire.
       - uses: actions/checkout@v7
-        with:
-          # historique complet : les dates de dernière modification viennent de git
-          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24

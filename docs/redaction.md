@@ -37,6 +37,8 @@ Un titre contenant « — » est affiché en deux temps : la partie après le ti
 
 - `##` pour les sections : leur numéro (`01`, `02`…) est ajouté à l'affichage, ne pas l'écrire.
 - `###` pour les sous-sections (un outil sous « Détection », par exemple).
+- Une section pas encore rédigée contient seulement le paragraphe `À compléter.` : il s'affiche en creux (encadré pointillé),
+  et sur une technique, l'étape correspondante du fil de connaissance (« Détection », « Réponse ») passe en « à venir ».
 
 ## Liens internes
 

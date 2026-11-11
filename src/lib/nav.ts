@@ -97,21 +97,35 @@ export function getCrumbs(doc: Doc): Crumb[] {
   if (doc.id === section.dir) return [...crumbs, { label: section.title, num: section.num }];
   crumbs.push({ label: section.title, href: docUrl(section.dir), num: section.num });
 
+  // Le regroupement renvoie à son titre sur la page de la section (ancres posées par SectionListing).
   const { data } = doc;
   if (data.type === 'technique') {
     const tactic = TACTICS.find((t) => t.slug === data.tactic);
-    if (tactic) crumbs.push({ label: `${tactic.id} ${tactic.name}` });
+    if (tactic) crumbs.push({ label: `${tactic.id} ${tactic.name}`, href: `${docUrl(section.dir)}#${tactic.id}` });
     crumbs.push({ label: data.attack_id });
   } else {
-    if (data.type === 'writeup') crumbs.push({ label: PLATFORMS[data.platform] });
+    if (data.type === 'writeup') {
+      crumbs.push({ label: PLATFORMS[data.platform], href: `${docUrl(section.dir)}#${groupAnchor(PLATFORMS[data.platform])}` });
+    }
     crumbs.push({ label: data.title });
   }
   return crumbs;
 }
 
-/** Chemin affiché dans la barre d'état. */
-export function getStatusPath(doc: Doc | undefined): string {
-  if (!doc) return `${SITE.name} / accueil`;
+/** Ancre d'un titre de regroupement sur la page d'une section : « TA0006 », « tryhackme ». */
+export function groupAnchor(label: string): string {
+  return label
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/^ta(\d{4})$/, 'TA$1');
+}
+
+/** Chemin affiché dans la barre d'état. `fallback` remplace « accueil » sur une page sans fiche (404). */
+export function getStatusPath(doc: Doc | undefined, fallback = 'accueil'): string {
+  if (!doc) return `${SITE.name} / ${fallback}`;
   return [SITE.name, ...getCrumbs(doc).slice(1).map((c) => (c.num ? `${c.num} ${c.label}` : c.label))].join(' / ');
 }
 
@@ -136,7 +150,9 @@ export function neighborContext(doc: Doc): string {
   const { data } = doc;
   if (data.type === 'technique') return TACTICS.find((t) => t.slug === data.tactic)?.name ?? '';
   const section = sectionOf(doc);
-  return section ? `${section.num} ${section.title}` : '';
+  if (!section) return '';
+  // La pastille porte déjà le numéro ; sur la page d'une section, le titre répéterait le contexte.
+  return doc.id === section.dir ? 'Page de section' : section.title;
 }
 
 /** Titre d'une page voisine : « Kerberoasting (T1558.003) » pour une technique. */

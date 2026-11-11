@@ -38,13 +38,13 @@ const GROUP_LABELS: Record<ResultType, string> = {
 };
 
 const TYPE_LABELS: Record<ResultType, string> = {
-  technique: 'TECHNIQUE',
-  event: 'EVENT ID',
-  filter: 'FILTRE',
-  query: 'REQUÊTE',
-  writeup: 'WRITE-UP',
-  playbook: 'PLAYBOOK',
-  page: 'FICHE',
+  technique: 'Technique',
+  event: 'Event ID',
+  filter: 'Filtre',
+  query: 'Requête',
+  writeup: 'Write-up',
+  playbook: 'Playbook',
+  page: 'Fiche',
 };
 
 /** Préfixes de recherche : `id:4769` restreint aux Event IDs. */
@@ -82,6 +82,8 @@ if (dialog) {
 
   let pagefind: Pagefind | null | undefined;
   let scope: Scope = 'all';
+  /** Préfixe reconnu (`f`, `id`…) : retiré de la saisie et affiché en pastille devant le champ. */
+  let prefix: string | undefined;
   let hits: Hit[] = [];
   let selected = 0;
   let request = 0;
@@ -99,8 +101,9 @@ if (dialog) {
   }
 
   function rememberSearch(): void {
-    const query = input.value.trim();
-    if (!query) return;
+    const terms = input.value.trim();
+    if (!terms) return;
+    const query = prefix ? `${prefix}:${terms}` : terms;
     try {
       const searches = [query, ...readSearches().filter((s) => s !== query)].slice(0, MAX_SEARCHES);
       localStorage.setItem(STORAGE.searches, JSON.stringify(searches));
@@ -123,17 +126,24 @@ if (dialog) {
     return pagefind;
   }
 
-  /** Sépare la saisie en préfixe de type, tags et termes. */
-  function parse(raw: string): { type?: ResultType; prefix?: string; tags: string[]; term: string } {
-    let text = raw.trim();
-    let type: ResultType | undefined;
-    let prefix: string | undefined;
-    const match = /^([a-z]{1,2}):\s*(.*)$/i.exec(text);
-    if (match && PREFIXES[match[1]!.toLowerCase()]) {
-      prefix = match[1]!.toLowerCase();
-      type = PREFIXES[prefix];
-      text = match[2]!;
-    }
+  /** Un préfixe tapé en tête de saisie (`f:arp`) passe dans la pastille : le champ ne garde que les termes. */
+  function extractPrefix(): void {
+    const match = /^\s*([a-z]{1,2}):\s*/i.exec(input.value);
+    if (!match || !PREFIXES[match[1]!.toLowerCase()]) return;
+    prefix = match[1]!.toLowerCase();
+    input.value = input.value.slice(match[0].length);
+  }
+
+  function setPrefix(next: string | undefined): void {
+    prefix = next;
+    prefixBadge.hidden = !prefix;
+    prefixBadge.textContent = prefix ? `${prefix}:` : '';
+  }
+
+  /** Sépare la saisie en tags et termes ; le type vient du préfixe en pastille. */
+  function parse(raw: string): { type?: ResultType; tags: string[]; term: string } {
+    const text = raw.trim();
+    const type = prefix ? PREFIXES[prefix] : undefined;
     const tags: string[] = [];
     const term = text
       .replace(/#([\p{L}\p{N}_-]+)/gu, (_, tag: string) => {
@@ -142,7 +152,7 @@ if (dialog) {
       })
       .replace(/\s+/g, ' ')
       .trim();
-    return { type, prefix, tags, term };
+    return { type, tags, term };
   }
 
   /** Titre du résultat, les mots recherchés étant surlignés. */
@@ -198,7 +208,7 @@ if (dialog) {
     renderPreview();
   }
 
-  function renderResults(term: string): void {
+  function renderResults(term: string, typeCounts: Record<string, number>): void {
     const ordered: Hit[] = [];
     groups.replaceChildren(
       ...RESULT_TYPES.flatMap((type) => {
@@ -206,7 +216,9 @@ if (dialog) {
         if (items.length === 0) return [];
         const group = groupTemplate.content.cloneNode(true) as DocumentFragment;
         group.querySelector('[data-group-label]')!.textContent = GROUP_LABELS[type];
-        group.querySelector('[data-group-count]')!.textContent = String(items.length);
+        // Sous « Tout », chaque groupe est tronqué : on indique combien de résultats il compte en tout.
+        const total = typeCounts[type] ?? items.length;
+        group.querySelector('[data-group-count]')!.textContent = total > items.length ? `${items.length} sur ${total}` : String(items.length);
         const container = group.querySelector('.group')!;
         container.setAttribute('aria-label', GROUP_LABELS[type]);
         for (const hit of items) {
@@ -253,9 +265,9 @@ if (dialog) {
 
   async function search(): Promise<void> {
     const id = ++request;
-    const { type, prefix, tags, term } = parse(input.value);
-    prefixBadge.hidden = !prefix;
-    prefixBadge.textContent = prefix ? `${prefix}:` : '';
+    extractPrefix();
+    setPrefix(prefix);
+    const { type, tags, term } = parse(input.value);
     const activeType = type ?? (scope === 'all' ? undefined : scope);
     for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.searchScope === (activeType ?? 'all')));
 
@@ -291,26 +303,26 @@ if (dialog) {
     renderRecents(!term && !type && tags.length === 0);
     showMessage(
       total === 0
-        ? 'Rien trouvé.<br>Essaie un préfixe (<code>id:</code>, <code>f:</code>, <code>q:</code>) ou un autre filtre.'
+        ? 'Rien trouvé.<br>Un préfixe (<code>id:</code>, <code>f:</code>, <code>q:</code>) ou un autre filtre peut aider.'
         : '',
     );
-    renderResults(term);
+    renderResults(term, activeType ? { [activeType]: scoped.results.length } : typeCounts);
   }
 
   function setScope(next: Scope): void {
     scope = next;
-    // Un préfixe saisi impose son type : changer d'onglet le retire de la saisie.
-    const { prefix } = parse(input.value);
-    if (prefix) input.value = input.value.replace(/^\s*[a-z]{1,2}:\s*/i, '');
+    // Un préfixe impose son type : changer d'onglet le retire.
+    setPrefix(undefined);
     void search();
   }
 
   function open(query = ''): void {
     if (!dialog!.open) dialog!.showModal();
     scope = 'all';
+    setPrefix(undefined);
     input.value = query;
     input.focus();
-    if (statusMode) statusMode.textContent = 'RECHERCHE';
+    if (statusMode) statusMode.textContent = 'Recherche';
     void search();
   }
 
@@ -330,7 +342,7 @@ if (dialog) {
 
   dialog.addEventListener('close', () => {
     // L'événement arrive après coup : la palette a pu être rouverte entre-temps.
-    if (statusMode && !dialog.open) statusMode.textContent = 'LECTURE';
+    if (statusMode && !dialog.open) statusMode.textContent = 'Lecture';
   });
 
   input.addEventListener('input', () => {
@@ -339,6 +351,13 @@ if (dialog) {
   });
 
   dialog.addEventListener('keydown', (event) => {
+    // Retour arrière en début de champ : retire la pastille de préfixe.
+    if (event.key === 'Backspace' && prefix && input.selectionStart === 0 && input.selectionEnd === 0) {
+      event.preventDefault();
+      setPrefix(undefined);
+      void search();
+      return;
+    }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       select(selected + (event.key === 'ArrowDown' ? 1 : -1));

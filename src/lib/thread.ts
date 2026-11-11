@@ -13,6 +13,28 @@ export function findSection(headings: MarkdownHeading[], start: string): Markdow
   return headings.find((h) => h.depth === 2 && h.text.trim().toLowerCase().startsWith(start.toLowerCase()));
 }
 
+/** Mention laissée dans une section encore vide (voir docs/redaction.md). */
+export const PLACEHOLDER = 'À compléter.';
+
+/**
+ * Vrai si la section de niveau 2 `heading` n'a pas encore de contenu : rien, ou seulement « À compléter. »
+ * (sous-titres et commentaires HTML mis à part).
+ */
+export function isPlaceholderSection(body: string | undefined, heading: MarkdownHeading): boolean {
+  const lines = (body ?? '').split('\n');
+  const start = lines.findIndex((l) => /^##\s/.test(l) && l.replace(/^##\s+/, '').trim() === heading.text.trim());
+  if (start === -1) return false;
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((l) => /^##\s/.test(l));
+  const text = rest
+    .slice(0, end === -1 ? undefined : end)
+    .join('\n')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/^#{3,6}\s.*$/gm, '')
+    .trim();
+  return text === '' || text === PLACEHOLDER;
+}
+
 /** Sous-titres de niveau 3 placés sous un titre de niveau 2 donné. */
 function subsections(headings: MarkdownHeading[], parent: MarkdownHeading): MarkdownHeading[] {
   const start = headings.indexOf(parent) + 1;
@@ -56,7 +78,9 @@ export function buildThread(
 
   steps.push({ step: 'Technique', label: doc.data.title, meta: 'cette fiche', current: true, num: sectionOf(doc)?.num ?? LINE.technique });
 
-  const detection = findSection(headings, 'Détection');
+  // Une section restée à « À compléter. » ne compte pas : l'étape s'affiche en creux.
+  const filled = (h: MarkdownHeading | undefined) => (h && !isPlaceholderSection(doc.body, h) ? h : undefined);
+  const detection = filled(findSection(headings, 'Détection'));
   if (detection) {
     const tools = subsections(headings, detection);
     steps.push({
@@ -71,7 +95,7 @@ export function buildThread(
   }
 
   const playbook = byId(doc.data.playbook?.id);
-  const response = findSection(headings, 'Réponse');
+  const response = filled(findSection(headings, 'Réponse'));
   if (playbook) {
     steps.push({
       step: 'Réponse',
@@ -83,7 +107,7 @@ export function buildThread(
   } else if (response) {
     steps.push({ step: 'Réponse', label: 'Réponse', meta: 'sur cette fiche', href: `#${response.slug}`, num: LINE.response });
   } else {
-    steps.push({ step: 'Réponse', label: 'Pas encore de playbook', meta: 'Playbooks, à venir', num: LINE.response, planned: true });
+    steps.push({ step: 'Réponse', label: 'Pas encore de réponse', meta: 'Playbooks, à venir', num: LINE.response, planned: true });
   }
 
   if (writeups.length > 0) {

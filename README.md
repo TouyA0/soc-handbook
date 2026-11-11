@@ -33,7 +33,12 @@ npm install        # installer les dépendances
 npm run dev        # serveur de développement
 npm run build      # vérification des types, build de production, index de recherche
 npm run preview    # prévisualiser le build (nécessaire pour tester la recherche)
+npm run clean      # vider les caches d'Astro et le dossier dist
 ```
+
+Astro garde en cache le HTML de chaque page Markdown et ne le recalcule que si le fichier `.md` change.
+Après une modification de `src/plugins/` (blocs `:::`, en-têtes de code, coloration), lancer `npm run clean`
+avant `npm run dev` ou `npm run build`, sinon les pages gardent l'ancien rendu. La CI part toujours d'un cache vide.
 
 L'image de partage (`public/og.png`, 1200 × 630) se régénère avec `npm run og`, puis en ouvrant <http://localhost:4399/> :
 la page la dessine avec les polices et les couleurs du site, montre son rendu réduit et recadré en carré, et l'enregistre d'un clic.

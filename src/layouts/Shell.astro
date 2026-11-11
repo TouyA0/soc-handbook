@@ -18,17 +18,21 @@ interface Props {
   doc?: Doc;
   /** Page à ne pas référencer (404). */
   noindex?: boolean;
+  /** Données structurées schema.org (voir Base.astro). */
+  structuredData?: Record<string, unknown>;
+  /** Chemin de la barre d’état quand aucune fiche n’est affichée (404) ; par défaut « accueil ». */
+  statusPath?: string;
   /** Texte de droite de la barre d'état ; par défaut, le résumé de la base. */
   statusMeta?: string;
 }
 
-const { title, description, doc, noindex, statusMeta } = Astro.props;
+const { title, description, doc, noindex, statusMeta, statusPath, structuredData } = Astro.props;
 const docs = await getDocs();
 const stats = getStatsParts(docs);
 const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(', ');
 ---
 
-<Base title={title} description={description} noindex={noindex}>
+<Base title={title} description={description} noindex={noindex} structuredData={structuredData}>
   <TopBar />
   <div class="layout" data-page-id={doc?.id} data-page-title={doc?.data.title} data-page-meta={doc ? docMeta(doc) : undefined} data-page-kind={doc ? docTypeLabel(doc) : undefined}>
     <Sidebar docs={docs} currentId={doc?.id} />
@@ -36,7 +40,7 @@ const meta = statusMeta ?? [stats.counts, stats.updated].filter(Boolean).join(',
       <slot />
     </main>
   </div>
-  <StatusBar path={getStatusPath(doc)} meta={meta} />
+  <StatusBar path={getStatusPath(doc, statusPath)} meta={meta} />
   <MobileBar hasToc={Boolean(doc)} />
   <SearchPalette />
   <HelpDialog />

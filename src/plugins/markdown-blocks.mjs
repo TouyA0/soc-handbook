@@ -212,9 +212,22 @@ function table(node, ctx) {
   }
 }
 
+/* Sections encore vides */
+
+/** Mention d'une section sans contenu ; affichée en creux, comme une station « à venir ». */
+const PLACEHOLDER = 'À compléter.';
+
+function paragraph(node, ctx) {
+  if (node.data?.hProperties?.class === 'todo') return;
+  const [only] = node.children ?? [];
+  if (node.children?.length !== 1 || only.type !== 'text' || only.value.trim() !== PLACEHOLDER) return;
+  ctx.replaceNode(node, { ...node, data: { ...node.data, hProperties: { ...node.data?.hProperties, class: 'todo' } } });
+}
+
 export function markdownBlocksPlugin() {
   return {
     name: 'soc-handbook-markdown-blocks',
+    paragraph,
     table,
     containerDirective: directive,
     textDirective: inlineDirective,

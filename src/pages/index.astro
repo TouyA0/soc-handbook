@@ -5,7 +5,7 @@ import Panel from '../components/Panel.astro';
 import { PROFILE } from '../data/profile';
 import { lineStyle } from '../data/sections';
 import { docUrl, getAttackCoverage, getDocs, getRecentDocs, getSectionTrees, getStats, sectionOf } from '../lib/content';
-import { countQueries, getEventMemo, getTopTags, tagEvidence } from '../lib/home';
+import { countDetections, getEventMemo, getTopTags, tagEvidence } from '../lib/home';
 import { docTypeLabel, formatDate } from '../lib/nav';
 import Shell from '../layouts/Shell.astro';
 
@@ -42,7 +42,7 @@ const state = [
   ['Fiches', String(stats.pages)],
   ['Techniques ATT&CK', String(stats.techniques)],
   ['Write-ups', String(stats.writeups)],
-  ['Requêtes SPL / KQL', String(countQueries(docs))],
+  ['Filtres et requêtes', String(countDetections(docs))],
   ['Dernière mise à jour', stats.lastUpdated ? formatDate(stats.lastUpdated) : '—'],
 ] as const;
 
@@ -50,7 +50,7 @@ const state = [
 // Chaque station prend la couleur de la section où ce savoir vit : observer (01), détecter et qualifier (03), répondre (04).
 const method = [
   { num: '01', title: 'Observer', body: 'Les traces que laisse le comportement : journaux, Event IDs, trafic.' },
-  { num: '03', title: 'Détecter', body: 'Une requête par outil (SPL, KQL, Sigma), avec ce qu’elle cherche.' },
+  { num: '03', title: 'Détecter', body: 'Un filtre ou une requête par outil (Wireshark, SPL, KQL, Sigma), avec ce qu’il cherche.' },
   { num: '03', title: 'Qualifier', body: 'Faux positifs connus et pièges documentés avant toute escalade.' },
   { num: '04', title: 'Répondre', body: 'Actions de réponse, puis lien vers le write-up où je l’ai pratiqué.' },
 ];
@@ -59,9 +59,21 @@ const coverageNote =
   covered.length === 0
     ? 'Aucune technique documentée pour l’instant : les stations se rempliront au fil des fiches.'
     : `${plural(stats.techniques, 'technique')} documentée${stats.techniques > 1 ? 's' : ''}, ${covered.length === 1 ? `toutes en ${covered[0]!.tactic.name}` : `réparties sur ${covered.length} tactiques`}. Les autres tactiques se rempliront au fil des fiches.`;
+
+const homeDescription = `Carnet d'analyste SOC de ${PROFILE.name} : fiches de détection classées selon MITRE ATT&CK, cheat sheets d'outils et investigations, documentées pas à pas.`;
+
+// Données structurées : la personne derrière le site et ses profils publics (liens absolus uniquement).
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: PROFILE.name,
+  url: new URL(import.meta.env.BASE_URL, Astro.site).href,
+  description: PROFILE.status,
+  sameAs: [PROFILE.links.linkedin, PROFILE.links.github, PROFILE.links.tryhackme].filter((l) => /^https?:/.test(l)),
+};
 ---
 
-<Shell>
+<Shell description={homeDescription} structuredData={person}>
   <div class="home">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-main">
@@ -121,7 +133,7 @@ const coverageNote =
     </section>
 
     <section class="search-block" aria-labelledby="search-title">
-      <h2 id="search-title">Que cherches-tu ?</h2>
+      <h2 id="search-title">Rechercher dans la base</h2>
       <button type="button" class="search-lg" data-action="open-search">
         <Icon name="search" size="lg" />
         <span class="search-text">Filtre Wireshark, Event ID, technique, requête…</span>
@@ -140,8 +152,8 @@ const coverageNote =
         )
       }
       <p class="hints">
-        Préfixes : <code>id:</code> Event ID, <code>t:</code> technique, <code>f:</code> filtre, <code>q:</code> requête,
-        <code>wu:</code> write-up, <code>pb:</code> playbook.
+        Préfixes : <code>id:</code> Event ID, <code>t:</code> technique, <code>f:</code> filtre, <code>q:</code> requête,{' '}
+        <code>wu:</code> write-up, <code>pb:</code> playbook, <code>#tag</code> par tag.
       </p>
     </section>
 
@@ -149,7 +161,7 @@ const coverageNote =
       <Panel title="Reprendre" note="épinglés, puis vus récemment">
         <ul class="resume" data-resume></ul>
         <p class="empty" data-resume-empty>
-          Rien à reprendre pour l'instant. Sur une fiche, appuie sur <kbd class="kbd">p</kbd> pour l'épingler ici ; les dernières pages vues
+          Rien à reprendre pour l'instant. Sur une fiche, la touche <kbd class="kbd">p</kbd> ou le bouton « Épingler » la place ici ; les dernières pages vues
           s'ajoutent toutes seules.
         </p>
         <template data-resume-template>

@@ -200,6 +200,8 @@
   --code-head: #2d3a63;
   --code-text: #e8ecf4;
   --code-text-2: #aeb7ca;
+  /* Survol d’un bouton posé sur le fond sombre du code */
+  --code-hover: rgb(255 255 255 / 0.08);
   --syn-kw: #8cc1f0;
   --syn-str: #9cd49a;
   --syn-num: #f0b46b;

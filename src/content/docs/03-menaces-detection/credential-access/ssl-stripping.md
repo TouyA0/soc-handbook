@@ -2,7 +2,7 @@
 title: "SSL Stripping"
 description: "L'attaquant, placé au milieu, retire le chiffrement TLS : la victime échange en HTTP en clair alors que le site utilise HTTPS."
 tags: [réseau, tls, http, mitm, wireshark]
-updated: 2026-10-05
+updated: 2026-11-11
 draft: false
 type: technique
 attack_id: T1557
@@ -37,20 +37,20 @@ Dans la chaîne d'attaque étudiée, le SSL stripping arrive après un [DNS spoo
 
 ### Wireshark
 
-La démarche : prouver que le site utilise normalement TLS, montrer que la victime a été envoyée vers l'attaquant, puis constater que ses échanges avec lui sont en HTTP. Dans les exemples, `portail.exemple.local` est le domaine étudié, `192.168.1.20` la victime et `192.168.1.50` l'attaquant : les remplacer par ceux du réseau analysé.
+La démarche : prouver que le site utilise normalement TLS, montrer que la victime a été envoyée vers l'attaquant, puis constater que ses échanges avec lui sont en HTTP. Dans les exemples, `portail.example.com` est le domaine étudié, `192.168.1.20` la victime et `192.168.1.50` l'attaquant : les remplacer par ceux du réseau analysé.
 
-```wireshark title="tout le trafic TLS / SSL"
-tls || ssl
+```wireshark title="tout le trafic TLS"
+tls
 ```
 
 ```wireshark title="poignées de main TLS vers le domaine (Client Hello + SNI)"
-tls.handshake.type == 1 && tls.handshake.extensions_server_name == "portail.exemple.local"
+tls.handshake.type == 1 && tls.handshake.extensions_server_name == "portail.example.com"
 ```
 
 Ce filtre montre que le domaine est bien joint en TLS en temps normal : c'est le point de comparaison.
 
 ```wireshark title="réponses DNS usurpées envoyées par l'attaquant pour ce domaine"
-dns.flags.response == 1 && ip.src == 192.168.1.50 && dns.qry.name == "portail.exemple.local"
+dns.flags.response == 1 && ip.src == 192.168.1.50 && dns.qry.name == "portail.example.com"
 ```
 
 ```wireshark title="HTTP en clair de la victime vers l'attaquant"

@@ -11,7 +11,8 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "og": "node scripts/og/serve.mjs"
+    "og": "node scripts/og/serve.mjs",
+    "clean": "node -e \"for (const d of ['node_modules/.astro', '.astro', 'dist']) require('fs').rmSync(d, { recursive: true, force: true })\""
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.2",

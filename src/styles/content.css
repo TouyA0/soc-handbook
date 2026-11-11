@@ -411,7 +411,7 @@
 }
 
 .code-copy:hover {
-  background: rgb(255 255 255 / 0.08);
+  background: var(--code-hover);
 }
 
 .code-copy:focus-visible {
@@ -700,5 +700,31 @@
 
 .prose[data-type='cheatsheet'] h2[hidden],
 .prose[data-type='cheatsheet'] table[hidden] {
+  display: none;
+}
+
+/* Section encore vide : mention « À compléter. » en creux, comme une station « à venir » du fil de connaissance. */
+.prose p.todo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-6) var(--sp-8);
+  border: var(--bw-strong) dashed var(--border-strong);
+  border-radius: var(--r-card);
+  font-size: var(--fs-base);
+  color: var(--text-2);
+}
+
+.prose p.todo::before {
+  content: '';
+  flex: none;
+  width: var(--pill-sm);
+  height: var(--pill-sm);
+  border-radius: 50%;
+  border: var(--bw-strong) dashed var(--text-3);
+}
+
+/* Cheat sheet en cours de filtrage : seuls les titres de catégorie et les lignes trouvées restent affichés. */
+.prose[data-filtering] > :not(h2, table) {
   display: none;
 }

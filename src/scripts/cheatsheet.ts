@@ -5,6 +5,7 @@ const prose = document.querySelector<HTMLElement>('.prose[data-type="cheatsheet"
 const input = document.querySelector<HTMLInputElement>('[data-cheat-input]');
 const count = document.querySelector<HTMLElement>('[data-cheat-count]');
 const empty = document.querySelector<HTMLElement>('[data-cheat-empty]');
+const filterBar = document.querySelector<HTMLElement>('[data-cheat-filter]');
 
 interface Category {
   heading: HTMLElement | null;
@@ -70,6 +71,16 @@ if (prose) {
     }
     if (count) count.textContent = `${shown} / ${total}`;
     if (empty) empty.hidden = shown > 0 || total === 0;
+
+    // Pendant le filtrage, seules les lignes comptent : la prose et les blocs de code s'effacent,
+    // et la page remonte pour que la première ligne trouvée apparaisse juste sous la barre de filtre.
+    const filtering = terms.length > 0;
+    prose.toggleAttribute('data-filtering', filtering);
+    if (filtering && filterBar) {
+      const below = filterBar.getBoundingClientRect().bottom;
+      const top = prose.getBoundingClientRect().top;
+      if (top < below) window.scrollBy({ top: top - below });
+    }
   };
 
   input?.addEventListener('input', update);

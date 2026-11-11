@@ -88,11 +88,18 @@ function syncSidebarToggle(): void {
   for (const button of $$('[data-action="toggle-sidebar"]')) button.setAttribute('aria-expanded', String(open));
 }
 
+/** Tiroir mobile ouvert : le reste de la page devient inerte, le focus ne peut plus en sortir. */
 function setDrawer(open: boolean): void {
+  const wasOpen = root.dataset.drawer === 'open';
   if (open) root.dataset.drawer = 'open';
   else delete root.dataset.drawer;
+  for (const el of $$('main, .statusbar, .mobilebar [data-action]:not([data-action="toggle-sidebar"])')) el.inert = open;
   syncSidebarToggle();
   if (open) $('#navigation')?.focus();
+  // Fermé au clavier depuis le tiroir : le focus revient au bouton « Menu » au lieu de se perdre.
+  else if (wasOpen && document.activeElement?.closest('#navigation')) {
+    $('.mobilebar [data-action="toggle-sidebar"]')?.focus();
+  }
 }
 
 function setSidebar(open: boolean): void {
@@ -256,6 +263,9 @@ function initScrollSpy(): void {
       const heading = document.getElementById(id);
       if (heading && heading.getBoundingClientRect().top < SPY_OFFSET) current = id;
     }
+    // En bas de page, les dernières sections, trop courtes, n'atteignent jamais le seuil : la dernière devient courante.
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (atBottom && window.scrollY > 0) current = ids[ids.length - 1];
     for (const link of links) {
       const active = decodeURIComponent(link.hash.slice(1)) === current;
       link.classList.toggle('is-active', active);

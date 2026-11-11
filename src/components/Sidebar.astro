@@ -377,8 +377,10 @@ const stats = getStatsParts(docs);
       background: var(--overlay);
     }
 
+    /* Pas de clavier sur téléphone : le rappel du raccourci n'a pas d'objet. */
     .group,
-    .child-meta {
+    .child-meta,
+    .hint {
       display: none;
     }
 

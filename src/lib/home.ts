@@ -40,11 +40,17 @@ export function getEventMemo(docs: Doc[], limit: number): EventMemo[] {
   return [...memo.values()].slice(0, limit);
 }
 
-/** Nombre de requêtes SPL et KQL : blocs de code de ces langages dans toute la base. */
-export function countQueries(docs: Doc[]): number {
+/**
+ * Nombre de filtres et requêtes de détection : blocs de code Wireshark, BPF, SPL, KQL et Sigma dans toute la base.
+ * Les mêmes blocs que la recherche classe en « Filtres » et « Requêtes » (voir lib/search-records.ts).
+ */
+export function countDetections(docs: Doc[]): number {
   return docs
     .filter(isContent)
-    .reduce((n, doc) => n + ((doc.body ?? '').match(/^```(?:spl|splunk|kql|kusto)\b/gim)?.length ?? 0), 0);
+    .reduce(
+      (n, doc) => n + ((doc.body ?? '').match(/^```(?:wireshark|bpf|spl|splunk|kql|kusto|sigma)\b/gim)?.length ?? 0),
+      0,
+    );
 }
 
 export interface TagUsage {
