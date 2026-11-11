@@ -10,6 +10,8 @@ export interface Formation {
 }
 
 export const PROFILE = {
+  /** Nom affiché sur l'image de partage (`public/og.png`) et dans son texte alternatif. */
+  name: 'Quentin Guirlinger',
   /** Pastille au-dessus du titre. */
   status: 'Recherche un stage — Analyste SOC',
   /** Une ou deux phrases de présentation : qui je suis, ma formation. */

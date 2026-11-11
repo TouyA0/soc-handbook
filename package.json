@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "og": "node scripts/og/serve.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.2",

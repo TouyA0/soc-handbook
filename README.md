@@ -35,6 +35,10 @@ npm run build      # vérification des types, build de production, index de rech
 npm run preview    # prévisualiser le build (nécessaire pour tester la recherche)
 ```
 
+L'image de partage (`public/og.png`, 1200 × 630) se régénère avec `npm run og`, puis en ouvrant <http://localhost:4399/> :
+la page la dessine avec les polices et les couleurs du site, montre son rendu réduit et recadré en carré, et l'enregistre d'un clic.
+Son adresse porte une empreinte du fichier, si bien que les réseaux sociaux rechargent l'image dès qu'elle change.
+
 Le build échoue si une page ne respecte pas son schéma, si un lien interne est cassé ou si un bloc Markdown est mal formé.
 
 Le site est construit avec [Astro](https://astro.build), la recherche avec [Pagefind](https://pagefind.app).
