@@ -9,7 +9,7 @@ order: 5
 
 Le but d'un SOC est de protéger la confidentialité, l'intégrité et la disponibilité des actifs numériques de l'organisation. Il y parvient en créant, recevant et triant des alertes ; le rôle du L1 dans cette chaîne est de remonter de façon fiable les vrais positifs au L2. Les métriques mesurent si ce travail est bien fait.
 
-Pour le L1, elles comptent doublement : elles rendent le SOC plus efficace, donc les attaques moins efficaces, et elles servent souvent à évaluer l'analyste. De bons résultats ouvrent la voie vers un poste de L2.
+Pour le L1, elles comptent doublement : elles rendent le SOC plus efficace, donc les attaques moins susceptibles de réussir, et elles servent souvent à évaluer l'analyste. De bons résultats ouvrent la voie vers un poste de L2.
 
 Les définitions et les formules varient d'une équipe à l'autre selon ce qu'elle veut mesurer : les repères ci-dessous sont des ordres de grandeur courants.
 

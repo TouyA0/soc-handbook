@@ -9,7 +9,7 @@ order: 1
 
 Un SOC reçoit chaque jour des millions de journaux venant de milliers de systèmes. La plupart décrivent une activité normale ; l'alerte sert à faire remonter les rares événements qui méritent l'attention d'un analyste. Le triage, c'est le travail qui consiste à examiner une alerte pour décider si elle correspond à une vraie menace.
 
-On parle aussi de *alert handling*, *alert processing*, *alert investigation* ou *alert analysis* : c'est la même activité.
+On parle aussi d'*alert handling*, d'*alert processing*, d'*alert investigation* ou d'*alert analysis* : c'est la même activité.
 
 ## De l'événement à l'alerte
 
@@ -58,7 +58,7 @@ Les noms changent d'un SIEM à l'autre, mais on retrouve toujours les mêmes pro
 | --- | --- |
 | Heure | Heure de création de l'alerte. Elle se déclenche en général **quelques minutes après** l'événement réel (alerte à 15:35 pour un événement à 15:32) : c'est l'heure de l'événement qui compte pour l'enquête. |
 | Nom | Résume ce qui s'est passé, d'après le nom de la règle de détection : *Unusual Login Location*, *Email Marked as Phishing*, *Windows RDP Bruteforce*, *Potential Data Exfiltration*… |
-| Sévérité | Urgence de l'alerte : faible / informative, moyenne, haute, critique. Fixée au départ par les détection engineers, l'analyste peut la modifier si besoin. |
+| Sévérité | Urgence de l'alerte : faible / informative, moyenne, haute, critique. Fixée au départ par les ingénieurs détection, elle peut être modifiée par l'analyste si besoin. |
 | Statut | Indique si quelqu'un travaille dessus : nouvelle / non assignée, en cours, clôturée / résolue. Les équipes ajoutent souvent leurs propres statuts. |
 | Verdict | Aussi appelé classification : **vrai positif** (menace réelle) ou **faux positif** (pas de menace), plus d'éventuels verdicts propres à l'équipe. |
 | Assigné | L'analyste qui a reçu ou pris l'alerte (on dit aussi *owner*). Il en porte la responsabilité. |
@@ -75,7 +75,7 @@ Avec une file de plusieurs centaines d'alertes, l'ordre de traitement compte : c
 2. **Trier par sévérité**
    Critique, puis haute, moyenne et enfin faible : les règles sont conçues pour qu'une alerte critique ait beaucoup plus de chances d'être une vraie menace, avec un impact bien plus fort.
 3. **Trier par ancienneté**
-   La plus ancienne d'abord. Si deux alertes révèlent deux intrusions, l'attaquant de la plus ancienne est sans doute déjà en train d'exfiltrer des données, alors que le nouveau en est encore à la reconnaissance.
+   La plus ancienne d'abord. Si deux alertes révèlent deux intrusions, l'attaquant de la plus ancienne est sans doute déjà en train d'exfiltrer des données, alors que le second en est encore à la reconnaissance.
 :::
 
 ## Traiter l'alerte
@@ -93,7 +93,7 @@ Avec une file de plusieurs centaines d'alertes, l'ordre de traitement compte : c
 
 ### Investigation
 
-L'étape la plus technique : comprendre l'activité et juger de sa légitimité dans les journaux du SIEM ou de l'EDR. Certaines équipes rédigent des [*workbooks*](contexte-et-workbooks.md#workbooks) (aussi appelés playbooks ou runbooks) qui expliquent comment enquêter sur chaque catégorie d'alerte. Sans workbook :
+L'étape la plus technique : comprendre l'activité et juger de sa légitimité dans les journaux du SIEM ou de l'EDR. Certaines équipes rédigent des [workbooks](contexte-et-workbooks.md#workbooks) qui expliquent comment enquêter sur chaque catégorie d'alerte. Sans workbook :
 
 :::etapes
 1. **Qui est visé**
@@ -112,9 +112,12 @@ L'étape la plus technique : comprendre l'activité et juger de sa légitimité 
 1. **Rendre un verdict**
    Vrai positif ou faux positif. C'est ici qu'on trouve ou qu'on rate l'attaque.
 2. **Commenter**
-   Un commentaire détaillé qui explique les étapes de l'analyse et ce qui justifie le verdict.
-3. **Clôturer**
-   Revenir au tableau de bord et passer l'alerte au statut « clôturée ».
+   Expliquer les étapes de l'analyse et ce qui justifie le verdict. Selon l'équipe et la sévérité, ce commentaire devient un [rapport détaillé](rapport-et-escalade.md#structure--les-5-w).
+3. **Clôturer ou escalader**
+   Passer l'alerte au statut « clôturée », ou la confier au L2 si elle le demande : voir [quand escalader](rapport-et-escalade.md#quand-escalader).
 :::
 
-La suite (rédiger le rapport, décider d'escalader au L2) est détaillée dans [Rapport et escalade](rapport-et-escalade.md).
+| Verdict | Exemple |
+| --- | --- |
+| Faux positif | Alerte sur un gros volume de données envoyé d'un système vers une IP externe. L'analyse montre une sauvegarde vers un service de stockage cloud : rien de malveillant. |
+| Vrai positif | Alerte sur une tentative de phishing visant un utilisateur. L'analyse confirme un email de phishing destiné à compromettre son poste : c'est un [incident](reponse-a-incident.md). |

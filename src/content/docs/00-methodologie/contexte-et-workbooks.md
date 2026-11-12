@@ -7,7 +7,11 @@ draft: false
 order: 2
 ---
 
-Une alerte seule dit rarement si l'activité est normale. *G.Baker s'est connecté au serveur HQ-FINFS-02, y a téléchargé « Financial Report US 2024.xlsx » et l'a partagé avec R.Lund* : pour trancher, il faut savoir qui est G.Baker (rôle, horaires de travail), à quoi sert HQ-FINFS-02, où il se trouve et qui peut y accéder, et pourquoi R.Lund aurait besoin des données financières de l'entreprise.
+Une alerte seule dit rarement si l'activité est normale. Exemple : *G.Baker s'est connecté au serveur HQ-FINFS-02, y a téléchargé « Financial Report US 2024.xlsx » et l'a partagé avec R.Lund.* Pour trancher, il faut savoir :
+
+- qui est G.Baker : son rôle, ses horaires de travail ;
+- à quoi sert HQ-FINFS-02, où il se trouve et qui peut y accéder ;
+- pourquoi R.Lund aurait besoin des données financières de l'entreprise.
 
 Ce contexte vient de trois références : l'inventaire des identités pour les personnes, l'inventaire des actifs pour les machines, le schéma réseau pour les adresses IP. Le workbook, lui, fixe l'ordre des vérifications pendant l'[investigation](triage-des-alertes.md#investigation).
 
@@ -79,4 +83,4 @@ Un workbook prend souvent la forme d'un diagramme, accompagné d'un guide détai
    Si besoin, [escalader](rapport-et-escalade.md#quand-escalader) au L2 ou faire confirmer la connexion par l'utilisateur.
 :::
 
-Le niveau de détail varie selon les équipes : certaines ont des centaines de workbooks, un par règle de détection, proches d'un playbook d'automatisation SOAR ; d'autres n'en écrivent que quelques-uns, généraux, pour les vecteurs d'attaque les plus courants, et comptent davantage sur le jugement du L1. Dans tous les cas, un L1 doit savoir découper son investigation en blocs réutilisables et en tirer un workbook simple.
+Le niveau de détail varie selon les équipes. Certaines ont des centaines de workbooks, un par règle de détection, proches d'un playbook d'automatisation SOAR. D'autres n'en écrivent que quelques-uns, généraux, pour les attaques les plus courantes, et comptent davantage sur le jugement du L1. Dans tous les cas, un L1 doit savoir découper son investigation en blocs réutilisables et en tirer un workbook simple.

@@ -140,6 +140,67 @@
   white-space: nowrap;
 }
 
+/* Sur écran moyen, la première colonne peut revenir à la ligne pour que le tableau tienne dans la largeur. */
+@media (max-width: 859px) {
+  .prose tbody td:first-child {
+    white-space: normal;
+  }
+
+  .prose td,
+  .prose th {
+    overflow-wrap: break-word;
+  }
+}
+
+/* Titre de colonne inséré au build au début des cellules des tableaux de trois colonnes ou plus :
+   masqué, sauf quand le tableau est empilé sur téléphone. */
+.cell-label {
+  display: none;
+}
+
+/* Sur téléphone, ces tableaux sont empilés : une ligne = un bloc, la première cellule en titre,
+   les autres précédées du titre de leur colonne. Les tableaux de cheat sheet et de timeline
+   (qui ne sont pas enfants directs de .prose) gardent leur propre mise en forme. */
+@media (max-width: 599px) {
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label),
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) :is(tbody, tr, td) {
+    display: block;
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) tr + tr {
+    border-top: var(--bw) solid var(--border);
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) tbody td {
+    width: auto;
+    padding-block: var(--sp-2);
+    border-top: none;
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) tbody td:first-child {
+    padding-top: var(--sp-5h);
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) tbody td:last-child {
+    padding-bottom: var(--sp-5h);
+  }
+
+  .prose:not([data-type='cheatsheet']) > table:has(.cell-label) .cell-label {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-2);
+  }
+}
+
 .prose td code {
   padding: 0;
   background: none;

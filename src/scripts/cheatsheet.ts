@@ -21,6 +21,13 @@ function headingBefore(table: HTMLElement): HTMLElement | null {
   return null;
 }
 
+/** Texte d'une ligne pour le filtre, sans les titres de colonne masqués (`.cell-label`) insérés au build. */
+function rowText(row: HTMLTableRowElement): string {
+  const copy = row.cloneNode(true) as HTMLTableRowElement;
+  copy.querySelectorAll('.cell-label').forEach((label) => label.remove());
+  return (copy.textContent ?? '').toLowerCase();
+}
+
 if (prose) {
   const categories: Category[] = [...prose.querySelectorAll<HTMLTableElement>('table')].map((table) => ({
     heading: headingBefore(table),
@@ -54,7 +61,7 @@ if (prose) {
     for (const { heading, table, rows } of categories) {
       let visible = 0;
       for (const row of rows) {
-        const text = (row.textContent ?? '').toLowerCase();
+        const text = rowText(row);
         const match = terms.every((term) => text.includes(term));
         row.hidden = !match;
         if (match) visible++;

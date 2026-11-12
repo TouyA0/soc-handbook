@@ -7,7 +7,7 @@ draft: false
 order: 3
 ---
 
-Une fois le [triage](triage-des-alertes.md) terminé, l'alerte ne s'arrête pas forcément au L1. Sur cent alertes reçues par un L1, la plupart sont clôturées en faux positif ou réglées à son niveau ; une dizaine de vrais positifs partent au L2, qui remédie à la plupart des intrusions ; et environ une seule finit en incident confié à l'équipe DFIR.
+Une fois le [triage](triage-des-alertes.md) terminé, l'alerte ne s'arrête pas forcément au L1. Ordre de grandeur : sur cent alertes reçues par le L1, la plupart sont clôturées en faux positif ou réglées à son niveau, une dizaine de vrais positifs partent au L2, qui traite la plupart des intrusions, et environ une seule finit en incident confié à l'équipe DFIR.
 
 Pour faire passer une alerte au niveau suivant, trois gestes :
 
@@ -64,7 +64,7 @@ Le dernier cas est normal, surtout les premiers mois : mieux vaut discuter de l'
 2. **Rapporter et conclure**
    Rédiger le rapport et fixer le verdict, par exemple vrai positif.
 3. **Réassigner**
-   Si l'escalade s'impose, assigner l'alerte au L2 de permanence, puis le prévenir sur la messagerie de l'entreprise ou de vive voix. Certaines équipes demandent plutôt une demande d'escalade formelle, avec de nombreux champs à remplir.
+   Si l'escalade s'impose, assigner l'alerte au L2 de permanence, puis le prévenir sur la messagerie de l'entreprise ou de vive voix. Certaines équipes exigent plutôt une demande d'escalade formelle, avec de nombreux champs à remplir.
 4. **Rester disponible**
    Le L2 reçoit une notification, part du rapport et revient vers le L1 s'il a des questions.
 :::

@@ -94,6 +94,11 @@ Le code placé dans la première colonne est coloré.
 
 Dans une cellule, une barre verticale s'écrit `\|` — y compris dans du code : `` `a \|\| b` ``.
 
+La première colonne (police mono, sans retour à la ligne sur grand écran) doit rester courte : un identifiant, un sigle,
+un nom de quelques mots. Une phrase longue n'y a pas sa place : passer plutôt par une liste.
+Sur téléphone, un tableau de trois colonnes ou plus est empilé : chaque ligne devient un bloc et chaque cellule
+est précédée du titre de sa colonne — d'où l'intérêt de titres de colonne courts et parlants.
+
 ## Étapes numérotées
 
 ```md

@@ -1,20 +1,15 @@
 ---
 title: "Réponse à incident"
 description: "De l'alerte à l'incident, les grands types d'incidents, les cadres SANS (PICERL) et NIST, le plan de réponse, les playbooks et les runbooks."
-tags: [incident-response, sans, nist, playbook, soc-l1]
+tags: [réponse-à-incident, sans, nist, playbook, soc-l1]
 updated: 2026-11-12
 draft: false
 order: 4
 ---
 
-Quand le [triage](triage-des-alertes.md) conclut à un vrai positif, l'alerte devient un **incident** : il ne s'agit plus seulement de qualifier une activité, mais d'y répondre de façon structurée.
+Quand le [triage](triage-des-alertes.md#clôture) conclut à un vrai positif, l'alerte devient un **incident** : il ne s'agit plus seulement de qualifier une activité, mais d'y répondre de façon structurée.
 
-| Verdict | Exemple |
-| --- | --- |
-| Faux positif | Alerte sur un gros volume de données envoyé d'un système vers une IP externe. L'analyse montre une sauvegarde vers un service de stockage cloud : rien de malveillant. |
-| Vrai positif | Alerte sur une tentative de phishing visant un utilisateur. L'analyse confirme un email de phishing destiné à compromettre son poste : c'est un incident. |
-
-Chaque incident reçoit ensuite une **sévérité** (faible, moyenne, haute, critique) selon l'impact qu'il peut avoir. Face à plusieurs incidents simultanés, on traite d'abord les critiques, puis les hauts, et ainsi de suite.
+Chaque incident reçoit une **sévérité** (faible, moyenne, haute, critique) selon l'impact qu'il peut avoir. Comme pour les alertes, on traite d'abord les incidents critiques, puis les hauts, les moyens et enfin les faibles.
 
 ## Types d'incidents
 
@@ -41,8 +36,8 @@ Six phases, dont les initiales donnent **PICERL** :
 | Phase | Ce qu'on y fait | Exemple |
 | --- | --- | --- |
 | Preparation | Réunir les moyens de traiter un incident : équipe de réponse, plan de réponse, solutions de sécurité déployées. | Sensibiliser les employés aux emails de phishing. |
-| Identification | Chercher les comportements anormaux qui peuvent signaler un incident, avec les outils de surveillance. | Un gros volume de données sort d'un hôte ; l'analyse montre qu'il a été compromis par une pièce jointe de phishing. |
-| Containment | Confinement : limiter l'impact, en isolant la machine touchée ou en désactivant les comptes compromis. | L'hôte est isolé du réseau pour empêcher l'attaquant de rebondir vers d'autres systèmes. |
+| Identification | Chercher les comportements anormaux qui peuvent signaler un incident, avec les outils de surveillance : SIEM, antivirus, EDR. | Un gros volume de données sort d'un hôte ; l'analyse montre qu'il a été compromis par une pièce jointe de phishing. |
+| Containment | Confinement : limiter l'impact, en isolant la machine touchée ou en désactivant les comptes compromis. Un EDR peut le faire directement. | L'hôte est isolé du réseau pour empêcher l'attaquant de rebondir vers d'autres systèmes. |
 | Eradication | Supprimer la menace de l'environnement et s'assurer qu'il est sain avant de passer à la suite. | Analyse antimalware approfondie pour retirer le logiciel malveillant. |
 | Recovery | Restaurer les systèmes touchés depuis une sauvegarde ou les reconstruire, puis les tester avant de les remettre en service. | L'hôte est reconfiguré et les données exfiltrées sont restaurées depuis la sauvegarde. |
 | Lessons Learned | Retour d'expérience : identifier et documenter les manques de la détection et de l'analyse pour améliorer le processus. | Réunion post-incident sur la cause racine et les mesures pour éviter que ça se reproduise. |
@@ -59,7 +54,7 @@ Le cadre du NIST (SP 800-61 rév. 2) reprend les mêmes étapes en quatre phases
 | Lessons Learned | Post-Incident Activity |
 
 :::piege
-La révision 3 du SP 800-61, publiée en 2024, abandonne ce cycle en quatre phases et organise la réponse à incident selon les fonctions du NIST Cybersecurity Framework 2.0. Le cycle de la rév. 2 reste la référence la plus citée en formation.
+Ne pas présenter ce cycle comme la version actuelle : la révision 3 du SP 800-61, publiée en 2024, l'abandonne et organise la réponse à incident selon les fonctions du NIST Cybersecurity Framework 2.0. Le cycle de la rév. 2 reste le plus cité en formation.
 :::
 
 ## Plan de réponse à incident
@@ -70,16 +65,6 @@ Chaque organisation tire de ces cadres son propre processus, décrit dans un doc
 - la méthodologie de réponse ;
 - le plan de communication avec les parties prenantes, forces de l'ordre comprises ;
 - le circuit d'[escalade](rapport-et-escalade.md) à suivre.
-
-## Outils de détection
-
-Repérer les incidents à la main est impossible : la phase d'identification (SANS) ou de détection et analyse (NIST) repose sur des outils, dont certains savent aussi agir sur les phases suivantes.
-
-| Outil | Rôle |
-| --- | --- |
-| SIEM | Centralise les journaux importants et les corrèle pour identifier les incidents. |
-| Antivirus | Détecte les programmes malveillants connus et analyse régulièrement le système. |
-| EDR | Déployé sur chaque poste, protège contre des menaces plus avancées et peut aussi confiner et éradiquer la menace. |
 
 ## Playbooks et runbooks
 

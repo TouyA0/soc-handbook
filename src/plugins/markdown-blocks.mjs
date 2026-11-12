@@ -193,6 +193,12 @@ function code(node, ctx) {
 
 /* Tableaux */
 
+/** Texte brut d'un nœud Markdown (titre de colonne). */
+function plainText(node) {
+  if (!node) return '';
+  return node.value ?? (node.children ?? []).map(plainText).join('');
+}
+
 function table(node, ctx) {
   const rows = node.children ?? [];
   const firstCell = (row) => row.children?.[0];
@@ -201,6 +207,18 @@ function table(node, ctx) {
     throw new Error(
       `Bloc « ::: » mal fermé${location(ctx)} : laisser une ligne vide entre le tableau et le « ::: » de fermeture.`,
     );
+  }
+  // Tableau de trois colonnes ou plus : chaque cellule hors première colonne commence par le titre de sa colonne,
+  // masqué sur grand écran et affiché quand les lignes sont empilées sur téléphone (voir content.css).
+  const header = rows[0]?.children ?? [];  if (header.length >= 3) {
+    for (const row of rows.slice(1)) {
+      row.children?.slice(1).forEach((cell, i) => {
+        const label = plainText(header[i + 1]).trim();
+        const [first] = cell.children ?? [];
+        if (!label || !first) return;
+        ctx.replaceNode(first, [{ type: 'html', value: `<span class="cell-label" data-pagefind-ignore>${escapeHtml(label)}</span>` }, first]);
+      });
+    }
   }
   // Première colonne : le code (filtre, commande) est coloré.
   for (const row of rows.slice(1)) {
