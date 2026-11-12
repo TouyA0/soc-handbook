@@ -46,7 +46,7 @@ Tout le SOC participe au triage, mais pas au même niveau :
 | Analyste L1 | Première ligne. Examine les alertes, distingue le malveillant du légitime et prévient le L2 en cas de vraie menace. |
 | Analyste L2 | Reçoit les alertes escaladées par le L1, mène l'analyse approfondie et la remédiation. |
 | Ingénieur SOC | Veille à ce que les alertes contiennent assez d'informations pour être triées efficacement. |
-| Manager SOC | Suit la rapidité et la qualité du triage pour qu'aucune vraie attaque ne passe à travers. |
+| Manager SOC | Suit la rapidité et la qualité du triage ([métriques](metriques-soc.md)) pour qu'aucune vraie attaque ne passe à travers. |
 
 Un L1 peut recevoir de zéro à une centaine d'alertes par jour, et chacune peut révéler une attaque.
 
