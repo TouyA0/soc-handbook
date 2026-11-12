@@ -14,6 +14,8 @@ const common = {
   tags: z.array(z.string()).default([]),
   updated: z.coerce.date(),
   draft: z.boolean().default(false),
+  /** Position dans la section (barre latérale, précédent / suivant), pour les pages qui se lisent dans un ordre donné. */
+  order: z.number().int().positive().optional(),
 };
 
 /** Page générique : index de section, méthodologie, fondamentaux, playbook, lab, ressources. */

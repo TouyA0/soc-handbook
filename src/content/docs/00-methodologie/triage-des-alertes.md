@@ -1,9 +1,10 @@
 ---
-title: "Triage des alertes — de l'événement au verdict"
+title: "Triage des alertes"
 description: "D'où vient une alerte, comment la lire, laquelle traiter en premier et comment la mener jusqu'au verdict."
-tags: [alertes, triage, siem, soc-l1, méthodologie]
+tags: [alertes, triage, siem, soc-l1]
 updated: 2026-11-12
 draft: false
+order: 1
 ---
 
 Un SOC reçoit chaque jour des millions de journaux venant de milliers de systèmes. La plupart décrivent une activité normale ; l'alerte sert à faire remonter les rares événements qui méritent l'attention d'un analyste. Le triage, c'est le travail qui consiste à examiner une alerte pour décider si elle correspond à une vraie menace.
@@ -116,4 +117,4 @@ L'étape la plus technique : comprendre l'activité et juger de sa légitimité 
    Revenir au tableau de bord et passer l'alerte au statut « clôturée ».
 :::
 
-Quand l'alerte est un vrai positif, le L1 l'escalade au L2 : à compléter avec la suite du module (escalade, rédaction du commentaire).
+La suite (rédiger le rapport, décider d'escalader au L2) est détaillée dans [Rapport et escalade](rapport-et-escalade.md).

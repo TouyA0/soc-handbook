@@ -12,6 +12,10 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const byTitle = (a: Doc, b: Doc) => a.data.title.localeCompare(b.data.title, 'fr');
 
+/** Ordre dans une section : les pages qui ont un `order` d'abord, dans cet ordre, puis les autres par titre. */
+const bySectionOrder = (a: Doc, b: Doc) =>
+  (a.data.order ?? Infinity) - (b.data.order ?? Infinity) || byTitle(a, b);
+
 /** Toutes les pages publiées. Les brouillons ne sont visibles qu'en développement. */
 export async function getDocs(): Promise<Doc[]> {
   return getCollection('docs', ({ data }) => import.meta.env.DEV || !data.draft);
@@ -35,7 +39,7 @@ export interface SectionTree {
   section: Section;
   /** Page d'accueil de la section (`index.md`). */
   index: Doc | undefined;
-  /** Pages de la section hors index, triées par titre. */
+  /** Pages de la section hors index, triées par `order` puis par titre. */
   entries: Doc[];
 }
 
@@ -45,12 +49,12 @@ export function getSectionTrees(docs: Doc[]): SectionTree[] {
     return {
       section,
       index: inSection.find((d) => d.id === section.dir),
-      entries: inSection.filter((d) => d.id !== section.dir).sort(byTitle),
+      entries: inSection.filter((d) => d.id !== section.dir).sort(bySectionOrder),
     };
   });
 }
 
-/** Ordre de lecture : section par section, l'index d'abord puis les pages par titre. */
+/** Ordre de lecture : section par section, l'index d'abord puis les pages dans l'ordre de la section. */
 export function getReadingOrder(docs: Doc[]): Doc[] {
   return getSectionTrees(docs).flatMap(({ index, entries }) => (index ? [index, ...entries] : entries));
 }

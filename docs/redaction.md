@@ -14,6 +14,10 @@ updated: 2026-10-03
 draft: false
 ```
 
+En option, `order` (entier ≥ 1) fixe la position de la page dans sa section (barre latérale, précédent / suivant),
+pour les pages qui se lisent dans un ordre donné (ex. triage puis escalade). Les pages qui l'ont passent en premier,
+dans cet ordre, puis les autres par titre.
+
 Le champ `type` choisit le gabarit ; sans lui, la page est générique.
 
 | `type` | Champs propres |
