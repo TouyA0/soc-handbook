@@ -69,7 +69,7 @@ Le dernier cas est normal, surtout les premiers mois : mieux vaut discuter de l'
    Le L2 reçoit une notification, part du rapport et revient vers le L1 s'il a des questions.
 :::
 
-Ensuite, le L2 approfondit l'alerte, confirme qu'il s'agit bien d'un vrai positif, contacte les autres services si besoin et, pour un incident majeur, lance la procédure formelle de réponse à incident.
+Ensuite, le L2 approfondit l'alerte, confirme qu'il s'agit bien d'un vrai positif, contacte les autres services si besoin et, pour un incident majeur, lance la procédure formelle de [réponse à incident](reponse-a-incident.md).
 
 ## Situations délicates
 

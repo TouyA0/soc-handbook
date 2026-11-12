@@ -64,7 +64,7 @@ Les journaux seuls ne disent ni quel service écoute sur le port 10443, ni à qu
 
 ## Workbooks
 
-Document structuré qui définit les étapes pour investiguer et traiter un type de menace précis, de manière efficace et toujours identique. On dit aussi *playbook*, *runbook* ou *workflow*.
+Document structuré qui définit les étapes pour investiguer et traiter un type de menace précis, de manière efficace et toujours identique. On dit aussi *playbook*, *runbook* ou *workflow*. Côté réponse à incident, on distingue souvent le [playbook et le runbook](reponse-a-incident.md#playbooks-et-runbooks).
 
 Les analystes seniors les rédigent pour les L1, dont on n'attend pas qu'ils sachent trier parfaitement tous les scénarios d'attaque. Suivre le workbook est recommandé, parfois obligatoire : on évite les erreurs, on va plus vite, et aucun verdict n'est rendu sans assez de preuves.
 
