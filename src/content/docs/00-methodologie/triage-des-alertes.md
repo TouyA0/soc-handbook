@@ -93,11 +93,11 @@ Avec une file de plusieurs centaines d'alertes, l'ordre de traitement compte : c
 
 ### Investigation
 
-L'étape la plus technique : comprendre l'activité et juger de sa légitimité dans les journaux du SIEM ou de l'EDR. Certaines équipes rédigent des *workbooks* (aussi appelés playbooks ou runbooks) qui expliquent comment enquêter sur chaque catégorie d'alerte. Sans workbook :
+L'étape la plus technique : comprendre l'activité et juger de sa légitimité dans les journaux du SIEM ou de l'EDR. Certaines équipes rédigent des [*workbooks*](contexte-et-workbooks.md#workbooks) (aussi appelés playbooks ou runbooks) qui expliquent comment enquêter sur chaque catégorie d'alerte. Sans workbook :
 
 :::etapes
 1. **Qui est visé**
-   L'utilisateur, l'hôte, le compte cloud, le réseau ou le site concerné.
+   L'utilisateur, l'hôte, le compte cloud, le réseau ou le site concerné. Le contexte se trouve dans les [inventaires et le schéma réseau](contexte-et-workbooks.md).
 2. **Quelle action**
    Ce que décrit l'alerte : connexion suspecte, malware, phishing…
 3. **Ce qui s'est passé autour**

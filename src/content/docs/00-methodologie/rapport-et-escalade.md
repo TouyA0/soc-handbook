@@ -4,7 +4,7 @@ description: "Documenter une alerte selon les 5 W, savoir quand et comment l'esc
 tags: [alertes, rapport, escalade, communication, soc-l1]
 updated: 2026-11-12
 draft: false
-order: 2
+order: 3
 ---
 
 Une fois le [triage](triage-des-alertes.md) terminé, l'alerte ne s'arrête pas forcément au L1. Sur cent alertes reçues par un L1, la plupart sont clôturées en faux positif ou réglées à son niveau ; une dizaine de vrais positifs partent au L2, qui remédie à la plupart des intrusions ; et environ une seule finit en incident confié à l'équipe DFIR.
