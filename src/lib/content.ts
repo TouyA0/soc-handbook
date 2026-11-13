@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { TACTICS, type Tactic } from '../data/attack';
 import { SECTIONS, type Section } from '../data/sections';
+import { PLATFORMS } from '../data/writeups';
 import { bodyLinkIds } from '../plugins/internal-links.mjs';
 
 export type Doc = CollectionEntry<'docs'>;
@@ -12,9 +13,25 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const byTitle = (a: Doc, b: Doc) => a.data.title.localeCompare(b.data.title, 'fr');
 
-/** Ordre dans une section : les pages qui ont un `order` d'abord, dans cet ordre, puis les autres par titre. */
+const PLATFORM_KEYS = Object.keys(PLATFORMS);
+
+/**
+ * Rang du groupe d'une page, dans l'ordre des groupes de la page de section (SectionListing) :
+ * techniques par tactique ATT&CK, puis write-ups par plateforme, puis les autres pages.
+ */
+function groupRank(doc: Doc): number {
+  const { data } = doc;
+  if (data.type === 'technique') return TACTICS.findIndex((t) => t.slug === data.tactic);
+  if (data.type === 'writeup') return TACTICS.length + PLATFORM_KEYS.indexOf(data.platform);
+  return TACTICS.length + PLATFORM_KEYS.length;
+}
+
+/**
+ * Ordre dans une section (barre latérale, précédent / suivant, page de section) : par groupe d'abord,
+ * puis les pages qui ont un `order`, dans cet ordre, puis les autres par titre.
+ */
 const bySectionOrder = (a: Doc, b: Doc) =>
-  (a.data.order ?? Infinity) - (b.data.order ?? Infinity) || byTitle(a, b);
+  groupRank(a) - groupRank(b) || (a.data.order ?? Infinity) - (b.data.order ?? Infinity) || byTitle(a, b);
 
 /** Toutes les pages publiées. Les brouillons ne sont visibles qu'en développement. */
 export async function getDocs(): Promise<Doc[]> {
