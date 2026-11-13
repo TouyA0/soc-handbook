@@ -38,6 +38,8 @@ if (prose) {
 
   for (const { heading, rows } of categories) {
     for (const row of rows) {
+      // Seules les lignes qui portent un filtre ou une commande se copient ; une action de menu, non.
+      if (!row.querySelector('td:first-child code')) continue;
       const cell = document.createElement('td');
       const button = document.createElement('button');
       button.type = 'button';
