@@ -228,7 +228,7 @@ const person = {
         {
           coverage.map(({ tactic, techniques }) => (
             <li class:list={{ on: techniques.length > 0 }}>
-              <a href={`${techniquesUrl}#${tactic.id}`}>
+              <a href={techniques.length > 0 ? `${techniquesUrl}#${tactic.id}` : techniquesUrl}>
                 <span class="tactic-id" aria-hidden="true">{tactic.id}</span>
                 <span class="tactic-name">{tactic.name}</span>
                 <span class="tactic-count">
