@@ -2,7 +2,7 @@
 title: "ARP Spoofing"
 description: "L'attaquant associe sa propre adresse MAC à l'adresse IP d'une autre machine, souvent la passerelle, pour se placer au milieu du trafic."
 tags: [réseau, arp, mitm, wireshark]
-updated: 2026-10-05
+updated: 2026-11-14
 draft: false
 type: technique
 attack_id: T1557.002
@@ -32,6 +32,10 @@ Dans les journaux ou dans une capture réseau, les signes à chercher sont :
 - **Un routage inhabituel** : du trafic qui transite par l'adresse MAC de l'attaquant.
 - **Plusieurs MAC de destination pour l'IP de la passerelle**.
 - **Des boucles de requêtes** du type `Who has 192.168.1.x? Tell 192.168.1.y`, répétées en grand nombre.
+
+Au fil de l'enquête, tenir une table **IP ↔ MAC** : passerelle, victimes, et la MAC qui revendique plusieurs IP. Le scénario typique se lit dans cet ordre : une MAC annonce sa propre IP, balaie le réseau par une rafale de requêtes vers toute une plage d'adresses, puis se déclare propriétaire de l'IP de la passerelle.
+
+**Réseau :** au niveau IP, le trafic de la victime paraît normal. C'est au niveau Ethernet que l'attaque se voit : ajouter `eth.src` et `eth.dst` en colonnes (clic droit › Apply as Column) montre des paquets HTTP adressés à une IP légitime, mais envoyés à la MAC de l'attaquant.
 
 ## Détection
 
@@ -81,7 +85,17 @@ arp.opcode == 2 && arp.src.proto_ipv4 == 192.168.1.1 && eth.src == 11:22:33:44:5
 arp.duplicate-address-detected || arp.duplicate-address-frame
 ```
 
-Ce dernier filtre confirme qu'une même IP est associée à deux adresses MAC : l'attaquant s'est bien placé entre la victime et la passerelle.
+Ce filtre confirme qu'une même IP est associée à deux adresses MAC : l'attaquant s'est bien placé entre la victime et la passerelle.
+
+```wireshark title="requêtes ARP émises par la MAC suspecte : balayage ou inondation"
+arp.opcode == 1 && arp.src.hw_mac == 11:22:33:44:55:66
+```
+
+```wireshark title="trafic IP envoyé à la MAC suspecte sans lui être destiné : l'interception"
+eth.dst == 11:22:33:44:55:66 && !(ip.dst == 192.168.1.25)
+```
+
+Dans ce dernier filtre, `192.168.1.25` est l'IP propre de l'attaquant : tout ce qui reste est du trafic d'autres machines qui transite par lui.
 
 :::astuce
 `Ctrl + Alt + 1` affiche la date et l'heure réelles de chaque paquet au lieu du temps écoulé depuis le début de la capture : utile pour mesurer la fréquence des réponses.
@@ -91,9 +105,17 @@ Ce dernier filtre confirme qu'une même IP est associée à deux adresses MAC : 
 `arp.isgratuitous` ne repère que les annonces ARP « gratuites » au sens strict, celles où l'IP émettrice et l'IP cible sont identiques. Une fausse réponse adressée directement à une victime n'en fait pas forcément partie : ne pas conclure sur ce seul filtre, toujours vérifier les réponses qui annoncent l'IP de la passerelle.
 :::
 
+:::piege
+En cas de conflit, Analyze › Expert Information signale l'IP en double, mais seulement sur la **seconde** annonce. Ce n'est pas forcément celle de l'attaquant : c'est la table IP ↔ MAC et la chronologie qui disent laquelle est légitime.
+:::
+
 ## Faux positifs
 
-À compléter.
+:::faux-positifs
+- **Annonces ARP gratuites légitimes** : une machine qui démarre, change d'IP ou réactive sa carte réseau annonce son adresse.
+- **Haute disponibilité** : avec VRRP, HSRP ou CARP, l'IP virtuelle de la passerelle passe d'un équipement à l'autre, donc d'une MAC à l'autre.
+- **Conflit d'adresses** : deux machines configurées avec la même IP, par erreur.
+:::
 
 ## Réponse
 
