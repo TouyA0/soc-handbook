@@ -45,6 +45,7 @@ const LANG_LABELS = {
   yaml: 'YAML',
   yml: 'YAML',
   json: 'JSON',
+  xml: 'XML',
   sh: 'Bash',
   bash: 'Bash',
   shell: 'Bash',
