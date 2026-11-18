@@ -23,6 +23,8 @@ L'attaquant essaie des mots de passe sur un service exposé (bureau à distance,
 
 Si l'attaque réussit, elle se termine par une connexion réussie : c'est le point d'entrée de la suite de l'attaque.
 
+Un RDP exposé sur Internet (:attack[T1133]) est attaqué en continu par des botnets : dans l'heure qui suit son ouverture, le journal Security se remplit de centaines de 4625 sur des comptes courants (`Administrator`, `admin`, `support`). Avec un mot de passe faible, la machine tombe en quelques jours, et un RDP compromis mène très souvent à un rançongiciel.
+
 ## Ce qu'on observe
 
 | ID | Événement · ce qu'on cherche |
@@ -35,7 +37,7 @@ Ce qui oriente le diagnostic :
 - **Beaucoup d'échecs sur un seul compte** : force brute.
 - **Beaucoup de comptes différents** (`admin`, `helpdesk`, `cctv`…) : pulvérisation.
 - **Un nom de machine source hors du modèle de l'entreprise** : `kali` au lieu de `THM-PC-06`.
-- **Une IP source inattendue** : une imprimante qui se connecte en RDP à un serveur.
+- **Une IP source inattendue** : une IP externe, ou une imprimante qui se connecte en RDP à un serveur.
 
 Le motif de l'échec (champ `SubStatus`, sinon `Status`) distingue les deux variantes :
 
@@ -99,6 +101,7 @@ Une fois la connexion réussie trouvée, noter son **Logon ID** et [suivre la se
 :::piege
 - **Avec NLA, un RDP qui échoue est de type 3**, pas 10 : filtrer seulement le type 10 fait rater la force brute RDP.
 - **Le nom de machine d'un 4624 de type 10 n'est pas fiable** : le vrai nom du poste source est dans le 4624 de type 3 qui le précède.
+- **La session de l'attaquant peut venir plus tard** : le botnet trouve le mot de passe (connexion de type 3), puis l'attaquant revient des heures après en RDP (type 10), parfois depuis une autre IP. Chercher toutes les connexions réussies du compte, pas seulement celles de l'IP de la force brute.
 - **La pulvérisation est lente** : une tentative par compte, de loin en loin. Compter les comptes distincts par IP sur plusieurs heures, pas les échecs par minute.
 :::
 

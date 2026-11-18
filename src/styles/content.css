@@ -80,6 +80,11 @@
   font-size: var(--fs-code-inline);
 }
 
+/* Un chemin ou une commande en ligne ne doit pas faire déborder un paragraphe sur téléphone. */
+.prose :is(p, li) > code {
+  overflow-wrap: anywhere;
+}
+
 .prose hr {
   margin: var(--sp-12) 0;
   border: none;
