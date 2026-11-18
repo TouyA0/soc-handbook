@@ -1,15 +1,15 @@
 ---
 title: "Force brute et pulvérisation de mots de passe"
 description: "L'attaquant enchaîne les tentatives de connexion, sur un compte ou sur beaucoup de comptes, jusqu'à trouver un mot de passe valide."
-tags: [windows, rdp, authentification, event-id]
+tags: [windows, linux, rdp, ssh, authentification, event-id]
 updated: 2026-11-18
 draft: false
 type: technique
 attack_id: T1110
 tactic: credential-access
 severity: med
-platforms: [Windows]
-data_sources: [Journal Security, Sysmon]
+platforms: [Windows, Linux]
+data_sources: [Journal Security, Sysmon, auth.log]
 related:
   - 03-menaces-detection/persistence/creation-de-compte
 ---
@@ -35,6 +35,13 @@ Signaux d'alerte :
 - **Un nom de machine source hors du modèle de l'entreprise** : `kali` au lieu de `THM-PC-06`.
 - **Une IP source inattendue** : IP externe, ou une imprimante qui se connecte à un serveur.
 
+**Linux (SSH) :** les tentatives sont dans `/var/log/auth.log`, une ligne par essai, avec le compte et l'IP source. Les mêmes signaux s'appliquent : beaucoup de comptes depuis une même IP, beaucoup d'échecs sur un compte.
+
+```text title="échecs SSH sur des comptes courants, depuis des IP externes"
+2025-08-07T11:21:25 thm-vm sshd[3139]: Failed password for root from 222.124.17.227 port 50293 ssh2
+2025-08-07T14:17:40 thm-vm sshd[3139]: Failed password for admin from 138.204.127.54 port 52670 ssh2
+```
+
 **Réseau :** sur FTP, les échecs se voient aussi dans la capture : réponses [`530`](../../02-outils/wireshark.md#ftp).
 
 ## Détection
@@ -51,6 +58,14 @@ Signaux d'alerte :
 4. **Suivre ce qu'il a fait**
    Copier le Logon ID de la connexion de type 10 et le chercher dans les journaux Security et Sysmon : [suivre une session](../../01-fondamentaux/journaux-windows.md#suivre-une-session).
 :::
+
+### auth.log (Linux)
+
+```bash title="connexions SSH réussies et échouées"
+cat /var/log/auth.log | grep "sshd" | grep -E 'Accepted|Failed'
+```
+
+Un `Accepted` pour un compte et une IP qui ont accumulé les `Failed` : l'attaque a abouti. Voir [Journaux Linux](../../01-fondamentaux/journaux-linux.md#authlog).
 
 ## Faux positifs
 

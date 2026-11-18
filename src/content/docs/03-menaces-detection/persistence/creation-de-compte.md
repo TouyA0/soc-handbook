@@ -1,15 +1,15 @@
 ---
 title: "Création de compte"
 description: "L'attaquant crée un compte, ou en réactive un ancien, et l'ajoute à un groupe privilégié pour garder l'accès à la machine."
-tags: [windows, comptes, persistance, event-id]
+tags: [windows, linux, comptes, persistance, event-id]
 updated: 2026-11-18
 draft: false
 type: technique
 attack_id: T1136
 tactic: persistence
 severity: high
-platforms: [Windows]
-data_sources: [Journal Security]
+platforms: [Windows, Linux]
+data_sources: [Journal Security, auth.log]
 related:
   - 03-menaces-detection/credential-access/force-brute
 ---
@@ -41,6 +41,14 @@ Un compte inconnu au nom de service n'est pas forcément « un truc de Windows �
 
 Dans chaque événement : **Subject**, qui a fait l'action (avec son Logon ID) ; l'**objet**, la cible (New Account, Member) ; les **détails** (groupe, attributs).
 
+**Linux :** les mêmes actions sont dans `/var/log/auth.log`, sous le nom de la commande. L'équivalent de l'ajout aux administrateurs est l'ajout au groupe `sudo`.
+
+```text title="un ancien compte supprimé, un compte créé puis ajouté au groupe sudo"
+2025-08-07T22:11:11 thm-vm userdel[1887]: delete user 'oldbackdoor'
+2025-08-07T22:11:29 thm-vm useradd[1878]: new user: name=backdoor, UID=1002, GID=1002, shell=/bin/sh
+2025-08-07T22:11:54 thm-vm usermod[1906]: add 'backdoor' to group 'sudo'
+```
+
 ## Détection
 
 ### Observateur d'événements
@@ -64,6 +72,14 @@ Signaux d'alerte :
 - **Hors des heures de travail** ou le week-end.
 - **Un Subject inconnu ou inattendu** : `adm.old.2008` qui crée des utilisateurs.
 - **Un nom hors du modèle de l'entreprise** : `backup` au lieu de `thm_svc_backup`.
+
+### auth.log (Linux)
+
+```bash title="mots de passe changés, comptes créés, modifiés, supprimés"
+cat /var/log/auth.log | grep -E '(passwd|useradd|usermod|userdel)\['
+```
+
+Voir [Journaux Linux](../../01-fondamentaux/journaux-linux.md#authlog).
 
 ## Faux positifs
 
