@@ -56,29 +56,78 @@ export interface NavItem {
   current: boolean;
 }
 
+/**
+ * Regroupement d'une section dans la barre latérale : une tactique ATT&CK (techniques) ou une plateforme (write-ups).
+ * `label` vide : pages sans regroupement, affichées à plat.
+ */
+export interface NavGroup {
+  /** Identifiant unique dans la section, utilisé pour l'id de la liste : « TA0001 », « tryhackme ». */
+  key: string;
+  label: string;
+  /** Déplié : le groupe contient la page courante. */
+  open: boolean;
+  items: NavItem[];
+}
+
 export interface NavSection {
   section: Section;
   href: string | undefined;
   /** Vrai si la page courante est l'index de la section ou l'une de ses pages. */
   active: boolean;
   current: boolean;
-  children: NavItem[];
+  count: number;
+  groups: NavGroup[];
+}
+
+/** Regroupement d'une page : la tactique d'une technique, la plateforme d'un write-up. */
+function navGroupOf(doc: Doc): { key: string; label: string } {
+  const { data } = doc;
+  if (data.type === 'technique') {
+    const tactic = TACTICS.find((t) => t.slug === data.tactic);
+    if (tactic) return { key: tactic.id, label: tactic.name };
+  }
+  if (data.type === 'writeup') return { key: groupAnchor(data.platform), label: PLATFORMS[data.platform] };
+  return { key: '', label: '' };
+}
+
+/** Mention sous le titre dans un groupe : le regroupement dit déjà la tactique ou la plateforme. */
+function groupedMeta(doc: Doc): string {
+  const { data } = doc;
+  if (data.type === 'technique') return '';
+  if (data.type === 'writeup') return DIFFICULTIES[data.difficulty].label.toLowerCase();
+  return docMeta(doc);
 }
 
 export function getNavSections(docs: Doc[], currentId: string | undefined): NavSection[] {
-  return getSectionTrees(docs).map(({ section, index, entries }) => ({
-    section,
-    href: index ? docUrl(index.id) : undefined,
-    active: currentId?.split('/')[0] === section.dir,
-    current: currentId === section.dir,
-    children: entries.map((doc) => ({
-      id: doc.id,
-      label: doc.data.title,
-      meta: docMeta(doc),
-      href: docUrl(doc.id),
-      current: doc.id === currentId,
-    })),
-  }));
+  return getSectionTrees(docs).map(({ section, index, entries }) => {
+    // Les pages arrivent déjà triées par regroupement (getSectionTrees) : on coupe aux changements de groupe.
+    const groups: NavGroup[] = [];
+    for (const doc of entries) {
+      const group = navGroupOf(doc);
+      let last = groups[groups.length - 1];
+      if (!last || last.key !== group.key) {
+        last = { ...group, open: false, items: [] };
+        groups.push(last);
+      }
+      const current = doc.id === currentId;
+      last.items.push({
+        id: doc.id,
+        label: doc.data.title,
+        meta: group.label ? groupedMeta(doc) : docMeta(doc),
+        href: docUrl(doc.id),
+        current,
+      });
+      if (current) last.open = true;
+    }
+    return {
+      section,
+      href: index ? docUrl(index.id) : undefined,
+      active: currentId?.split('/')[0] === section.dir,
+      current: currentId === section.dir,
+      count: entries.length,
+      groups,
+    };
+  });
 }
 
 export interface Crumb {
