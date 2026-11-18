@@ -145,17 +145,18 @@
   white-space: nowrap;
 }
 
-/* Sur écran moyen, le tableau doit tenir dans la largeur : la première colonne revient à la ligne entre les mots,
-   les autres peuvent couper un mot trop long (chemin, commande). `anywhere` et non `break-word`, car seul
-   `anywhere` réduit la largeur minimale d'une colonne ; jamais sur la première, qui s'écraserait. */
+/* Le tableau doit tenir dans la largeur : les colonnes après la première peuvent couper un mot trop long
+   (chemin, commande sans espace), à toutes les largeurs. `anywhere` et non `break-word`, car seul `anywhere`
+   réduit la largeur minimale d'une colonne ; jamais sur la première, qui s'écraserait. */
+.prose td:not(:first-child),
+.prose th:not(:first-child) {
+  overflow-wrap: anywhere;
+}
+
+/* Sur écran moyen, la première colonne revient en plus à la ligne entre les mots. */
 @media (max-width: 859px) {
   .prose tbody td:first-child {
     white-space: normal;
-  }
-
-  .prose td:not(:first-child),
-  .prose th:not(:first-child) {
-    overflow-wrap: anywhere;
   }
 }
 
