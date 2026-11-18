@@ -1,33 +1,33 @@
 ---
 title: "Tunnel ICMP et DNS"
-description: "L'attaquant cache ses commandes ou des données volées dans des protocoles autorisés et peu surveillés, ICMP et DNS, pour passer les défenses du périmètre."
+description: "L'attaquant cache ses commandes ou des données volées dans des protocoles de confiance, ICMP et DNS, pour passer les défenses du périmètre."
 tags: [réseau, dns, icmp, tunnel, c2, exfiltration, wireshark]
-updated: 2026-11-14
+updated: 2026-11-18
 draft: false
 type: technique
 attack_id: T1572
 tactic: command-and-control
 severity: high
-data_sources: [Capture réseau, Journaux DNS]
+data_sources: [Capture réseau]
 ---
 
 ## Description
 
-Un tunnel encapsule un trafic (commandes, fichiers, session TCP ou SSH) dans un autre protocole. Les attaquants choisissent ICMP et DNS parce qu'ils sont autorisés presque partout et rarement inspectés : le tunnel sert de canal de commande et contrôle (C2) ou d'exfiltration (:attack[T1048]). Il apparaît en général **après** une compromission : exécution d'un malware ou exploitation d'une vulnérabilité.
+Un tunnel encapsule des données dans un autre protocole. Les attaquants utilisent ICMP et DNS, protocoles de confiance du trafic quotidien, pour la commande et contrôle (C2) et l'exfiltration. Le tunnel apparaît en général **après** l'exécution d'un malware ou l'exploitation d'une vulnérabilité.
 
-- **ICMP** : les données voyagent dans la charge utile des paquets, par exemple des `echo request` et `echo reply` (ping).
-- **DNS** : l'attaquant contrôle un domaine. Le malware encode ses données dans des sous-domaines, `données-encodées.domaine-malveillant.com` ; le serveur DNS de l'attaquant reçoit la requête et renvoie les commandes dans la réponse (:attack[T1071.004]). Outils connus : dnscat2, dns2tcp.
+- **ICMP** : les données (TCP, HTTP, SSH…) voyagent dans la charge utile des paquets. Beaucoup de réseaux d'entreprise bloquent les paquets ICMP personnalisés, ou exigent des droits d'administrateur pour en créer.
+- **DNS** : l'attaquant configure un domaine comme serveur de C2. Le malware envoie des requêtes pour des sous-domaines qui sont en fait des commandes encodées, `encoded-commands.maliciousdomain.com` ; le serveur répond avec les commandes à exécuter. Outils connus : dnscat, dns2tcp.
 
 ## Ce qu'on observe
 
 | Indicateur | ICMP | DNS |
 | --- | --- | --- |
-| Volume | Beaucoup de paquets ICMP vers un même hôte. | Beaucoup de requêtes vers un même domaine, chacune avec un sous-domaine différent. |
-| Taille | Charge utile plus grande que celle d'un ping (32 octets sous Windows, 56 sous Linux). | Noms de domaine longs. |
-| Contenu | Traces d'un autre protocole dans la charge utile : en-têtes HTTP, bannière SSH. | Sous-domaines aléatoires ou encodés (Base32, Base64, hexadécimal), nom d'un outil comme `dnscat`. |
-| Destination | Un hôte externe inhabituel. | Un domaine inconnu, récent, qui ne sert aucun autre trafic. |
+| Volume | Beaucoup de trafic ICMP. | Volume anormal de requêtes vers une même cible. |
+| Taille | Paquets plus grands que la normale (64 octets). | Requêtes plus longues que la normale. |
+| Contenu | Traces d'un autre protocole dans la charge utile. | Sous-domaines longs, encodés, aux noms irréguliers ; motifs d'outils connus. |
+| Destination | Adresses de destination à vérifier. | Le domaine visé. |
 
-Aucun indicateur ne suffit seul : un attaquant peut garder des paquets ICMP de taille normale. C'est la répétition vers une même destination qui trahit le tunnel.
+Un attaquant peut garder des paquets ICMP à la taille normale de 64 octets : il faut savoir ce qui est normal sur le réseau pour repérer l'anomalie, et escalader pour analyse.
 
 ## Détection
 
@@ -37,39 +37,21 @@ Aucun indicateur ne suffit seul : un attaquant peut garder des paquets ICMP de t
 icmp
 ```
 
-```wireshark title="ICMP avec une charge utile anormalement grande"
-icmp && data.len > 64
+```wireshark title="ICMP avec une charge utile plus grande que la normale"
+data.len > 64 && icmp
 ```
 
 ```wireshark title="noms DNS longs, sans le trafic mDNS du réseau local"
 dns.qry.name.len > 15 && !mdns
 ```
 
-Le seuil de 15 caractères est un point de départ : l'ajuster à ce qui est normal sur le réseau étudié.
-
 ```wireshark title="traces de l'outil dnscat"
 dns contains "dnscat"
 ```
 
-```wireshark title="requêtes TXT, qui peuvent transporter des données"
-dns.qry.type == 16
-```
-
-:::astuce
-Ajouter `dns.qry.name` en colonne (clic droit › Apply as Column) puis trier : les centaines de sous-domaines d'un même domaine sautent aux yeux. Pour ICMP, Statistics › Conversations montre le volume échangé avec chaque hôte.
-:::
-
 ## Faux positifs
 
-:::faux-positifs
-- **Noms DNS longs légitimes** : CDN, services cloud, et certains antivirus ou services de réputation qui encodent leurs interrogations dans des sous-domaines.
-- **Gros paquets ICMP** : tests réseau (ping avec une taille choisie, recherche de MTU).
-- **Requêtes TXT** : vérifications de messagerie (SPF, DKIM) et de propriété de domaine.
-:::
-
-:::piege
-La longueur seule ne prouve rien : regarder **le domaine parent**. Un tunnel, c'est un même domaine interrogé avec des sous-domaines toujours différents, en grand nombre et souvent à intervalle régulier.
-:::
+À compléter.
 
 ## Réponse
 

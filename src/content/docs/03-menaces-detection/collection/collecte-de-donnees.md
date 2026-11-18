@@ -1,6 +1,6 @@
 ---
 title: "Collecte de données locales"
-description: "L'attaquant cherche sur la machine ce qui a de la valeur (documents, mots de passe, sessions, portefeuilles), le rassemble dans une archive et l'envoie vers un serveur qu'il contrôle."
+description: "L'attaquant cherche sur la machine ce qui a de la valeur (documents, sessions, portefeuilles, clés), le rassemble dans une archive et l'envoie vers un serveur qu'il contrôle."
 tags: [windows, sysmon, exfiltration, stealer]
 updated: 2026-11-18
 draft: false
@@ -9,7 +9,7 @@ attack_id: T1005
 tactic: collection
 severity: high
 platforms: [Windows]
-data_sources: [Sysmon, Historique PowerShell]
+data_sources: [Sysmon]
 related:
   - 03-menaces-detection/discovery/decouverte-du-systeme
   - 03-menaces-detection/command-and-control/tunnel-icmp-dns
@@ -19,76 +19,49 @@ related:
 
 Après la découverte vient le butin. Ce qui est visé dépend du but de l'attaquant :
 
-| But | Cibles | Exemples d'emplacement |
-| --- | --- | --- |
-| Chantage | Photos, conversations, historique de navigation | `AppData\Roaming\Signal\`, `AppData\Local\Google\Chrome\User Data\Default\History` |
-| Argent | Sessions web (cookies), mots de passe enregistrés :attack[T1555.003], portefeuilles de cryptomonnaie | `…\Chrome\User Data\Default\Cookies`, `…\Login Data`, `AppData\Roaming\Bitcoin\wallet.dat` |
-| Réseau de l'entreprise | Clés SSH, bases de données, documents internes | `C:\Users\<utilisateur>\.ssh\`, dossier `DATA` de SQL Server, `Desktop`, `Documents`, `Downloads` |
+| But | Cibles et emplacements |
+| --- | --- |
+| Chantage | Photos, conversations, historique de navigation : `C:\Users\<utilisateur>\AppData\Roaming\Signal\*`, `C:\Users\<utilisateur>\AppData\Local\Google\Chrome\User Data\Default\History` |
+| Argent | Sessions bancaires, portefeuilles de cryptomonnaie : `C:\Users\<utilisateur>\AppData\Roaming\Bitcoin\wallet.dat`, `C:\Users\<utilisateur>\AppData\Local\Google\Chrome\User Data\Default\Cookies` |
+| Entreprise | Clés SSH, bases de données : `C:\Users\<utilisateur>\.ssh\*`, `C:\Program Files\Microsoft SQL Server\...\DATA\*` |
+
+Les secrets peuvent aussi être dans le registre ou en mémoire.
 
 Deux façons de collecter :
 
-- **À la main** : un attaquant humain ouvre les fichiers intéressants, les copie dans un dossier de transit, les archive (:attack[T1560.001]). Typique d'une intrusion dans un réseau d'entreprise ; cela peut prendre des heures.
-- **Par un stealer** : un malware dédié, sur un poste personnel le plus souvent, qui ramasse tout en moins d'une minute (navigateurs, VPN, portefeuilles, Discord, Telegram, presse-papiers :attack[T1115], captures d'écran) avec son propre code, sans lancer de commande.
+- **À la main** : typique d'une intrusion dans un grand réseau, où l'attaquant connaît sa cible et peut passer des heures à chercher.
+- **Par un stealer** : un malware dédié, sur les postes personnels surtout, qui ramasse tout en moins d'une minute (VPN, portefeuilles, sessions de navigateur, Steam, Discord, Telegram, captures d'écran) avec son propre code, rarement avec CMD ou PowerShell. On sait alors plus difficilement ce qui a été volé.
 
-Puis vient l'**exfiltration** : l'envoi des données vers un serveur de l'attaquant, souvent un service de confiance pour passer inaperçu (Dropbox, Mega, Amazon S3, GitHub, Telegram :attack[T1567]) ou un domaine au nom rassurant comme `windows-updates.com`.
+Puis vient l'**exfiltration**, souvent vers un service de confiance pour passer inaperçu : Dropbox, Mega, Amazon S3, GitHub, Telegram, ou un domaine au nom rassurant comme `windows-updates.com`.
 
 ## Ce qu'on observe
 
 | Étape | Exemple de commande |
 | --- | --- |
-| Lire | `notepad.exe C:\Users\<utilisateur>\Desktop\finances-2025.csv` : ouvrir un fichier intéressant (aussi `wordpad.exe`). |
-| Fouiller | `type debug-logs.txt \| findstr password > C:\Temp\passwords.txt` : chercher des mots de passe dans un fichier. |
-| Chercher | `Get-ChildItem C:\Users\<utilisateur> -Recurse -Filter *.pdf` : lister un type de fichier dans tout le dossier utilisateur. |
-| Copier | `copy C:\Users\<utilisateur>\AppData\Roaming\Signal C:\Temp\` : rassembler dans un dossier de transit. |
-| Archiver | `Compress-Archive C:\Temp\ C:\Temp\stolen_data.zip`, ou avec 7-Zip `7za.exe a -tzip C:\Temp\stolen_data.zip C:\Temp\*.*`. |
-| Presse-papiers | `Get-Clipboard` : lire ce que l'utilisateur a copié. |
+| Lire | `notepad.exe C:\Users\<utilisateur>\Desktop\finances-2025.csv` (ou WordPad) |
+| Fouiller | `type debug-logs.txt \| findstr password > C:\Temp\passwords.txt` |
+| Chercher | `Get-ChildItem C:\Users\<utilisateur> -Recurse -Filter *.pdf` |
+| Copier | `copy C:\Users\<utilisateur>\AppData\Roaming\Signal C:\Temp\` |
+| Archiver | `Compress-Archive C:\Temp\ C:\Temp\stolen_data.zip` ou `7za.exe a -tzip C:\Temp\stolen_data.zip C:\Temp\*.*` |
 
-Dans les journaux :
-
-- **Sysmon 1** : `notepad.exe` ou `wordpad.exe` ouverts en série sur des documents sensibles, outils d'archivage, commandes ci-dessus.
-- **Sysmon 11** : un dossier de transit créé (`C:\Temp\…`, un nom aléatoire comme `staging_58f1`), des copies de documents dedans, puis une archive.
-- **Sysmon 3 et 22** : le processus qui a créé l'archive contacte un service de stockage ou un domaine inconnu.
-
-Un stealer lance peu ou pas de commandes : ce sont surtout ses fichiers créés (Sysmon 11) et ses connexions (Sysmon 3, 22) qui le trahissent. Sysmon ne journalise pas les lectures de fichiers : on voit ce qu'il a écrit et où il s'est connecté, rarement tout ce qu'il a lu.
+Une collecte manuelle se voit bien dans Sysmon 1 : Notepad et WordPad ouverts en série sur des documents sensibles, puis 7-Zip qui archive le tout.
 
 ## Détection
 
-### PowerShell sur les journaux Sysmon
+### Observateur d'événements
 
-Sur un fichier exporté, remplacer `LogName='Microsoft-Windows-Sysmon/Operational'` par `Path='C:\chemin\Sysmon.evtx'`.
-
-```powershell title="archives créées (Sysmon 11)"
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; Id=11} |
-  Where-Object { $_.Message -match '(?m)^TargetFilename: .*\.(zip|7z|rar)\s*$' } |
-  Select-Object TimeCreated, Message
-```
-
-```powershell title="commandes de collecte et d'archivage (Sysmon 1)"
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; Id=1} |
-  Where-Object { $_.Message -match '(?m)^CommandLine: .*(Compress-Archive|7za?\.exe|rar\.exe|Get-Clipboard|findstr .*pass|-Recurse .*-Filter)' } |
-  Select-Object TimeCreated, Message
-```
-
-```powershell title="requêtes DNS vers des services de stockage ou de messagerie (Sysmon 22)"
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; Id=22} |
-  Where-Object { $_.Message -match '(?m)^QueryName: .*(dropbox|mega\.nz|amazonaws\.com|github|telegram)' } |
-  Select-Object TimeCreated, Message
-```
-
-Pour chaque résultat, regarder **quel processus** fait la requête : un navigateur vers Dropbox est banal, un exécutable de `Downloads` ou `powershell.exe` beaucoup moins.
+:::etapes
+1. **Trouver les lectures et l'archivage**
+   Journal Sysmon, Filter Current Log sur `1` : éditeurs ouverts sur des fichiers sensibles, commandes de recherche, outils d'archivage.
+2. **Trouver le dossier de transit**
+   Filtre sur `11` : le dossier créé pour rassembler les fichiers, les copies, puis l'archive.
+3. **Trouver l'exfiltration**
+   Find sur le `ProcessId` du processus qui a créé l'archive (ou du stealer) : ses requêtes DNS (22) et connexions (3).
+:::
 
 ## Faux positifs
 
-:::faux-positifs
-- **Archives légitimes** : sauvegardes, envoi d'un dossier à un collègue, outils de déploiement.
-- **Services de stockage en ligne** utilisés par l'entreprise ou synchronisés par leur client officiel.
-- **Utilisateur qui ouvre ses propres documents** dans le Bloc-notes : c'est la série, le moment et la session qui alertent.
-:::
-
-:::piege
-- **Le volume trompe** : une collecte manuelle s'étale sur des heures, un stealer tient en une minute. Ne pas chercher seulement des rafales.
-- **Une exfiltration vers un service connu ressemble à du trafic normal** : c'est le processus source et le moment, juste après la création d'une archive, qui la trahissent.
-:::
+À compléter.
 
 ## Réponse
 

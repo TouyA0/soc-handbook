@@ -145,18 +145,24 @@
   white-space: nowrap;
 }
 
-/* Le tableau doit tenir dans la largeur : les colonnes après la première peuvent couper un mot trop long
-   (chemin, commande sans espace), à toutes les largeurs. `anywhere` et non `break-word`, car seul `anywhere`
-   réduit la largeur minimale d'une colonne ; jamais sur la première, qui s'écraserait. */
-.prose td:not(:first-child),
-.prose th:not(:first-child) {
+/* Le tableau doit tenir dans la largeur : une colonne peut couper un mot trop long (chemin, commande sans espace).
+   `anywhere` et non `break-word`, car seul `anywhere` réduit la largeur minimale d'une colonne ; jamais sur la
+   première, qui s'écraserait. Sur grand écran, seulement la dernière colonne (la plus longue, en général) :
+   appliqué aux colonnes du milieu, il les laisse s'écraser et couper un nom court lettre par lettre. */
+.prose td:last-child:not(:first-child),
+.prose th:last-child:not(:first-child) {
   overflow-wrap: anywhere;
 }
 
-/* Sur écran moyen, la première colonne revient en plus à la ligne entre les mots. */
+/* Sur écran moyen, toutes les colonnes après la première, et la première revient à la ligne entre les mots. */
 @media (max-width: 859px) {
   .prose tbody td:first-child {
     white-space: normal;
+  }
+
+  .prose td:not(:first-child),
+  .prose th:not(:first-child) {
+    overflow-wrap: anywhere;
   }
 }
 

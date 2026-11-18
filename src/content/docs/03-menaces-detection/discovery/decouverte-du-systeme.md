@@ -17,36 +17,37 @@ related:
 
 ## Description
 
-Un attaquant qui vient d'entrer ne connaît pas la machine. Avant d'aller plus loin, il cherche à savoir qui l'utilise, avec quels droits, à quoi elle sert, si elle appartient à un réseau d'entreprise et quelle protection la surveille. Un malware de phishing le fait souvent tout seul dès son lancement, et peut même s'effacer si la victime ne l'intéresse pas ou si un antivirus précis est présent. Ensuite, l'attaquant humain complète à la main.
+Un attaquant qui vient d'entrer ne connaît pas la machine. Un malware de phishing lance souvent tout seul ses commandes de découverte, et peut même s'effacer si un antivirus précis est présent ou si la victime n'est pas de l'entreprise ou du pays visé. Ensuite, l'attaquant humain complète à la main.
 
-| Cible | Commandes courantes |
-| --- | --- |
-| Comptes | Qui utilise la machine, avec quels droits : `whoami`, `whoami /priv`, `net user`, `net localgroup`, `query user`, `Get-LocalUser`. :attack[T1087] |
-| Système | À quoi sert la machine, quelles failles, quelles applications : `systeminfo`, `tasklist /v`, `wmic product get name,version`, `Get-Service`. :attack[T1082] |
-| Réseau | Si la machine appartient à un réseau d'entreprise : `ipconfig /all`, `netstat -ano`, `netsh advfirewall show allprofiles`. :attack[T1016] |
-| Fichiers | Le métier et les intérêts de la victime : `dir`, `type`, `Get-ChildItem`, `Get-Content`. :attack[T1083] |
-| Protection | Le risque de se faire bloquer : `Get-MpPreference`, `tasklist /v \| findstr MsSense.exe`, requête WMI sur `root\SecurityCenter2` (`AntivirusProduct`). :attack[T1518.001] |
+| Cible | Pourquoi | Commandes courantes |
+| --- | --- | --- |
+| Fichiers | Le rôle de la machine, le métier et les intérêts de la victime. | `type`, `Get-Content`, `dir`, `Get-ChildItem` |
+| Comptes | Qui utilise la machine, avec quels droits. | `whoami`, `net user`, `net localgroup`, `query user`, `Get-LocalUser` |
+| Système | Failles, applications où voler des données. | `tasklist /v`, `systeminfo`, `wmic product get name,version`, `Get-Service` |
+| Réseau | Si la machine appartient à un réseau d'entreprise. | `ipconfig /all`, `netstat -ano`, `netsh advfirewall show allprofiles` |
+| Antivirus | Le risque de se faire bloquer. | `Get-WmiObject -Namespace "root\SecurityCenter2" -Query "SELECT * FROM AntivirusProduct"`, `Get-MpPreference` |
 
 ## Ce qu'on observe
 
-Le signe, c'est **une rafale** de ces commandes en quelques secondes ou minutes, lancées par un **même parent** inattendu. Chaque commande CMD est un nouveau processus, donc un événement Sysmon 1 :
+Le signe, c'est **une suite** de ces commandes en peu de temps. Chaque commande CMD est un nouveau processus, donc un événement Sysmon 1 :
 
 ```text title="commandes de découverte lancées par une pièce jointe"
 C:\Users\victim\Downloads\invoice.pdf.exe
-├── cmd.exe
+├── C:\Windows\System32\cmd.exe
 │   ├── ipconfig
 │   ├── whoami /priv
+│   ├── dir
 │   ├── net user
 │   ├── tasklist /v
 │   └── wmic computersystem get model
-└── powershell.exe
+└── C:\Windows\...\powershell.exe
     ├── Get-Service
     └── Get-MpPreference
 ```
 
-Les cmdlets PowerShell (`Get-Service`, `Get-MpPreference`) ne créent pas de nouveau processus : Sysmon ne voit que `powershell.exe`. Elles se lisent dans l'[historique PowerShell](../../01-fondamentaux/journaux-windows.md#historique-powershell).
+Les commandes PowerShell ne créent pas de nouveau processus : elles se lisent dans l'[historique PowerShell](../../01-fondamentaux/journaux-windows.md#historique-powershell).
 
-Après une intrusion par le bureau à distance, l'attaquant a l'interface graphique : moins de `whoami`, mais des outils d'administration lancés par `explorer.exe`.
+Après une intrusion par RDP, l'attaquant a l'interface graphique : moins de `whoami` (même s'il les tape souvent par habitude), mais des outils d'administration lancés par `explorer.exe`.
 
 ```text title="découverte par l'interface graphique"
 C:\Windows\System32\explorer.exe
@@ -60,32 +61,21 @@ C:\Windows\System32\explorer.exe
 
 ## Détection
 
-### PowerShell sur les journaux Sysmon
+### Observateur d'événements
 
-```powershell title="commandes de découverte, avec leur parent, dans l'ordre (Sysmon 1)"
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; Id=1} |
-  ForEach-Object {
-    $d = @{}; ([xml]$_.ToXml()).Event.EventData.Data | ForEach-Object { $d[$_.Name] = $_.'#text' }
-    [pscustomobject]@{ Heure = $_.TimeCreated; Image = $d.Image; Commande = $d.CommandLine; Parent = $d.ParentImage; ParentPID = $d.ParentProcessId }
-  } |
-  Where-Object { $_.Image -match '\\(whoami|net1?|ipconfig|systeminfo|tasklist|netstat|quser|query|wmic|netsh|nltest)\.exe$' } |
-  Sort-Object Heure
-```
-
-Sur un fichier exporté, remplacer `LogName='Microsoft-Windows-Sysmon/Operational'` par `Path='C:\chemin\Sysmon.evtx'`. `net user` crée deux événements : `net.exe`, puis `net1.exe` qu'il lance.
-
-Une fois la rafale trouvée, remonter le parent (`ParentPID`) jusqu'à l'origine, puis chercher ses connexions réseau (Sysmon 3 et 22) : le malware envoie souvent le résultat de sa découverte à son serveur. Méthode : [analyser un processus](../../01-fondamentaux/journaux-windows.md#analyser-un-processus).
+:::etapes
+1. **Trouver les commandes**
+   Journal Sysmon, Filter Current Log sur `1` : une suite de commandes de découverte en peu de temps.
+2. **Trouver d'où elles viennent**
+   Construire l'arbre des processus : chercher l'événement 1 dont le `ProcessId` est le `ParentProcessId` de la commande, et remonter jusqu'à l'origine.
+3. **Trouver où partent les résultats**
+   Les connexions (3) et requêtes DNS (22) du processus d'origine : le malware envoie souvent ce qu'il a découvert à son serveur.
+:::
 
 ## Faux positifs
 
 :::faux-positifs
-- **Service informatique et support** : `ipconfig`, `whoami` ou `systeminfo` tapés par un technicien, depuis une console qu'il a ouverte lui-même.
-- **Outils d'inventaire, de supervision ou d'EDR** qui lancent ces commandes à intervalle régulier, toujours depuis le même parent connu.
-- **Scripts de connexion** lancés à l'ouverture de session.
-:::
-
-:::piege
-Une commande seule ne dit rien : c'est **qui la lance** qui compte. Un `whoami` dont le parent est un technicien dans `cmd.exe` est banal ; le même `whoami` lancé par `invoice.pdf.exe` dans `Downloads` est une alerte.
+- **Service informatique et outils légitimes** : `ipconfig` et les autres commandes sont courants dans leur travail. C'est d'où vient la commande qui compte, pas la commande elle-même.
 :::
 
 ## Réponse

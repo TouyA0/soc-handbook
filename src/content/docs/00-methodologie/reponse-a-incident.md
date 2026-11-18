@@ -1,91 +1,57 @@
 ---
 title: "Réponse à incident"
-description: "De l'alerte à l'incident, les grands types d'incidents, les cadres SANS (PICERL) et NIST, le plan de réponse, les playbooks et les runbooks."
+description: "Types d'incidents, cadres SANS (PICERL) et NIST, plan de réponse, playbooks et runbooks."
 tags: [réponse-à-incident, sans, nist, playbook, soc-l1]
-updated: 2026-11-12
+updated: 2026-11-18
 draft: false
 order: 4
 ---
 
-Quand le [triage](triage-des-alertes.md#clôture) conclut à un vrai positif, l'alerte devient un **incident** : il ne s'agit plus seulement de qualifier une activité, mais d'y répondre de façon structurée.
-
-Chaque incident reçoit une **sévérité** (faible, moyenne, haute, critique) selon l'impact qu'il peut avoir. Comme pour les alertes, on traite d'abord les incidents critiques, puis les hauts, les moyens et enfin les faibles.
+Un vrai positif confirmé par le [triage](triage-des-alertes.md) devient un **incident**. Chaque incident reçoit une sévérité (faible, moyenne, haute, critique) selon son impact possible, et les critiques passent en premier.
 
 ## Types d'incidents
 
-« Piratage » est trop vague. On distingue plusieurs types d'incidents, qui peuvent survenir seuls ou ensemble chez une même victime :
-
 | Type | Ce que c'est |
 | --- | --- |
-| Infection malware | Programme malveillant qui endommage un système, un réseau ou une application. La majorité des incidents. Arrive le plus souvent par un fichier : texte, document, exécutable… |
-| Accès non autorisé | *Security breach* : une personne non autorisée accède à des données confidentielles, réservées au personnel habilité. |
-| Fuite de données | Des informations confidentielles d'une personne ou d'une organisation sont exposées à des tiers. Souvent exploitée pour nuire à la réputation ou faire chanter la victime. Contrairement à l'accès non autorisé, elle peut être **involontaire** : erreur humaine, mauvaise configuration. |
-| Menace interne | Attaque lancée volontairement par quelqu'un de l'organisation, par exemple un employé mécontent qui infecte le réseau avec une clé USB le jour de son départ. Dangereuse : un interne a plus d'accès qu'un attaquant extérieur. |
-| Déni de service | DoS : l'attaquant inonde un système, un réseau ou une application de fausses requêtes jusqu'à épuiser ses ressources et le rendre indisponible pour les utilisateurs légitimes. Vise la **disponibilité**, un des trois piliers de la sécurité. |
+| Malware | Programme malveillant, arrivé le plus souvent par un fichier. La majorité des incidents. |
+| Accès non autorisé | *Security breach* : quelqu'un accède à des données confidentielles sans y être autorisé. |
+| Fuite de données | Données confidentielles exposées à des tiers. Peut être **involontaire** (erreur humaine, mauvaise configuration). |
+| Menace interne | Attaque lancée par quelqu'un de l'organisation, qui a plus d'accès qu'un attaquant extérieur. |
+| Déni de service | Ressources saturées de fausses requêtes jusqu'à l'indisponibilité. |
 
-On ne peut pas classer ces types par gravité dans l'absolu : l'impact dépend de l'organisation. Une entreprise dont les données n'intéressent personne souffrira peu d'une fuite, mais beaucoup d'un déni de service sur le site web dont dépend toute son activité.
+Plusieurs types peuvent toucher la même victime, et leur gravité dépend de l'organisation : une fuite peut être anodine pour l'une, un déni de service fatal pour une autre.
 
-## Cadres de réponse : SANS et NIST
+## Cadres SANS et NIST
 
-Pour répondre à des incidents très différents avec la même rigueur, on s'appuie sur un cadre générique. Les deux plus utilisés viennent du SANS (formations et certifications) et du NIST (normes et guides), et se ressemblent beaucoup.
-
-### SANS : PICERL
-
-Six phases, dont les initiales donnent **PICERL** :
-
-| Phase | Ce qu'on y fait | Exemple |
-| --- | --- | --- |
-| Preparation | Réunir les moyens de traiter un incident : équipe de réponse, plan de réponse, solutions de sécurité déployées. | Sensibiliser les employés aux emails de phishing. |
-| Identification | Chercher les comportements anormaux qui peuvent signaler un incident, avec les outils de surveillance : SIEM, antivirus, EDR. | Un gros volume de données sort d'un hôte ; l'analyse montre qu'il a été compromis par une pièce jointe de phishing. |
-| Containment | Confinement : limiter l'impact, en isolant la machine touchée ou en désactivant les comptes compromis. Un EDR peut le faire directement. | L'hôte est isolé du réseau pour empêcher l'attaquant de rebondir vers d'autres systèmes. |
-| Eradication | Supprimer la menace de l'environnement et s'assurer qu'il est sain avant de passer à la suite. | Analyse antimalware approfondie pour retirer le logiciel malveillant. |
-| Recovery | Restaurer les systèmes touchés depuis une sauvegarde ou les reconstruire, puis les tester avant de les remettre en service. | L'hôte est reconfiguré et les données exfiltrées sont restaurées depuis la sauvegarde. |
-| Lessons Learned | Retour d'expérience : identifier et documenter les manques de la détection et de l'analyse pour améliorer le processus. | Réunion post-incident sur la cause racine et les mesures pour éviter que ça se reproduise. |
-
-### NIST : quatre phases
-
-Le cadre du NIST (SP 800-61 rév. 2) reprend les mêmes étapes en quatre phases :
-
-| SANS | NIST |
-| --- | --- |
-| Preparation | Preparation |
-| Identification | Detection & Analysis |
-| Containment, Eradication, Recovery | Containment, Eradication & Recovery |
-| Lessons Learned | Post-Incident Activity |
-
-:::piege
-Ne pas présenter ce cycle comme la version actuelle : la révision 3 du SP 800-61, publiée en 2024, l'abandonne et organise la réponse à incident selon les fonctions du NIST Cybersecurity Framework 2.0. Le cycle de la rév. 2 reste le plus cité en formation.
-:::
+| SANS (PICERL) | Ce qu'on y fait | Exemple | NIST |
+| --- | --- | --- | --- |
+| Preparation | Équipe, plan de réponse, outils de sécurité en place. | Sensibiliser les employés au phishing. | Preparation |
+| Identification | Repérer les comportements anormaux avec les outils de surveillance (SIEM, antivirus, EDR). | Gros volume de données sortant d'un hôte compromis par une pièce jointe. | Detection & Analysis |
+| Containment | Limiter l'impact : isoler la machine, désactiver les comptes compromis. Un EDR peut le faire. | Isoler l'hôte pour que l'attaquant ne rebondisse pas. | Containment, Eradication & Recovery |
+| Eradication | Supprimer la menace, s'assurer que l'environnement est sain. | Analyse antimalware approfondie. | Containment, Eradication & Recovery |
+| Recovery | Restaurer ou reconstruire les systèmes, les tester avant remise en service. | Reconfigurer l'hôte, restaurer les données depuis la sauvegarde. | Containment, Eradication & Recovery |
+| Lessons Learned | Documenter les manques de la détection et de l'analyse. | Réunion post-incident sur la cause racine. | Post-Incident Activity |
 
 ## Plan de réponse à incident
 
-Chaque organisation tire de ces cadres son propre processus, décrit dans un document formel : l'*Incident Response Plan*. Validé par la direction, il fixe les procédures à suivre avant, pendant et après un incident. Il contient au moins :
-
-- les rôles et responsabilités ;
-- la méthodologie de réponse ;
-- le plan de communication avec les parties prenantes, forces de l'ordre comprises ;
-- le circuit d'[escalade](rapport-et-escalade.md) à suivre.
+Document formel validé par la direction (*Incident Response Plan*), qui fixe les procédures avant, pendant et après un incident : rôles et responsabilités, méthodologie, plan de communication (forces de l'ordre comprises), circuit d'[escalade](rapport-et-escalade.md).
 
 ## Playbooks et runbooks
 
-Une fois l'incident identifié, il faut mesurer l'étendue de l'attaque, empêcher qu'elle s'aggrave et l'éliminer à la racine. Les étapes changent selon le type d'incident : des instructions écrites à l'avance font gagner beaucoup de temps.
+- **Playbook** : les lignes directrices de la réponse à un type d'incident.
+- **Runbook** : l'exécution détaillée, pas à pas, d'une étape précise.
 
-| Document | Ce qu'il contient |
-| --- | --- |
-| Playbook | Les lignes directrices d'une réponse complète à un type d'incident. |
-| Runbook | L'exécution détaillée, pas à pas, d'une étape précise ; varie selon les moyens disponibles pour l'investigation. |
-
-Exemple de playbook pour un email de phishing :
+Exemple de playbook, email de phishing :
 
 :::etapes
 1. **Prévenir**
-   Informer toutes les parties prenantes de l'incident.
+   Informer les parties prenantes.
 2. **Qualifier l'email**
-   Analyser les en-têtes et le corps pour déterminer s'il est malveillant.
+   Analyser les en-têtes et le corps.
 3. **Analyser les pièces jointes**
-   Rechercher les pièces jointes et les analyser.
+   Les rechercher et les analyser.
 4. **Mesurer l'exposition**
-   Déterminer si quelqu'un a ouvert les pièces jointes.
+   Quelqu'un a-t-il ouvert les pièces jointes ?
 5. **Isoler**
    Couper du réseau les systèmes infectés.
 6. **Bloquer**

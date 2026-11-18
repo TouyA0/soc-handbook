@@ -33,7 +33,7 @@ Dans les journaux ou dans une capture réseau, les signes à chercher sont :
 - **Plusieurs MAC de destination pour l'IP de la passerelle**.
 - **Des boucles de requêtes** du type `Who has 192.168.1.x? Tell 192.168.1.y`, répétées en grand nombre.
 
-Au fil de l'enquête, tenir une table **IP ↔ MAC** : passerelle, victimes, et la MAC qui revendique plusieurs IP. Le scénario typique se lit dans cet ordre : une MAC annonce sa propre IP, balaie le réseau par une rafale de requêtes vers toute une plage d'adresses, puis se déclare propriétaire de l'IP de la passerelle.
+Au fil de l'enquête, noter ses constats dans une table **IP ↔ MAC** : passerelle, victime, et la MAC qui revendique plusieurs IP. Dans le scénario étudié, une MAC annonce sa propre IP, envoie une rafale de requêtes vers toute une plage d'adresses, puis se déclare propriétaire de l'IP de la passerelle.
 
 **Réseau :** au niveau IP, le trafic de la victime paraît normal. C'est au niveau Ethernet que l'attaque se voit : ajouter `eth.src` et `eth.dst` en colonnes (clic droit › Apply as Column) montre des paquets HTTP adressés à une IP légitime, mais envoyés à la MAC de l'attaquant.
 
@@ -91,12 +91,6 @@ Ce filtre confirme qu'une même IP est associée à deux adresses MAC : l'attaqu
 arp.opcode == 1 && arp.src.hw_mac == 11:22:33:44:55:66
 ```
 
-```wireshark title="trafic IP envoyé à la MAC suspecte sans lui être destiné : l'interception"
-eth.dst == 11:22:33:44:55:66 && !(ip.dst == 192.168.1.25)
-```
-
-Dans ce dernier filtre, `192.168.1.25` est l'IP propre de l'attaquant : tout ce qui reste est du trafic d'autres machines qui transite par lui.
-
 :::astuce
 `Ctrl + Alt + 1` affiche la date et l'heure réelles de chaque paquet au lieu du temps écoulé depuis le début de la capture : utile pour mesurer la fréquence des réponses.
 :::
@@ -111,11 +105,7 @@ En cas de conflit, Analyze › Expert Information signale l'IP en double, mais s
 
 ## Faux positifs
 
-:::faux-positifs
-- **Annonces ARP gratuites légitimes** : une machine qui démarre, change d'IP ou réactive sa carte réseau annonce son adresse.
-- **Haute disponibilité** : avec VRRP, HSRP ou CARP, l'IP virtuelle de la passerelle passe d'un équipement à l'autre, donc d'une MAC à l'autre.
-- **Conflit d'adresses** : deux machines configurées avec la même IP, par erreur.
-:::
+À compléter.
 
 ## Réponse
 
