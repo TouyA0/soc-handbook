@@ -102,7 +102,7 @@ type=SYSCALL msg=audit(08/12/25 12:48:19.093:2219) : arch=x86_64 syscall=execve 
 | `key` | La clé de la règle qui a déclenché l'événement. |
 | `syscall` | L'appel système : `execve` pour un lancement, `openat` pour l'ouverture d'un fichier (avec une ligne `PATH` qui donne le fichier). |
 
-Un événement peut aussi être dans le journal sans clé dédiée : chercher alors dans `ausearch -i` avec `grep`.
+Un événement peut aussi être dans le journal sans clé dédiée : chercher alors dans `ausearch -i` avec `grep`. Pour un journal récupéré dans un fichier : `ausearch -i -if /chemin/audit.log`.
 
 Autres outils sur le même principe, plus faciles à envoyer dans un SIEM : Sysmon for Linux, Falco (conteneurs), Osquery, et la plupart des EDR.
 
