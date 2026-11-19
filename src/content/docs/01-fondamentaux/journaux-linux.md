@@ -104,6 +104,17 @@ type=SYSCALL msg=audit(08/12/25 12:48:19.093:2219) : arch=x86_64 syscall=execve 
 
 Un événement peut aussi être dans le journal sans clé dédiée : chercher alors dans `ausearch -i` avec `grep`. Pour un journal récupéré dans un fichier : `ausearch -i -if /chemin/audit.log`.
 
+| Option | Filtre |
+| --- | --- |
+| `-k` | Par clé de règle : `ausearch -i -k proc_wget`. |
+| `-x` | Par programme lancé : `ausearch -i -x whoami`. |
+| `-f` | Par fichier ou dossier touché : `ausearch -i -f /etc/systemd`. |
+| `--pid`, `--ppid` | Par processus, ou par parent : pour l'arbre des processus. |
+
+:::piege
+Une commande intégrée au shell, comme `echo`, ne crée pas de processus : `echo [clé] >> ~/.ssh/authorized_keys` n'apparaît que sous le nom `bash`. Surveiller les fichiers sensibles (`-f`) plutôt que les seules créations de processus.
+:::
+
 Autres outils sur le même principe, plus faciles à envoyer dans un SIEM : Sysmon for Linux, Falco (conteneurs), Osquery, et la plupart des EDR.
 
 ## Remonter l'arbre des processus

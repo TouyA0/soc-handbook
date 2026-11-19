@@ -2,7 +2,7 @@
 title: "Web shell"
 description: "L'attaquant dépose sur un serveur web un script qui lui permet d'exécuter des commandes à distance, pour entrer ou pour garder l'accès."
 tags: [web, apache, nginx, php, auditd, wireshark]
-updated: 2026-11-18
+updated: 2026-11-19
 draft: false
 type: technique
 attack_id: T1505.003
@@ -111,6 +111,7 @@ http.user_agent
 - **Ne pas s'arrêter au premier shell trouvé** : les attaquants en déposent souvent un second, de secours, dans les minutes qui suivent.
 - **Chercher aussi les fichiers modifiés**, pas seulement les nouveaux : un shell peut être injecté dans un fichier légitime existant.
 - **Le disque ne montre pas tout** : WordPress ou Django stockent le contenu en base de données ; un code injecté dans un article, un thème ou un réglage échappe à `find` et `grep`.
+- **Une persistance dans l'application échappe aux journaux système** : un web shell déposé par un compte d'administration du site n'a besoin ni de tâche cron ni de clé SSH, et auditd ne le voit souvent pas. Si un malware revient alors que toutes les persistances connues ont été vérifiées, penser à une application exposée compromise.
 :::
 
 ## Réponse

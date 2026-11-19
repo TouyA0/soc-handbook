@@ -13,6 +13,7 @@ data_sources: [Journal Security, Sysmon]
 related:
   - 03-menaces-detection/persistence/service-windows
   - 03-menaces-detection/persistence/cles-run-et-demarrage
+  - 03-menaces-detection/persistence/tache-cron
 ---
 
 ## Description

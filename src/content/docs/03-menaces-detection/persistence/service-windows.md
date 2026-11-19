@@ -13,6 +13,7 @@ data_sources: [Journal Security, Journal System, Sysmon]
 related:
   - 03-menaces-detection/persistence/tache-planifiee
   - 03-menaces-detection/persistence/cles-run-et-demarrage
+  - 03-menaces-detection/persistence/service-systemd
 ---
 
 ## Description
