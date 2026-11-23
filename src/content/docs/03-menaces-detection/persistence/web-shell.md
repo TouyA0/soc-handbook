@@ -51,6 +51,8 @@ Sur la durée, depuis une même IP et un même User-Agent :
 
 Autres méthodes à surveiller : `DELETE` pour effacer ses traces, `OPTIONS` et `HEAD` pour la reconnaissance.
 
+Sur WordPress, un enchaînement typique : une force brute sur `/wp-login.php` (User-Agent `Mozilla/5.0 (Hydra)`), puis un `POST` vers `admin-ajax.php` dont le referer est `theme-editor.php?file=b374k.php`. L'éditeur de thème ne devrait pas pointer vers un `.php` arbitraire : le web shell a été déposé ou modifié par là. Les attaquants gardent souvent le nom des web shells connus : une recherche en ligne du nom (`b374k.php web shell`) confirme vite. Requêtes : [Splunk](../../02-outils/splunk-requetes.md#web).
+
 ### Fichiers sur le serveur
 
 | Où chercher | Pourquoi |

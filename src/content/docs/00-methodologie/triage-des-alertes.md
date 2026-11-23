@@ -2,7 +2,7 @@
 title: "Triage des alertes"
 description: "Lire une alerte, choisir laquelle traiter en premier et la mener jusqu'au verdict."
 tags: [alertes, triage, siem, soc-l1]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 order: 1
 ---
@@ -46,16 +46,27 @@ Le triage (on dit aussi *alert handling*, *investigation*, *analysis*) consiste 
 1. **Prendre en charge**
    S'assigner l'alerte, la passer « en cours », lire son nom, sa description et ses indicateurs.
 2. **Qui est visé**
-   L'utilisateur, l'hôte, le compte cloud, le réseau ou le site concerné : voir le [contexte](contexte-et-workbooks.md).
+   L'utilisateur, l'hôte, le compte cloud, le réseau ou le site concerné : voir le [contexte](contexte-et-workbooks.md) et le tableau ci-dessous, **avant** d'ouvrir le SIEM.
 3. **Quelle action**
    Ce que décrit l'alerte : connexion suspecte, malware, phishing…
 4. **Ce qui s'est passé autour**
-   Les événements juste avant et juste après l'alerte.
+   Les événements juste avant et juste après l'alerte. Ne pas filtrer tout de suite sur la machine : vérifier d'abord si l'activité touche une seule machine ou plusieurs.
 5. **Vérifier ses hypothèses**
    Threat intelligence et autres ressources disponibles. S'il existe un [workbook](contexte-et-workbooks.md#workbooks) pour ce type d'alerte, le suivre.
 6. **Conclure**
-   Verdict vrai ou faux positif, commentaire qui explique l'analyse et justifie le verdict ([rapport](rapport-et-escalade.md) selon l'équipe et la sévérité), puis clôture ou [escalade](rapport-et-escalade.md#quand-escalader).
+   Verdict vrai ou faux positif, commentaire qui explique l'analyse et justifie le verdict ([rapport](rapport-et-escalade.md) selon l'équipe et la sévérité), puis clôture ou [escalade](rapport-et-escalade.md#quand-escalader). En escaladant, noter les questions restées ouvertes pour le L2 : comment l'attaquant est entré, comment il a obtenu le compte, ce qu'il a fait ensuite.
 :::
+
+Ce que disent les champs de l'alerte, avant toute recherche :
+
+| Champ | Ce qu'on en tire |
+| --- | --- |
+| Hôte | Serveur ou poste ? Inventaire des actifs, sinon la convention de nommage : `SRV`, `WEB`, `MSQL` pour un serveur, `WIN`, `HOST` pour un poste. |
+| Utilisateur | Son rôle (tableau des identités) : créer une tâche planifiée est normal pour l'informatique, étrange pour les RH. Son lieu et ses horaires de travail. |
+| IP source | Interne : si c'est un attaquant, il est déjà dans le réseau (VPN compromis…). Externe : réputation dans la [threat intelligence](../05-threat-intel/ip-et-domaines.md), AbuseIPDB par exemple. |
+| Heure | Pendant ou hors des heures de travail. |
+
+Exemples de triage complet dans Splunk (force brute SSH, tâche planifiée, web shell) : [requêtes d'investigation](../02-outils/splunk-requetes.md).
 
 | Verdict | Exemple |
 | --- | --- |

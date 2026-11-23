@@ -37,7 +37,7 @@ Signaux d'alerte :
 - **Un nom de machine source hors du modèle de l'entreprise** : `kali` au lieu de `THM-PC-06`.
 - **Une IP source inattendue** : IP externe, ou une imprimante qui se connecte à un serveur.
 
-**Linux (SSH) :** les tentatives sont dans `/var/log/auth.log`, une ligne par essai, avec le compte et l'IP source. Une compromission se lit comme une série de `Failed`, puis un `Accepted password` depuis une IP externe non fiable.
+**Linux (SSH) :** les tentatives sont dans `/var/log/auth.log`, une ligne par essai, avec le compte et l'IP source. Une compromission se lit comme une série de `Failed`, puis un `Accepted password` depuis une IP externe non fiable. Des lignes `Invalid user` (comptes qui n'existent pas) signalent une énumération des comptes avant la force brute. Si l'IP source est **interne**, l'attaquant est déjà dans le réseau : comment y est-il entré, et depuis quand ? Requêtes : [Splunk](../../02-outils/splunk-requetes.md#linux).
 
 ```text title="échecs SSH sur des comptes courants, depuis des IP externes"
 2025-08-07T11:21:25 thm-vm sshd[3139]: Failed password for root from 222.124.17.227 port 50293 ssh2

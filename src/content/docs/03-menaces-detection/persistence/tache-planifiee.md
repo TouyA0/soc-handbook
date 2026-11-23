@@ -32,6 +32,8 @@ Les noms choisis paraissent anodins (`WindowsUpdate`, `Maintenance`). Autres var
 | --- | --- |
 | 4698 | **Tâche planifiée créée (Security)**<br>Le nom de la tâche et sa définition : programme lancé, déclencheur. |
 
+Dans le 4698, le champ `Message` contient la définition de la tâche : **Triggers** (quand elle se lance ; tous les jours à la même heure sur un poste de travail, c'est inhabituel), **Exec** (ce qu'elle lance ; par exemple certutil qui télécharge un exécutable dans `Temp`, puis PowerShell qui le démarre), **Principals** (sous quel compte). Le rôle de l'utilisateur compte aussi : une tâche créée par l'informatique est normale, par les RH beaucoup moins.
+
 Trois façons de la repérer :
 
 - **Sysmon 1** : `schtasks.exe` lancé avec `/create`.

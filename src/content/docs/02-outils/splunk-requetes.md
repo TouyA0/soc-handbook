@@ -54,6 +54,13 @@ index=winenv EventCode=7045 OR EventCode=7036 ComputerName=WINHOST05
 
 Un service qui lance un exécutable depuis `Temp` sous le compte SYSTEM, alors que l'attaquant n'avait qu'un compte utilisateur : probable élévation de privilèges.
 
+```spl title="Security : création d'une tâche planifiée, par son nom"
+index="win-alert" EventCode=4698 AssessmentTaskOne
+| table _time EventCode user_name host Task_Name Message
+```
+
+Sans filtre sur la machine, pour voir si la tâche existe ailleurs. Lire le champ `Message` section par section : **Triggers** (quand : tous les jours à la même heure sur un poste, c'est inhabituel), **Exec** (ce qui est lancé : par exemple certutil qui télécharge un exécutable dans `Temp`, puis PowerShell qui le démarre), **Principals** (sous quel compte). Voir [Tâche planifiée](../03-menaces-detection/persistence/tache-planifiee.md).
+
 ## Linux
 
 Les deux sources principales : `auth.log` (connexions, `sudo`) et `syslog` (services, redémarrages, cron). Voir [Journaux Linux](../01-fondamentaux/journaux-linux.md).
@@ -64,6 +71,24 @@ index=linux source="auth.log" *ubuntu* process=sshd
 ```
 
 Beaucoup de `Failed password` puis des `Accepted password` : une force brute réussie, à escalader.
+
+```spl title="auth.log : toutes les tentatives d'une IP, y compris sur des comptes inexistants"
+index="linux-alert" sourcetype="linux_secure" 10.10.242.248
+| search "Accepted password for" OR "Failed password for" OR "Invalid user"
+| sort + _time
+```
+
+`Invalid user` : des essais sur des comptes qui n'existent pas, signe d'une énumération des comptes avant la force brute.
+
+```spl title="auth.log : nombre de tentatives et résultat, par compte visé"
+index="linux-alert" sourcetype="linux_secure" 10.10.242.248
+| rex field=_raw "^\d{4}-\d{2}-\d{2}T[^\s]+\s+(?<log_hostname>\S+)"
+| rex field=_raw "sshd\[\d+\]:\s*(?<action>Failed|Accepted)\s+\S+\s+for(?: invalid user)? (?<username>\S+) from (?<src_ip>\d{1,3}(?:\.\d{1,3}){3})"
+| eval process="sshd"
+| stats count values(action) values(src_ip) as src_ip values(log_hostname) as hostname values(process) as process by username
+```
+
+Les `rex` extraient le compte, le résultat et l'IP de chaque ligne `sshd`. Un compte avec des centaines de tentatives et une action `Accepted` : la force brute a réussi sur ce compte.
 
 ```spl title="auth.log : passages à un autre compte (su), dans l'ordre"
 index=linux source="auth.log" *su*
@@ -102,6 +127,25 @@ index=*
 ```
 
 Chercher un nom qui détonne parmi les URI (`505.php`). Voir [Web shell](../03-menaces-detection/persistence/web-shell.md).
+
+```spl title="toute l'activité d'une IP suspecte, dans l'ordre"
+index=web-alert 171.251.232.40
+| table _time clientip useragent uri_path method status
+| sort + _time
+```
+
+```spl title="la même, sans le bruit de l'outil de force brute"
+index=web-alert 171.251.232.40 useragent!="Mozilla/5.0 (Hydra)"
+| table _time clientip useragent uri_path referer referer_domain method status
+```
+
+```spl title="les requêtes vers un fichier précis"
+index=web-alert 171.251.232.40 b374k.php
+| table _time clientip useragent uri_path referer referer_domain method status
+| sort + _time
+```
+
+Retirer le bruit de la force brute fait ressortir le reste : par exemple un `POST` vers `admin-ajax.php` dont le referer est `theme-editor.php?file=b374k.php`, l'éditeur de thème de WordPress qui ne devrait pas pointer vers un `.php` arbitraire.
 
 ```spl title="déni de service : plus de 100 000 réponses 503 en 10 minutes par IP"
 index=* status=503
