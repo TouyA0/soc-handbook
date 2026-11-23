@@ -64,6 +64,7 @@ Ces événements ont la même structure : **Subject**, le compte qui a fait l'ac
 | ID | Événement · ce qu'on cherche |
 | --- | --- |
 | 7045 | **Service installé (journal System)** |
+| 7036 | **Service démarré ou arrêté (journal System)** |
 | 4697 | **Service installé (journal Security)** |
 | 4698 | **Tâche planifiée créée (journal Security)** |
 

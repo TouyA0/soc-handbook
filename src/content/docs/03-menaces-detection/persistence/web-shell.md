@@ -2,7 +2,7 @@
 title: "Web shell"
 description: "L'attaquant dépose sur un serveur web un script qui lui permet d'exécuter des commandes à distance, pour entrer ou pour garder l'accès."
 tags: [web, apache, nginx, php, auditd, wireshark]
-updated: 2026-11-19
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1505.003
@@ -100,6 +100,10 @@ http.request.uri contains ".php"
 ```wireshark title="User-Agent, à mettre en colonne pour repérer les outils et les versions obsolètes"
 http.user_agent
 ```
+
+### Splunk (requête prête)
+
+Requête : requêtes réussies vers des scripts, regroupées par domaine. Voir [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#web).
 
 ## Faux positifs
 

@@ -2,7 +2,7 @@
 title: "Déni de service applicatif"
 description: "L'attaquant sature un site ou une application web avec des requêtes HTTP, en nombre ou coûteuses, jusqu'à le rendre indisponible."
 tags: [web, ddos, http, splunk]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1499
@@ -74,6 +74,8 @@ index="main"
 ```spl title="les réponses 503 : quand le service a cédé"
 index="main" status=503
 ```
+
+Requête prête pour repérer plus de 100 000 réponses 503 en 10 minutes par IP : [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#web).
 
 ## Faux positifs
 

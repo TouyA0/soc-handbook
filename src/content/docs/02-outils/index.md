@@ -8,7 +8,7 @@ draft: false
 
 Une cheat sheet par outil, pour retrouver en quelques secondes le filtre ou la commande dont on a besoin en pleine investigation. Pas de cours : chaque ligne est un filtre, une commande ou une action, avec ce qu'elle fait.
 
-Sur le réseau, les deux outils se complètent : **Wireshark** pour ouvrir une capture et l'analyser paquet par paquet, **Snort** pour lui appliquer des règles et faire ressortir d'un coup les motifs déjà connus. Sur les postes Windows, **LOLBins** recense les outils intégrés que les attaquants détournent, avec les requêtes Splunk pour les repérer.
+Sur le réseau, les deux outils se complètent : **Wireshark** pour ouvrir une capture et l'analyser paquet par paquet, **Snort** pour lui appliquer des règles et faire ressortir d'un coup les motifs déjà connus. Sur les postes Windows, **LOLBins** recense les outils intégrés que les attaquants détournent, avec les requêtes Splunk pour les repérer. Pour enquêter dans le SIEM, **Splunk** rassemble des requêtes prêtes par source (Windows, Linux, web).
 
 Pour s'en servir vite :
 

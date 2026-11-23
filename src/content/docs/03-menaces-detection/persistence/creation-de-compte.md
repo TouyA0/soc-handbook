@@ -2,7 +2,7 @@
 title: "Création de compte"
 description: "L'attaquant crée un compte, ou en réactive un ancien, et l'ajoute à un groupe privilégié pour garder l'accès à la machine."
 tags: [windows, linux, comptes, persistance, event-id]
-updated: 2026-11-19
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1136
@@ -80,6 +80,10 @@ cat /var/log/auth.log | grep -E '(passwd|useradd|usermod|userdel)\['
 ```
 
 Le numéro entre crochets est le PID de la commande : `useradd[27254]` → `ausearch -i --ppid 27254` dans auditd, puis remonter l'[arbre des processus](../../01-fondamentaux/journaux-linux.md#remonter-larbre-des-processus) pour savoir qui a créé le compte. Autre accès persistant sans malware : une [clé SSH ajoutée](cle-ssh-ajoutee.md).
+
+### Splunk (requête prête)
+
+Requête : comptes créés et activés (4720, 4722). Voir [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#windows).
 
 ## Faux positifs
 

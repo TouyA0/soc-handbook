@@ -2,7 +2,7 @@
 title: "Force brute et pulvérisation de mots de passe"
 description: "L'attaquant enchaîne les tentatives de connexion, sur un compte ou sur beaucoup de comptes, jusqu'à trouver un mot de passe valide."
 tags: [windows, linux, rdp, ssh, authentification, event-id]
-updated: 2026-11-19
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1110
@@ -93,6 +93,10 @@ Pour chaque connexion réussie suspecte :
 4. **La suite**
    Si la connexion est suspecte, analyser ce que le compte a fait ensuite : [arbre des processus](../../01-fondamentaux/journaux-linux.md#remonter-larbre-des-processus).
 :::
+
+### Splunk (requête prête)
+
+Requête : connexions SSH réussies et échouées d'un compte dans `auth.log`. Voir [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#linux).
 
 ## Faux positifs
 

@@ -2,7 +2,7 @@
 title: "Service Windows"
 description: "L'attaquant crée un service Windows qui relance son malware à chaque démarrage de la machine."
 tags: [windows, persistance, services, sysmon, event-id]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1543.003
@@ -49,6 +49,10 @@ Trois façons de le repérer :
 3. **Trouver le malware en action**
    Filtre sur `1`, Find sur `services.exe` : les processus lancés par un service ; regarder ceux qui sont suspects. Méthode : [analyser un processus](../../01-fondamentaux/journaux-windows.md#analyser-un-processus).
 :::
+
+### Splunk (requête prête)
+
+Requête : services créés, démarrés ou arrêtés (7045, 7036). Voir [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#windows).
 
 ## Faux positifs
 

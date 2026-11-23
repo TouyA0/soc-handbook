@@ -2,7 +2,7 @@
 title: "Tâche cron"
 description: "L'attaquant ajoute une tâche cron qui relance son malware au démarrage ou à intervalle régulier : la méthode de persistance la plus courante sous Linux."
 tags: [linux, persistance, cron, auditd]
-updated: 2026-11-19
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1053.003
@@ -57,6 +57,10 @@ ausearch -i -f /etc/cron.d
 ```
 
 Puis lire la ligne ajoutée : programme lancé, dossier caché, `@reboot`, téléchargement depuis Internet.
+
+### Splunk (requête prête)
+
+Requête : tâches cron qui lancent un script ou un interpréteur, dans `syslog`. Voir [Splunk — requêtes d'investigation](../../02-outils/splunk-requetes.md#linux).
 
 ## Faux positifs
 
