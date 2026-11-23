@@ -85,6 +85,15 @@
   overflow-wrap: anywhere;
 }
 
+/* Captures d'écran (write-ups) : pleine largeur au plus, cadre fin. Le texte alternatif sert de légende. */
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r-md);
+}
+
 .prose hr {
   margin: var(--sp-12) 0;
   border: none;

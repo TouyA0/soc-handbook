@@ -2,8 +2,10 @@
 title: "Write-ups"
 description: "Investigations menées sur les plateformes d'entraînement, racontées étape par étape et sans spoiler."
 tags: []
-updated: 2026-10-03
+updated: 2026-11-23
 draft: false
 ---
 
-À compléter.
+Les challenges que j'ai menés sur les plateformes d'entraînement, racontés comme une enquête : le contexte, puis chaque étape sous la forme question, démarche, constat, et ce que j'en retiens.
+
+**Sans spoiler** : aucun flag ni aucune réponse. Les captures montrent où chercher, les réponses y sont masquées. Chaque write-up renvoie aux fiches qu'il a enrichies.

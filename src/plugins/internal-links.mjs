@@ -40,7 +40,8 @@ export function resolveInternalLink(url, fromFile, contentDir) {
  * Identifiants des pages vers lesquelles pointe le corps Markdown d'une page.
  * Lève une erreur au premier lien interne invalide ou cassé : le moteur Markdown ne fait
  * que journaliser les erreurs de rendu, c'est donc cet appel qui fait échouer le build.
- * Les blocs et extraits de code sont ignorés.
+ * Les blocs et extraits de code sont ignorés, ainsi que les images (`![…](…)`), qui pointent vers des fichiers
+ * de `src/assets/` et non vers des pages.
  * @param {string} filePath chemin du fichier source
  * @param {string} body corps Markdown
  * @param {string} contentDir dossier des pages
@@ -49,7 +50,10 @@ export function resolveInternalLink(url, fromFile, contentDir) {
 export function bodyLinkIds(filePath, body, contentDir) {
   const fromFile = path.resolve(filePath);
   const root = path.resolve(contentDir);
-  const prose = body.replace(/^(```|~~~)[\s\S]*?^\1[^\n]*$/gm, '').replace(/`[^`\n]*`/g, '');
+  const prose = body
+    .replace(/^(```|~~~)[\s\S]*?^\1[^\n]*$/gm, '')
+    .replace(/`[^`\n]*`/g, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '');
   const ids = new Set();
   for (const match of prose.matchAll(/\]\(\s*<?([^)\s>]+)/g)) {
     const resolved = resolveInternalLink(match[1], fromFile, root);

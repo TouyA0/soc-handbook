@@ -50,6 +50,7 @@ const LANG_LABELS = {
   bash: 'Bash',
   shell: 'Bash',
   bat: 'Batch',
+  js: 'JavaScript',
   ps1: 'PowerShell',
   powershell: 'PowerShell',
   sql: 'SQL',
