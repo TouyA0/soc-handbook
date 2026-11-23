@@ -2,7 +2,7 @@
 title: "Tâche planifiée"
 description: "L'attaquant crée une tâche planifiée qui relance son malware au démarrage : la méthode de persistance la plus courante."
 tags: [windows, persistance, schtasks, sysmon, event-id]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1053.005
@@ -23,6 +23,8 @@ Windows et les logiciels utilisent beaucoup les tâches planifiées (recherche d
 ```text title="tâche qui lance un malware au démarrage, en SYSTEM"
 schtasks /create /tn "BadTask" /tr "C:\malware.exe" /sc onstart /ru System
 ```
+
+Les noms choisis paraissent anodins (`WindowsUpdate`, `Maintenance`). Autres variantes et requête Splunk : [LOLBins Windows](../../02-outils/lolbins-windows.md#tâches-planifiées-schtasks).
 
 ## Ce qu'on observe
 
