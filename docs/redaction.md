@@ -96,6 +96,8 @@ Dans une cellule, une barre verticale s'écrit `\|` — y compris dans du code :
 
 La première colonne (police mono, sans retour à la ligne sur grand écran) doit rester courte : un identifiant, un sigle,
 un nom de quelques mots. Une phrase longue n'y a pas sa place : passer plutôt par une liste.
+La colonne la plus longue (description, commande) va en **dernier** : sur grand écran, c'est la seule qui peut couper
+un mot trop long ; une colonne courte placée en dernier se ferait écraser.
 Sur téléphone, un tableau de trois colonnes ou plus est empilé : chaque ligne devient un bloc et chaque cellule
 est précédée du titre de sa colonne — d'où l'intérêt de titres de colonne courts et parlants.
 

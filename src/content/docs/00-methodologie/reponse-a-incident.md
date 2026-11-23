@@ -23,14 +23,14 @@ Plusieurs types peuvent toucher la même victime, et leur gravité dépend de l'
 
 ## Cadres SANS et NIST
 
-| SANS (PICERL) | Ce qu'on y fait | Exemple | NIST |
+| SANS (PICERL) | NIST | Ce qu'on y fait | Exemple |
 | --- | --- | --- | --- |
-| Preparation | Équipe, plan de réponse, outils de sécurité en place. | Sensibiliser les employés au phishing. | Preparation |
-| Identification | Repérer les comportements anormaux avec les outils de surveillance (SIEM, antivirus, EDR). | Gros volume de données sortant d'un hôte compromis par une pièce jointe. | Detection & Analysis |
-| Containment | Limiter l'impact : isoler la machine, désactiver les comptes compromis. Un EDR peut le faire. | Isoler l'hôte pour que l'attaquant ne rebondisse pas. | Containment, Eradication & Recovery |
-| Eradication | Supprimer la menace, s'assurer que l'environnement est sain. | Analyse antimalware approfondie. | Containment, Eradication & Recovery |
-| Recovery | Restaurer ou reconstruire les systèmes, les tester avant remise en service. | Reconfigurer l'hôte, restaurer les données depuis la sauvegarde. | Containment, Eradication & Recovery |
-| Lessons Learned | Documenter les manques de la détection et de l'analyse. | Réunion post-incident sur la cause racine. | Post-Incident Activity |
+| Preparation | Preparation | Équipe, plan de réponse, outils de sécurité en place. | Sensibiliser les employés au phishing. |
+| Identification | Detection & Analysis | Repérer les comportements anormaux avec les outils de surveillance (SIEM, antivirus, EDR). | Gros volume de données sortant d'un hôte compromis par une pièce jointe. |
+| Containment | Containment, Eradication & Recovery | Limiter l'impact : isoler la machine, désactiver les comptes compromis. Un EDR peut le faire. | Isoler l'hôte pour que l'attaquant ne rebondisse pas. |
+| Eradication | Containment, Eradication & Recovery | Supprimer la menace, s'assurer que l'environnement est sain. | Analyse antimalware approfondie. |
+| Recovery | Containment, Eradication & Recovery | Restaurer ou reconstruire les systèmes, les tester avant remise en service. | Reconfigurer l'hôte, restaurer les données depuis la sauvegarde. |
+| Lessons Learned | Post-Incident Activity | Documenter les manques de la détection et de l'analyse. | Réunion post-incident sur la cause racine. |
 
 ## Plan de réponse à incident
 

