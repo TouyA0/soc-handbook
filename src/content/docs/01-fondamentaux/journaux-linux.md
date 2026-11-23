@@ -4,6 +4,7 @@ description: "Où trouver les journaux d'un serveur Linux et comment les lire : 
 tags: [linux, journaux, auth-log, auditd, bash]
 updated: 2026-11-19
 draft: false
+order: 2
 ---
 
 ## Où sont les journaux

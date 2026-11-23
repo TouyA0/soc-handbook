@@ -4,6 +4,7 @@ description: "Où trouver les journaux Windows et comment les lire dans l'Observ
 tags: [windows, journaux, event-id, sysmon, powershell]
 updated: 2026-11-18
 draft: false
+order: 1
 ---
 
 ## Où sont les journaux
