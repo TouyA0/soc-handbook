@@ -4,7 +4,7 @@ description: "Types de renseignement, flux et plateformes, cycle du renseignemen
 tags: [cti, mitre-attack, kill-chain, stix, taxii, cve]
 updated: 2026-11-23
 draft: false
-order: 2
+order: 3
 ---
 
 ## Types de renseignement

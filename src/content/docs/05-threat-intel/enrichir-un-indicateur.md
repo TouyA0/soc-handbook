@@ -32,7 +32,7 @@ Retenir quel **type** d'indicateur on a et où le chercher compte plus que conna
 | IP (v4, v6) | Échecs SSH répétés : T1110.001. | WHOIS (ASN, date d'attribution), relations dans VirusTotal, bannières dans Shodan. |
 | Domaine | Pic de requêtes DNS vers un domaine créé il y a 24 h. | Âge dans le WHOIS, DNS passif (RiskIQ, SecurityTrails), urlscan.io. |
 | URL | Un `POST` du navigateur vers `/gateway.php` avec une charge. | Réputation dans URLhaus, graphe de comportement dans urlscan.io, exécution dans Any.Run (réseau coupé). |
-| Hash | Injection dans `regsvr32.exe` : T1055. | VirusTotal (statique et dynamique), Hybrid Analysis, MalShare. |
+| Hash | Injection dans `regsvr32.exe` : T1055. | VirusTotal (statique et dynamique), Hybrid Analysis, MalShare. Détail : [fichiers et hashes](fichiers-et-hashes.md). |
 | Email | Échec SPF et domaine enregistré récemment. | Analyse des en-têtes dans MXToolbox, Have I Been Pwned. |
 | Artefact local | Clé Run : T1547.001. | Règles Sigma, prévalence dans l'EDR, base de connaissances de l'éditeur. |
 
