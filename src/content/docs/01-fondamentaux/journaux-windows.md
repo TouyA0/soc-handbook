@@ -2,7 +2,7 @@
 title: "Journaux Windows"
 description: "Où trouver les journaux Windows et comment les lire dans l'Observateur d'événements, les Event IDs à connaître (Security, Sysmon), suivre une session ou un processus, et l'historique PowerShell."
 tags: [windows, journaux, event-id, sysmon, powershell]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 order: 1
 ---
@@ -74,6 +74,7 @@ Ces événements ont la même structure : **Subject**, le compte qui a fait l'ac
 | --- | --- |
 | 4688 | **Processus créé (Security)**<br>Ligne de commande et processus parent. Désactivé par défaut. |
 | 1 | **Processus créé (Sysmon)**<br>Processus (PID, chemin `Image`, ligne de commande), parent, binaire (hash, signature), utilisateur et Logon ID. À préférer à 4688. |
+| 4104 | **Bloc de script PowerShell (journal PowerShell)**<br>Les commandes PowerShell exécutées, en texte clair. |
 
 ### Autres événements Sysmon
 
@@ -131,7 +132,7 @@ Chaque connexion réussie reçoit un **Logon ID** (par exemple `0x5D6AC`), ident
 
 ## Historique PowerShell
 
-Une fois `powershell.exe` lancé, toutes les commandes tapées tournent dans le même processus : Sysmon ne voit qu'un seul événement 1, sans les commandes. L'historique PowerShell les garde :
+Une fois `powershell.exe` lancé, toutes les commandes tapées tournent dans le même processus : Sysmon ne voit qu'un seul événement 1, sans les commandes. Le journal PowerShell (4104) les enregistre en clair, quand il est collecté ; l'historique PowerShell les garde aussi :
 
 ```text title="historique PowerShell d'un utilisateur"
 C:\Users\<utilisateur>\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt

@@ -156,3 +156,5 @@ index=* status=503
 ```
 
 Voir [Déni de service applicatif](../03-menaces-detection/impact/deni-de-service-applicatif.md). Les seuils (25, 2, 100 000) sont des exemples.
+
+Pour Elastic et Kibana, voir [Elastic — requêtes d'investigation](elastic-requetes.md).

@@ -2,7 +2,7 @@
 title: "Collecte de données locales"
 description: "L'attaquant cherche sur la machine ce qui a de la valeur (documents, sessions, portefeuilles, clés), le rassemble dans une archive et l'envoie vers un serveur qu'il contrôle."
 tags: [windows, sysmon, exfiltration, stealer]
-updated: 2026-11-18
+updated: 2026-11-23
 draft: false
 type: technique
 attack_id: T1005
@@ -45,6 +45,8 @@ Puis vient l'**exfiltration**, souvent vers un service de confiance pour passer 
 | Archiver | `Compress-Archive C:\Temp\ C:\Temp\stolen_data.zip` ou `7za.exe a -tzip C:\Temp\stolen_data.zip C:\Temp\*.*` |
 
 Une collecte manuelle se voit bien dans Sysmon 1 : Notepad et WordPad ouverts en série sur des documents sensibles, puis 7-Zip qui archive le tout.
+
+Un outil d'archivage légitime chez le client (`Rar.exe`) ne déclenche en général aucune alerte, même utilisé par l'attaquant : il faut aller le chercher, puis regarder quel compte l'a lancé, quand, et depuis quel parent. Voir [Elastic — requêtes d'investigation](../../02-outils/elastic-requetes.md#sans-alerte).
 
 ## Détection
 
