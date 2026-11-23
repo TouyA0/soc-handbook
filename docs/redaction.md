@@ -30,10 +30,11 @@ Valeurs admises :
 
 - `tactic` : le nom du sous-dossier de tactique, voir [arborescence.md](arborescence.md).
 - `severity` : `info`, `low`, `med`, `high`, `crit`.
-- `platform` : `tryhackme`, `hackthebox`, `cyberdefenders`, `letsdefend`, `autre`.
+- `platform` : `tryhackme`, `hackthebox`, `cyberdefenders`, `letsdefend`, `autre`. Un write-up est rangé
+  par domaine, pas par plateforme : voir [arborescence.md](arborescence.md).
 - `difficulty` : `facile`, `moyen`, `difficile`.
 - `concept`, `playbook`, `writeups`, `related`, `enriched` : identifiant de la page cible, c'est-à-dire son chemin
-  sous `src/content/docs/` sans extension (`06-write-ups/tryhackme/nom-du-write-up`).
+  sous `src/content/docs/` sans extension (`06-write-ups/siem/nom-du-write-up`).
 
 Un titre contenant « — » est affiché en deux temps : la partie après le tiret est atténuée.
 

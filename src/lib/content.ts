@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { TACTICS, type Tactic } from '../data/attack';
 import { SECTIONS, type Section } from '../data/sections';
-import { PLATFORMS } from '../data/writeups';
+import { DOMAINS, domainOf } from '../data/writeups';
 import { bodyLinkIds } from '../plugins/internal-links.mjs';
 
 export type Doc = CollectionEntry<'docs'>;
@@ -13,25 +13,33 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const byTitle = (a: Doc, b: Doc) => a.data.title.localeCompare(b.data.title, 'fr');
 
-const PLATFORM_KEYS = Object.keys(PLATFORMS);
+const DOMAIN_KEYS = Object.keys(DOMAINS);
 
 /**
  * Rang du groupe d'une page, dans l'ordre des groupes de la page de section (SectionListing) :
- * techniques par tactique ATT&CK, puis write-ups par plateforme, puis les autres pages.
+ * techniques par tactique ATT&CK, puis write-ups par domaine, puis les autres pages.
  */
 function groupRank(doc: Doc): number {
   const { data } = doc;
   if (data.type === 'technique') return TACTICS.findIndex((t) => t.slug === data.tactic);
-  if (data.type === 'writeup') return TACTICS.length + PLATFORM_KEYS.indexOf(data.platform);
-  return TACTICS.length + PLATFORM_KEYS.length;
+  if (data.type === 'writeup') return TACTICS.length + DOMAIN_KEYS.indexOf(domainOf(doc.id));
+  return TACTICS.length + DOMAIN_KEYS.length;
 }
+
+/** Write-ups : le plus récent d'abord. */
+const byDateDesc = (a: Doc, b: Doc) =>
+  a.data.type === 'writeup' && b.data.type === 'writeup' ? b.data.date.getTime() - a.data.date.getTime() : 0;
 
 /**
  * Ordre dans une section (barre latérale, précédent / suivant, page de section) : par groupe d'abord,
- * puis les pages qui ont un `order`, dans cet ordre, puis les autres par titre.
+ * puis les pages qui ont un `order`, dans cet ordre, puis les write-ups du plus récent au plus ancien,
+ * puis par titre.
  */
 const bySectionOrder = (a: Doc, b: Doc) =>
-  groupRank(a) - groupRank(b) || (a.data.order ?? Infinity) - (b.data.order ?? Infinity) || byTitle(a, b);
+  groupRank(a) - groupRank(b) ||
+  (a.data.order ?? Infinity) - (b.data.order ?? Infinity) ||
+  byDateDesc(a, b) ||
+  byTitle(a, b);
 
 /** Toutes les pages publiées. Les brouillons ne sont visibles qu'en développement. */
 export async function getDocs(): Promise<Doc[]> {
@@ -114,6 +122,7 @@ export function getBacklinks(docs: Doc[], doc: Doc): Doc[] {
 export function assertContent(docs: Doc[]): void {
   const known = new Set(docs.map((d) => d.id));
   for (const doc of docs) {
+    if (doc.data.type === 'writeup') domainOf(doc.id);
     if (doc.filePath?.endsWith('.md') && doc.rendered?.html === undefined) {
       throw new Error(`Le rendu de ${doc.filePath} a échoué : voir l'erreur « Error rendering » plus haut.`);
     }

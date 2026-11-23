@@ -23,6 +23,8 @@ draft: false
 
 La syntaxe est le KQL de Kibana : `champ:valeur`, `and`, `or`, parenthèses, et comparaisons de dates comme `@timestamp >= "2025-07-20T05:11:22"`.
 
+**Repérer une valeur rare.** Un clic sur un champ, dans la liste de gauche, affiche ses valeurs les plus fréquentes avec leur pourcentage. La valeur très minoritaire est la première à regarder (un `user_agent` qui n'est pas un navigateur, à 0,4 % contre 99,6 % de `Mozilla/5.0`) ; le « + » à côté l'ajoute en filtre. Les pourcentages portent sur un échantillon (500 événements), pas sur tous les résultats. Pratiqué dans [ItsyBitsy](../06-write-ups/siem/itsybitsy.md).
+
 ## Journaux web (IIS)
 
 ```kql title="les POST d'une IP suspecte"

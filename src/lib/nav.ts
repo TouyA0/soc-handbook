@@ -1,7 +1,7 @@
 import { TACTICS } from '../data/attack';
 import type { Section } from '../data/sections';
 import { SITE } from '../data/site';
-import { DIFFICULTIES, PLATFORMS } from '../data/writeups';
+import { DIFFICULTIES, DOMAINS, PLATFORMS, domainOf } from '../data/writeups';
 import { docUrl, getSectionTrees, getStats, sectionOf, type Doc } from './content';
 
 const dateFormat = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
@@ -57,11 +57,11 @@ export interface NavItem {
 }
 
 /**
- * Regroupement d'une section dans la barre latérale : une tactique ATT&CK (techniques) ou une plateforme (write-ups).
+ * Regroupement d'une section dans la barre latérale : une tactique ATT&CK (techniques) ou un domaine (write-ups).
  * `label` vide : pages sans regroupement, affichées à plat.
  */
 export interface NavGroup {
-  /** Identifiant unique dans la section, utilisé pour l'id de la liste : « TA0001 », « tryhackme ». */
+  /** Identifiant unique dans la section, utilisé pour l'id de la liste : « TA0001 », « siem ». */
   key: string;
   label: string;
   /** Déplié : le groupe contient la page courante. */
@@ -79,23 +79,23 @@ export interface NavSection {
   groups: NavGroup[];
 }
 
-/** Regroupement d'une page : la tactique d'une technique, la plateforme d'un write-up. */
+/** Regroupement d'une page : la tactique d'une technique, le domaine d'un write-up. */
 function navGroupOf(doc: Doc): { key: string; label: string } {
   const { data } = doc;
   if (data.type === 'technique') {
     const tactic = TACTICS.find((t) => t.slug === data.tactic);
     if (tactic) return { key: tactic.id, label: tactic.name };
   }
-  if (data.type === 'writeup') return { key: groupAnchor(data.platform), label: PLATFORMS[data.platform] };
+  if (data.type === 'writeup') {
+    const domain = domainOf(doc.id);
+    return { key: domain, label: DOMAINS[domain].label };
+  }
   return { key: '', label: '' };
 }
 
-/** Mention sous le titre dans un groupe : le regroupement dit déjà la tactique ou la plateforme. */
+/** Mention sous le titre dans un groupe : le regroupement dit déjà la tactique d'une technique. */
 function groupedMeta(doc: Doc): string {
-  const { data } = doc;
-  if (data.type === 'technique') return '';
-  if (data.type === 'writeup') return DIFFICULTIES[data.difficulty].label.toLowerCase();
-  return docMeta(doc);
+  return doc.data.type === 'technique' ? '' : docMeta(doc);
 }
 
 export function getNavSections(docs: Doc[], currentId: string | undefined): NavSection[] {
@@ -137,7 +137,7 @@ export interface Crumb {
   num?: string;
 }
 
-/** Fil d'Ariane : accueil, section, regroupement éventuel (tactique ou plateforme), page courante. */
+/** Fil d'Ariane : accueil, section, regroupement éventuel (tactique ou domaine), page courante. */
 export function getCrumbs(doc: Doc): Crumb[] {
   const crumbs: Crumb[] = [{ label: 'Accueil', href: docUrl('') }];
   const section = sectionOf(doc);
@@ -154,14 +154,15 @@ export function getCrumbs(doc: Doc): Crumb[] {
     crumbs.push({ label: data.attack_id });
   } else {
     if (data.type === 'writeup') {
-      crumbs.push({ label: PLATFORMS[data.platform], href: `${docUrl(section.dir)}#${groupAnchor(PLATFORMS[data.platform])}` });
+      const { label } = DOMAINS[domainOf(doc.id)];
+      crumbs.push({ label, href: `${docUrl(section.dir)}#${groupAnchor(label)}` });
     }
     crumbs.push({ label: data.title });
   }
   return crumbs;
 }
 
-/** Ancre d'un titre de regroupement sur la page d'une section : « TA0006 », « tryhackme ». */
+/** Ancre d'un titre de regroupement sur la page d'une section : « TA0006 », « siem-et-journaux ». */
 export function groupAnchor(label: string): string {
   return label
     .normalize('NFD')

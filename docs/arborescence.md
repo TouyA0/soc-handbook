@@ -13,7 +13,7 @@ la liste des pages de chaque section reste **à compléter** au fil des entraîn
 | `03-menaces-detection/` | Menaces & détection | Un sous-dossier par tactique ATT&CK | technique |
 | `04-playbooks/` | Playbooks | À compléter | page générique |
 | `05-threat-intel/` | Threat Intelligence | À compléter | page générique |
-| `06-write-ups/` | Write-ups | Un sous-dossier par plateforme | write-up |
+| `06-write-ups/` | Write-ups | Un sous-dossier par domaine d'investigation | write-up |
 | `07-lab/` | Lab | À compléter | page générique |
 | `08-ressources/` | Ressources | À compléter | page générique |
 
@@ -43,3 +43,21 @@ Le nom du sous-dossier est la valeur attendue du champ `tactic` du frontmatter.
 - Un fichier par page, nommé en minuscules avec des tirets (`kerberoasting.md`).
 - `index.md` à la racine de chaque section pour sa page d'accueil.
 - Les numéros de section (`00` à `08`) n'apparaissent que dans les noms de dossier.
+
+## `06-write-ups/` — domaines d'investigation
+
+Un write-up est rangé selon **ce qu'on y investigue**, pas selon la plateforme (TryHackMe, HackTheBox…),
+qui est un champ du frontmatter. La liste est fermée (`DOMAINS` dans `src/data/writeups.ts`) : un write-up
+rangé ailleurs fait échouer le build. Dans chaque domaine, les write-ups vont du plus récent au plus ancien.
+
+| Sous-dossier | Domaine | On y range |
+| --- | --- | --- |
+| `phishing/` | Phishing | Analyse d'un e-mail, de ses en-têtes, liens et pièces jointes. |
+| `siem/` | SIEM et journaux | Enquête dans Splunk, Elastic ou les journaux bruts Windows et Linux. |
+| `reseau/` | Analyse réseau | Capture réseau (PCAP) ou alertes d'IDS. |
+| `forensics/` | Forensics | Poste, image disque, mémoire, chronologie. |
+| `analyse-de-malware/` | Analyse de malware | Fichier suspect : identification, IOC, bac à sable. |
+| `threat-intel/` | Threat intelligence | Enrichissement d'indicateurs, pivot, attribution à une campagne. |
+
+Un challenge qui touche plusieurs domaines va dans celui de **la compétence principale demandée** :
+l'outil avec lequel on passe le plus de temps. Les autres domaines apparaissent dans `skills`.

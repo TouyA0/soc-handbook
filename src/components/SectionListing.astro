@@ -1,8 +1,8 @@
 ---
 // Liste des pages d'une section, affichée sur sa page d'index.
-// Regroupée par tactique ATT&CK pour les techniques et par plateforme pour les write-ups.
+// Regroupée par tactique ATT&CK pour les techniques et par domaine pour les write-ups.
 import { TACTICS } from '../data/attack';
-import { PLATFORMS } from '../data/writeups';
+import { DOMAINS, domainOf } from '../data/writeups';
 import { docUrl, type Doc } from '../lib/content';
 import { docMeta, formatDate, groupAnchor } from '../lib/nav';
 
@@ -18,11 +18,13 @@ function groupLabel(doc: Doc): string {
     const tactic = TACTICS.find((t) => t.slug === data.tactic);
     return tactic ? `${tactic.id} · ${tactic.name}` : '';
   }
-  if (data.type === 'writeup') return PLATFORMS[data.platform];
+  if (data.type === 'writeup') return DOMAINS[domainOf(doc.id)].label;
   return '';
 }
 
-const order = [...TACTICS.map((t) => `${t.id} · ${t.name}`), ...Object.values(PLATFORMS), ''];
+const domains = Object.values(DOMAINS);
+const order = [...TACTICS.map((t) => `${t.id} · ${t.name}`), ...domains.map((d) => d.label), ''];
+const descriptionOf = (label: string) => domains.find((d) => d.label === label)?.description;
 const groups = new Map<string, Doc[]>();
 for (const doc of entries) {
   const label = groupLabel(doc);
@@ -45,6 +47,7 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
               {name && <span class="group-id">{id}</span>}
             </h2>
           )}
+          {descriptionOf(label) && <p class="group-desc">{descriptionOf(label)}</p>}
           <ul>
             {docs.map((doc) => (
               <li>
@@ -74,6 +77,16 @@ const sorted = [...groups.entries()].sort(([a], [b]) => order.indexOf(a) - order
     gap: var(--sp-5);
     margin-bottom: var(--sp-6);
     font-size: var(--fs-h3);
+  }
+
+  h2:has(+ .group-desc) {
+    margin-bottom: var(--sp-2);
+  }
+
+  .group-desc {
+    margin: 0 0 var(--sp-6);
+    font-size: var(--fs-base);
+    color: var(--text-2);
   }
 
   .group-id {
