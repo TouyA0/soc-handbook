@@ -129,7 +129,7 @@ Un cas se résout une fois le verdict rendu et la menace entièrement neutralis�
 
 - **garder une trace** de ses actions dans un outil centralisé (le ticketing, par exemple) ;
 - **informer l'équipe SOC** de l'incident, surtout s'il est d'un type nouveau ;
-- **tenir les autres parties informées**, en particulier les clients MSSP (rapport de synthèse).
+- **tenir les autres parties informées**, en particulier les clients MSSP (rapport de synthèse, voir [Rapports L2](rapports-l2.md)).
 
 ## Tirer les leçons
 
