@@ -1,6 +1,6 @@
 ---
 title: "E-mail et phishing"
-description: "Comment un e-mail est construit et acheminé (adresse, SMTP, POP3, IMAP, en-tête, corps, pièces jointes), les types d'e-mails malveillants et les signes d'un phishing."
+description: "Comment un e-mail est construit et acheminé (adresse, SMTP, POP3, IMAP, en-tête, corps, pièces jointes), les types d'e-mails malveillants, les signes d'un phishing et les techniques vues sur de vrais e-mails."
 tags: [phishing, email, smtp, imap, pop3]
 updated: 2026-11-27
 draft: false
@@ -107,6 +107,28 @@ Quel que soit le but (identifiants, malware, accès), les techniques se ressembl
 | Message générique | « Cher client » au lieu du nom du destinataire. |
 | Liens cachés ou raccourcis | La vraie destination est masquée : `bit.ly/secure-login`. |
 | Pièce jointe déguisée | Un exécutable présenté comme un document : `invoice.pdf.exe`. |
+
+## Techniques vues sur de vrais e-mails
+
+Des cas réels (faux reçu PayPal, faux avis de livraison, faux fax, fausses factures Netflix, Apple et DHL) montrent comment les attaquants imitent une communication légitime :
+
+| Technique | Ce qu'on observe |
+| --- | --- |
+| Nom affiché trompeur | Le nom affiché (« Distribution Center », « Apple Support », « DHL Express ») ne correspond pas à l'adresse réelle de l'expéditeur, sur un domaine sans rapport. Toujours comparer les deux. |
+| Faute dans la marque | « Netllx billing » au lieu de Netflix, fautes dans les champs From et To de l'en-tête. |
+| Destinataire suspect | Une adresse de destinataire étrange, ou la victime en BCC (*Blind Carbon Copy*) : elle n'est pas destinataire directe, ce qui cache la liste des autres victimes. |
+| URL raccourcie | Le bouton « Cancel the order » d'un faux reçu mène à une URL raccourcie : impossible de voir la page d'arrivée au premier coup d'œil. |
+| Lien maquillé | Le texte du lien est un faux numéro de suivi, repris de l'objet ; sa vraie destination ne se lit que dans la source. |
+| Pixel de suivi | Une minuscule image invisible (`Tracking.png`) prévient l'expéditeur que l'e-mail a été ouvert. C'est pour cela que Yahoo et d'autres fournisseurs bloquent le chargement automatique des images. |
+| Chaîne de redirections | Le bouton d'un faux fax mène à une fausse page OneDrive, puis à un faux site Adobe, puis à un portail de connexion : chaque étape emprunte une marque de confiance et la chaîne cache la destination finale aux filtres. |
+| Collecte d'identifiants | Le faux portail demande de se connecter avec sa messagerie, affiche une erreur générique quel que soit le mot de passe, et envoie les identifiants à l'attaquant (*credential harvesting*). |
+| Lien dans la pièce jointe | Le lien « Update Payment Account » est dans un PDF joint, pas dans le corps : l'URL échappe aux filtres de l'e-mail. |
+| Corps vide | Le message n'a qu'une pièce jointe au format inhabituel pour un reçu : un modèle Word `.dot`. Une grande image cliquable mène à une URL très longue, avec des mots rassurants (`apps`, `ios`). |
+| Exécutable téléchargé | Un fichier Excel joint contient un lien qui télécharge et exécute un programme : persistance, vol de données ou rançongiciel s'il aboutit. |
+| Incohérences | Un domaine allemand, une facture adressée en Inde, un document en mandarin. |
+| Confiance empruntée | Un lien vers le vrai centre d'aide de la marque au milieu du faux message, ou un numéro de téléphone au format inhabituel. |
+
+Un e-mail dont les liens ont été désactivés par le fournisseur ne permet pas de survoler un lien pour voir sa destination : la source du message la donne. Les fautes trahissent de moins en moins un phishing, l'IA produisant des textes propres.
 
 ## Défanger les indicateurs
 

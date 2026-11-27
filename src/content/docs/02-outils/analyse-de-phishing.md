@@ -6,7 +6,7 @@ updated: 2026-11-27
 draft: false
 ---
 
-Face à un e-mail suspect, le premier objectif est de relever les artefacts clés : ils servent ensuite aux vérifications de réputation, aux recherches de threat intelligence et à l'analyse de comportement. Une partie se lit directement dans le client de messagerie ; l'**IP de l'expéditeur** et le **Reply-To** ne se trouvent que dans l'en-tête (dans Thunderbird : **View › Message Source**). Structure d'un e-mail et signes d'un phishing : [E-mail et phishing](../01-fondamentaux/email-et-phishing.md).
+Face à un e-mail suspect, le premier objectif est de relever les artefacts clés : ils servent ensuite aux vérifications de réputation, aux recherches de threat intelligence et à l'analyse de comportement. Une partie se lit directement dans le client de messagerie ; l'**IP de l'expéditeur** et le **Reply-To** ne se trouvent que dans la [source du message](../01-fondamentaux/email-et-phishing.md#en-tête-et-corps). Structure d'un e-mail et signes d'un phishing : [E-mail et phishing](../01-fondamentaux/email-et-phishing.md).
 
 ## Artefacts à relever
 
@@ -51,7 +51,7 @@ Les liens se relèvent dans le contenu visible, ou dans le HTML et la source bru
 - **Extracteur d'URL** : on colle le contenu brut de l'e-mail, l'outil liste tous les liens, y compris ceux qu'on aurait manqués.
 - **CyberChef**, recette **Extract URLs** : même usage.
 
-Un bouton comme « Mettre à jour mon compte » mène souvent à une URL raccourcie (`t.co`…), qui cache la vraie destination.
+Un bouton comme « Mettre à jour mon compte » mène souvent à une URL raccourcie (`t.co`…), qui cache la vraie destination. **WhereGoes** la déplie sans visiter la page d'arrivée. Règle : ne jamais cliquer un lien ou un bouton sans savoir exactement où il mène.
 
 ## Pièces jointes
 
