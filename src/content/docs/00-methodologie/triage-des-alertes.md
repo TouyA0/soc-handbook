@@ -12,7 +12,7 @@ Le triage (on dit aussi *alert handling*, *investigation*, *analysis*) consiste 
 | Rôle | Dans le triage |
 | --- | --- |
 | L1 | Examine les alertes, distingue le malveillant du légitime, prévient le L2 en cas de vraie menace. |
-| L2 | Reçoit les alertes escaladées, mène l'analyse approfondie et la remédiation. |
+| L2 | Reçoit les alertes escaladées, mène l'analyse approfondie et la remédiation : [triage L2](triage-l2.md). |
 | Ingénieur SOC | Veille à ce que les alertes contiennent assez d'informations pour être triées. |
 | Manager | Suit la rapidité et la qualité du triage : [métriques](metriques-soc.md). |
 

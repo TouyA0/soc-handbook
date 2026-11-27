@@ -4,7 +4,7 @@ description: "Les métriques d'un SOC (AC, FPR, AER, TDR, MTTD, MTTA, MTTR), leu
 tags: [métriques, sla, mttd, mttr, soc-l1]
 updated: 2026-11-18
 draft: false
-order: 5
+order: 6
 ---
 
 Les métriques mesurent l'efficacité du SOC, et servent souvent à évaluer les analystes. Définitions et formules varient selon les équipes : les repères ci-dessous sont des ordres de grandeur courants.

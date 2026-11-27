@@ -4,7 +4,7 @@ description: "Types d'incidents, cadres SANS (PICERL) et NIST, plan de réponse,
 tags: [réponse-à-incident, sans, nist, playbook, soc-l1]
 updated: 2026-11-18
 draft: false
-order: 4
+order: 5
 ---
 
 Un vrai positif confirmé par le [triage](triage-des-alertes.md) devient un **incident**. Chaque incident reçoit une sévérité (faible, moyenne, haute, critique) selon son impact possible, et les critiques passent en premier.

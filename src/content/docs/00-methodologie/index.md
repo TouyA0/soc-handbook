@@ -1,6 +1,6 @@
 ---
 title: "Méthodologie SOC"
-description: "Le travail autour d'une alerte : triage, contexte, rapport et escalade, réponse à incident et métriques."
+description: "Le travail autour d'une alerte : triage, contexte, rapport et escalade, triage L2, réponse à incident et métriques."
 tags: []
 updated: 2026-11-12
 draft: false
@@ -15,7 +15,9 @@ Ce que fait un analyste SOC autour d'une alerte, de son arrivée dans la file ju
    Pendant l'investigation : savoir qui est l'utilisateur, à quoi sert la machine, à quoi correspond l'IP, et suivre le workbook.
 3. **Rapporter et escalader**
    Documenter l'alerte et la confier au L2 quand elle le demande.
-4. **Répondre**
+4. **Approfondir (L2)**
+   Reprendre l'alerte escaladée : analyse détaillée des journaux, vérification de l'activité, réponse et clôture du cas.
+5. **Répondre**
    Si c'est un incident, le traiter selon un cadre établi : confiner, éradiquer, restaurer, en tirer les leçons.
 :::
 
