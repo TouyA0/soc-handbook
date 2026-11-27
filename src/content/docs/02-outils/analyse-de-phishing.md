@@ -6,7 +6,7 @@ updated: 2026-11-27
 draft: false
 ---
 
-Face à un e-mail suspect, le premier objectif est de relever les artefacts clés : ils servent ensuite aux vérifications de réputation, aux recherches de threat intelligence et à l'analyse de comportement. Une partie se lit directement dans le client de messagerie ; l'**IP de l'expéditeur** et le **Reply-To** ne se trouvent que dans l'en-tête (dans Thunderbird : **View › Message Source**).
+Face à un e-mail suspect, le premier objectif est de relever les artefacts clés : ils servent ensuite aux vérifications de réputation, aux recherches de threat intelligence et à l'analyse de comportement. Une partie se lit directement dans le client de messagerie ; l'**IP de l'expéditeur** et le **Reply-To** ne se trouvent que dans l'en-tête (dans Thunderbird : **View › Message Source**). Structure d'un e-mail et signes d'un phishing : [E-mail et phishing](../01-fondamentaux/email-et-phishing.md).
 
 ## Artefacts à relever
 
