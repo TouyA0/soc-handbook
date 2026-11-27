@@ -418,7 +418,8 @@
 
 .timeline tbody td:first-child {
   flex: none;
-  width: var(--timeline-time-w);
+  min-width: var(--timeline-time-w);
+  white-space: nowrap;
   font-size: var(--fs-code);
   font-weight: var(--fw-bold);
   color: var(--text-2);
@@ -433,6 +434,25 @@
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--text-3);
+}
+
+/* Grand écran : les lignes partagent les colonnes de la grille (subgrid), pour que la colonne
+   de l'heure prenne la largeur de l'heure la plus longue (« 13:10 » ou « 21/08 14:12:34 »)
+   et que les événements restent alignés. Sur téléphone, chaque ligne passe à la ligne librement. */
+@media (min-width: 860px) {
+  .timeline tbody {
+    grid-template-columns: minmax(var(--timeline-time-w), max-content) minmax(0, 1fr) auto;
+  }
+
+  .timeline tr {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .timeline tbody td:nth-child(3) {
+    text-align: right;
+  }
 }
 
 /* Blocs de code : fond sombre dans les deux thèmes, en-tête langage + titre + copier */
